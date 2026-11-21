@@ -1186,9 +1186,9 @@ function faceHTML(it, nm, cls) {
 
 const FORMAT_WHAT = {
   rr: 'Everyone faces everyone. The most exact full ranking.',
-  swiss: 'Each round, entries face others with the same record. A good full ranking, much faster.',
-  single: "Lose once and you're out. Finds your winner fast, with a 3rd-place match for your top 3.",
-  double: "Out after two losses, so one bad draw can't sink a favorite. Finds your top 3.",
+  swiss: 'Entries face others with a similar record. Finds your top 2 and a rough full ranking, much faster.',
+  single: "Lose once and you're out. The fastest way to find your #1. 2nd and 3rd come down to the draw.",
+  double: 'Out after two losses. Reliably finds your #1 and #2, and usually your #3.',
 };
 function countText(fmt, n) {
   const [lo, hi] = formatCount(fmt, n);
