@@ -182,6 +182,13 @@ def _play_by_preference(page, order):
     return n
 
 
+def _pick_format(page, f):
+    """The other styles hide behind a small link until opened."""
+    if not page.query_selector('.fmt-grid'):
+        page.click('#moreFmts')
+    page.click(f'[data-format="{f}"]')
+
+
 def _restart(page):
     page.click('#rerun')
     page.wait_for_selector('#askDlg[open]', timeout=5000)
@@ -197,13 +204,18 @@ def check_formats(page, run):
     page.wait_for_selector('#lines')
     page.fill('#lines', '\n'.join(NATO))
     page.click('#addLines')
+    run.check(not page.query_selector('.fmt-grid') and page.is_visible('#moreFmts') and '28 matchups' in page.inner_text('.dock p'),
+              'a new tournament is a plain round robin, with other styles behind a small link')
+    page.screenshot(path=run.shot('simple-start'), full_page=True)
+    page.click('#moreFmts')
+    page.wait_for_selector('.fmt-grid')
     counts = {f: page.inner_text(f'[data-format="{f}"] .fmt-count') for f in ('rr', 'rrplus', 'swiss', 'topn', 'single', 'double')}
     run.check('28 matchups' in counts['rr'] and 'about 35 matchups' in counts['rrplus'] and '20 matchups' in counts['swiss']
               and 'about 25 matchups' in counts['topn'] and '8 matchups' in counts['single']
               and '14 or 15 matchups' in counts['double'], 'each format shows its matchup count and time', counts)
 
     # Swiss, 4 rounds
-    page.click('[data-format="swiss"]')
+    _pick_format(page, 'swiss')
     page.click('[data-rounds="-1"]')
     run.check('Swiss: 16 matchups' in page.inner_text('.dock p'), 'Swiss with 4 rounds is 16 matchups', page.inner_text('.dock p'))
     page.click('#dockGo')
@@ -230,7 +242,7 @@ def check_formats(page, run):
     # Single elimination
     _restart(page)
     page.click('#toSetup')
-    page.click('[data-format="single"]')
+    _pick_format(page, 'single')
     page.click('#dockGo')
     page.wait_for_selector('.fighter')
     run.check(not page.query_selector('#tieBtn'), 'no Tie button in a bracket')
@@ -250,7 +262,7 @@ def check_formats(page, run):
     # Double elimination
     _restart(page)
     page.click('#toSetup')
-    page.click('[data-format="double"]')
+    _pick_format(page, 'double')
     page.click('#dockGo')
     page.wait_for_selector('.fighter')
     for _ in range(3):
@@ -286,7 +298,7 @@ def check_formats(page, run):
     run.check(not page.query_selector('#guideDlg[open]'), 'the guide closes')
 
     # Round robin+: one second look gets a different answer, and the third look settles it
-    page.click('[data-format="rrplus"]')
+    _pick_format(page, 'rrplus')
     page.click('#dockGo')
     page.wait_for_selector('.fighter')
     played, flipped, first_look = 0, False, None
@@ -318,7 +330,7 @@ def check_formats(page, run):
     # Top N
     _restart(page)
     page.click('#toSetup')
-    page.click('[data-format="topn"]')
+    _pick_format(page, 'topn')
     run.check('Top 3: about 25 matchups' in page.inner_text('.dock p'), 'Top 3 of 8 is about 25 matchups', page.inner_text('.dock p'))
     page.click('#dockGo')
     page.wait_for_selector('.fighter')
@@ -337,5 +349,7 @@ def check_formats(page, run):
 
     _restart(page)
     page.click('#toSetup')
-    page.click('[data-format="rr"]')
+    _pick_format(page, 'rr')
     run.check(page.get_attribute('[data-format="rr"]', 'aria-checked') == 'true', 'back to round robin')
+    page.click('#hideFmts')
+    run.check(not page.query_selector('.fmt-grid') and page.is_visible('#moreFmts'), 'Hide tucks the other styles away again')

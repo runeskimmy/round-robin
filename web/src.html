@@ -138,6 +138,9 @@ main { flex: 1; padding: 8px clamp(14px, 3vw, 32px) 32px; width: 100%; max-width
 }
 .typer-row { display: flex; align-items: center; gap: 10px; }
 .typer-row small { color: var(--twig); }
+.typer-row .more-fmts { margin-left: auto; font-size: 15px; }
+.formats-links { display: flex; flex-wrap: wrap; gap: 4px; }
+@media (pointer: coarse) { .typer-row small { display: none; } }
 
 .entries-head { display: flex; align-items: baseline; gap: 12px; margin: 28px 0 12px; }
 .entries-head h2 { font-family: var(--display); font-weight: 800; font-size: 28px; margin: 0; line-height: 1; }
@@ -1439,12 +1442,15 @@ function countText(fmt, n) {
   const [lo, hi, rough] = formatCount(fmt, n);
   return lo === hi ? (rough ? 'about ' : '') + plural(lo, 'matchup') : `${lo} or ${hi} matchups`;
 }
+// Round robin is the default and needs no explaining; the other styles wait behind a small link.
+let showFormats = false;
+const formatsOpen = () => showFormats || S.format !== 'rr';
 function formatsHTML(n) {
   const elimBusy = isElim() && elimStarted();
   const pairBusy = !isElim() && Object.keys(S.results).length > 0;
   const minRounds = S.format === 'swiss' ? Math.max(1, S.rounds.length) : 1, maxRounds = Math.max(1, n - 1);
   return `<section class="formats">
-    <div class="formats-head"><h2>How should they face off?</h2><button class="btn btn-quiet" id="guideBtn" type="button">Which one should I pick?</button></div>
+    <div class="formats-head"><h2>How should they face off?</h2><div class="formats-links"><button class="btn btn-quiet" id="guideBtn" type="button">Which one should I pick?</button>${S.format === 'rr' ? '<button class="btn btn-quiet" id="hideFmts" type="button">Hide</button>' : ''}</div></div>
     <div class="fmt-grid" role="radiogroup" aria-label="Format">${FORMATS.map(f => {
       const on = S.format === f;
       let why = '';
@@ -1497,10 +1503,10 @@ function renderSetup() {
       <div class="typer">
         <label for="lines">Type entries, one per line</label>
         <textarea id="lines" placeholder="Pizza&#10;Tacos&#10;Ramen"></textarea>
-        <div class="typer-row"><button class="btn" id="addLines" type="button">Add entries</button><small>Ctrl + Enter adds them too.</small></div>
+        <div class="typer-row"><button class="btn" id="addLines" type="button">Add entries</button><small>Ctrl + Enter adds them too.</small>${formatsOpen() ? '' : '<button class="btn btn-quiet more-fmts" id="moreFmts" type="button">Other bracket styles</button>'}</div>
       </div>
     </section>`}
-    ${formatsHTML(n)}
+    ${formatsOpen() ? formatsHTML(n) : ''}
     <div class="entries-head"><h2>${n ? plural(n, 'entry', 'entries') : 'Entries'}</h2>${note}</div>
     ${n ? `<div class="grid">${tiles}</div>` : `<p class="empty">Nothing here yet. Add at least two entries to start.</p>`}
   `;
@@ -2080,6 +2086,13 @@ document.addEventListener('click', e => {
   if (!t) return;
   if (t.id === 'swissMore') { S.swissRounds = Math.min(S.items.length - 1, S.rounds.length + 1); go('battle'); return; }
   if (t.id === 'toRR') { S.format = 'rr'; S.queue = []; go('battle'); toast('Finishing as a full round robin. Every pick so far counts.'); return; }
+  if (t.id === 'moreFmts') {
+    showFormats = true; render();
+    const sec = $('.formats'); if (sec) sec.scrollIntoView({ block: 'nearest', behavior: reduceMotion ? 'auto' : 'smooth' });
+    const on = $('.fmt.on'); if (on) on.focus({ preventScroll: true });
+    return;
+  }
+  if (t.id === 'hideFmts') { showFormats = false; render(); const m = $('#moreFmts'); if (m) m.focus({ preventScroll: true }); return; }
   if (t.id === 'guideBtn') return openGuide();
   if (t.id === 'guideClose') return $('#guideDlg').close();
   if (t.id === 'dropBtn') return $('#imgIn').click();
@@ -2119,7 +2132,7 @@ document.addEventListener('click', e => {
   if (t.id === 'newT') {
     const wipe = () => {
       for (const id of [...urlCache.keys()]) dropURL(id);
-      S = blank();
+      S = blank(); showFormats = false;
       if (Store.ok) Store.clear().catch(() => {});
       render(); save();
     };

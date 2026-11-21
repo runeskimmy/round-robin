@@ -358,6 +358,12 @@ def steps(run):
     cdp.js("document.querySelector('#lines').value = 'Alpha\\nBravo\\nCharlie\\nDelta\\nEcho\\nFoxtrot'; document.querySelector('#addLines').click()")
     cdp.js("document.activeElement && document.activeElement.blur()")
     time.sleep(1)
+    run.check(cdp.js("!document.querySelector('.fmt-grid') && !!document.querySelector('#moreFmts')"),
+              'a new tournament is a plain round robin, with other styles behind a small link')
+    screenshot(run, 'simple-start')
+    tap_element(cdp, '#moreFmts')
+    run.check(cdp.wait("!!document.querySelector('.fmt-grid')", 5), 'tapping "Other bracket styles" shows them')
+    time.sleep(1)
     tap_element(cdp, '[data-format="double"]')
     run.check(cdp.wait("document.querySelector('[data-format=\\'double\\']').getAttribute('aria-checked') === 'true'", 5), 'tapping a format card picks it')
     screenshot(run, 'format-picker')
