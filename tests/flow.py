@@ -291,8 +291,8 @@ def check_formats(page, run):
     page.click('#guideBtn')
     page.wait_for_selector('#guideDlg[open]')
     txt = page.inner_text('#guideBody')
-    run.check(txt.count('Good for:') == 7 and txt.count('Not so good for:') == 7 and 'about 35 matchups for your 8 entries' in txt,
-              'the guide says what all seven styles are good and bad at')
+    run.check(txt.count('Good for:') == 8 and txt.count('Not so good for:') == 8 and 'about 35 matchups for your 8 entries' in txt,
+              'the guide says what all eight styles are good and bad at')
     page.screenshot(path=run.shot('guide'))
     page.click('#guideClose')
     run.check(not page.query_selector('#guideDlg[open]'), 'the guide closes')
@@ -359,6 +359,38 @@ def check_formats(page, run):
     run.check(page.inner_text('.tier >> nth=0').count('Alpha') == 1 and 'place in the ranking' in page.inner_text('.note'), 'Sort tiers come from place in the ranking')
     page.click('[data-tab="list"]')
     page.screenshot(path=run.shot('sort-results'), full_page=True)
+
+    # Ask until sure: your top 3 at 95%, then Rank everything, then Be 99% sure
+    _restart(page)
+    page.click('#toSetup')
+    _pick_format(page, 'ask')
+    card = page.inner_text('[data-format="ask"]')
+    run.check('Top 3' in card and '95%' in card and 'about' in page.inner_text('[data-format="ask"] .fmt-count'),
+              'the Ask until sure card shows what to find, how sure, and an estimate', card.replace('\n', ' | '))
+    page.click('#dockGo')
+    page.wait_for_selector('.fighter')
+    run.check(page.query_selector('.sure-meter') is not None and not page.query_selector('#tieBtn')
+              and page.inner_text('.progress-txt span') == 'Getting a rough order first', 'a sureness meter instead of a countdown, and no ties',
+              page.inner_text('.progress-txt span'))
+    page.screenshot(path=run.shot('ask-matchup'))
+    played = _play_by_preference(page, NATO)
+    rows = ranking(page)
+    line = page.inner_text('.fmt-line')
+    run.check(rows[:3] == [['1', 'Alpha'], ['2', 'Bravo'], ['3', 'Charlie']] and 'sure your top 3 is right, in this order' in line,
+              'Ask until sure finds the exact top 3 and says how sure it is', (played, rows[:3], line))
+    run.check(page.evaluate("window.__rr.state().history.filter(h => h.k).every(h => typeof h.t === 'number')"),
+              'how long each pick took is recorded')
+    page.screenshot(path=run.shot('ask-results'), full_page=True)
+    page.click('#askAll')
+    page.wait_for_selector('.fighter')
+    played += _play_by_preference(page, NATO)
+    rows = ranking(page)
+    run.check(rows == [[str(i + 1), x] for i, x in enumerate(NATO)] and 'the whole order' in page.inner_text('.fmt-line'),
+              'Rank everything keeps going until the whole order is sure', page.inner_text('.fmt-line'))
+    page.click('#askMore')
+    page.wait_for_selector('.fighter')
+    played += _play_by_preference(page, NATO)
+    run.check('at 99%' in page.inner_text('.fmt-line') and played < 60, 'Be 99% sure asks a little more, every pick counting', (played, page.inner_text('.fmt-line')))
 
     # Top N
     _restart(page)

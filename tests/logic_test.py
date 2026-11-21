@@ -32,7 +32,10 @@ PLAY_JS = """async ({ mode, tieRate, undoAt }) => {
 }"""
 
 
-def setup(page, n, fmt, rounds=None, top=None):
+ASK_LABEL = {1: 'Your #1', 0: 'Everything'}
+
+
+def setup(page, n, fmt, rounds=None, top=None, goal=None):
     if page.query_selector('#newT'):
         page.click('#newT')
         if page.query_selector('#askDlg[open]'):
@@ -52,9 +55,21 @@ def setup(page, n, fmt, rounds=None, top=None):
             if page.is_disabled(sel):
                 break
             page.click(sel)
+    if goal is not None:
+        want = ASK_LABEL.get(goal, f'Top {goal}')
+        for _ in range(12):
+            shown = page.inner_text('[data-format="ask"] .fmt-rounds >> nth=0').split('\n')
+            shown = [x.strip() for x in shown if x.strip() and x.strip() not in ('Find', '−', '+')][0]
+            if shown == want:
+                break
+            order = ['Your #1', 'Top 2', 'Top 3', 'Top 5', 'Top 10', 'Everything']
+            sel = '[data-askgoal="1"]' if order.index(shown) < order.index(want) else '[data-askgoal="-1"]'
+            if page.is_disabled(sel):
+                break
+            page.click(sel)
     if rounds is not None:
         for _ in range(60):
-            shown = int(page.inner_text('.fmt-rounds span').split()[0])
+            shown = int(page.inner_text('[data-format="swiss"] .fmt-rounds span').split()[0])
             if shown == rounds:
                 break
             sel = '[data-rounds="1"]' if shown < rounds else '[data-rounds="-1"]'
@@ -67,7 +82,7 @@ def setup(page, n, fmt, rounds=None, top=None):
 def body(run):
     url = (ROOT / 'web' / 'round-robin.html').as_uri()
     rng = random.Random(7)
-    counts = {'single': 0, 'double': 0, 'swiss': 0, 'rrplus': 0, 'topn': 0, 'sort': 0}
+    counts = {'single': 0, 'double': 0, 'swiss': 0, 'rrplus': 0, 'topn': 0, 'sort': 0, 'ask': 0}
     fallback_rounds = 0
     with sync_playwright() as p:
         try:
@@ -114,12 +129,21 @@ def body(run):
             cases.append(('sort', n, 'prefer', 0))
         for n, at in [(7, 6), (12, 40), (20, 70)]:
             cases.append(('sort', n, 'random', at))        # undo while sorting, and during second looks
+        for goal in (3, 0):
+            for n in range(2, 21):
+                cases.append((f'ask{goal}', n, 'random', 0))
+        for goal in (1, 3, 0):
+            for n in [3, 5, 8, 13, 16, 25]:
+                cases.append((f'ask{goal}', n, 'prefer', 0))
+        for n, at in [(8, 10), (12, 30)]:
+            cases.append(('ask3', n, 'random', at))        # undo during the first pass and during second looks
 
         for fmt, n, mode, undo_at in cases:
-            real = 'swiss' if fmt.startswith('swiss') else 'topn' if fmt.startswith('topn') else fmt
+            real = 'swiss' if fmt.startswith('swiss') else 'topn' if fmt.startswith('topn') else 'ask' if fmt.startswith('ask') else fmt
             top = int(fmt[4:]) if real == 'topn' else None
-            setup(page, n, real, rounds=(n - 1) if fmt == 'swiss-max' else None, top=top)
-            page.evaluate(PLAY_JS, {'mode': mode, 'tieRate': 0 if real in ('topn', 'sort') else 0.1, 'undoAt': undo_at})
+            goal = int(fmt[3:]) if real == 'ask' else None
+            setup(page, n, real, rounds=(n - 1) if fmt == 'swiss-max' else None, top=top, goal=goal)
+            page.evaluate(PLAY_JS, {'mode': mode, 'tieRate': 0 if real in ('topn', 'sort', 'ask') else 0.1, 'undoAt': undo_at})
             st = page.evaluate('window.__rr.state()')
             pr = page.evaluate('window.__rr.progress()')
             rows = page.evaluate('window.__rr.ranking()')
@@ -138,6 +162,9 @@ def body(run):
             elif real == 'sort':
                 check_sort(run, tag, n, mode, st, rows, label)
                 counts['sort'] += 1
+            elif real == 'ask':
+                check_ask(run, tag, n, mode, goal, st, rows, label)
+                counts['ask'] += 1
             elif real == 'topn':
                 check_topn(run, tag, n, mode, top, st, rows, label)
                 counts['topn'] += 1
@@ -192,6 +219,7 @@ def body(run):
         run.check(True, f"Swiss: {counts['swiss']} tournaments: no repeat pairings, everyone once per round")
         run.check(True, f"Round robin+: {counts['rrplus']} tournaments: every pair once, every neighbor settled, consistent picks ranked exactly")
         run.check(True, f"Sort: {counts['sort']} tournaments: every neighbor settled, consistent picks ranked exactly in at most n log n matchups")
+        run.check(True, f"Ask until sure: {counts['ask']} tournaments: always finishes, no pair asked more than 11 times, consistent picks get the exact answer")
         run.check(True, f"Top N: {counts['topn']} tournaments: no repeats, nobody plays after going out, consistent picks get the exact top N")
         run.log(f'Swiss rounds where a full repeat-free pairing was impossible: {fallback_rounds}')
         run.check(not errors, 'no script errors', errors[:3])
@@ -249,6 +277,20 @@ def check_sort(run, tag, n, mode, st, rows, label):
             run.check(False, f'{tag}: consistent picks are ranked exactly', order)
         if asks != n - 1 or len(st['results']) > merge_worst(n):
             run.check(False, f'{tag}: one second look per neighbor pair, sorting in at most {merge_worst(n)}', (asks, len(st['results'])))
+
+
+def check_ask(run, tag, n, mode, goal, st, rows, label):
+    per = {}
+    for q in st['asks']:
+        k = pk(q['a'], q['b'])
+        per[k] = per.get(k, 0) + 1
+    if per and max(per.values()) > 11:
+        run.check(False, f'{tag}: no pair asked more than 11 times', max(per.values()))
+    if mode == 'prefer':
+        k = n if goal == 0 or goal >= n else goal
+        got = [label[r['id']] for r in rows[:k]]
+        if got != sorted(label.values())[:k] or any(r['slotSize'] != 1 for r in rows[:k]):
+            run.check(False, f'{tag}: consistent picks get exactly the right answer', got)
 
 
 def check_topn(run, tag, n, mode, top, st, rows, label):

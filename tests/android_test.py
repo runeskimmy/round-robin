@@ -390,7 +390,7 @@ def steps(run):
     time.sleep(0.5)
     tap_element(cdp, '#guideBtn')
     run.check(cdp.wait("document.querySelector('#guideDlg').open", 5), 'tapping "Which one should I pick?" opens the guide')
-    run.check(cdp.js("document.querySelector('#guideBody').innerText.split('Good for:').length - 1") == 7, 'the guide covers all seven styles')
+    run.check(cdp.js("document.querySelector('#guideBody').innerText.split('Good for:').length - 1") == 8, 'the guide covers all eight styles')
     screenshot(run, 'guide')
     cdp.js("document.querySelector('#guideClose').click()")
     time.sleep(0.5)
@@ -424,6 +424,29 @@ def steps(run):
       return window.__rr.ranking().map(r => L(r.id)).join(',') + ' looks=' + looks; })()""")
     run.check(order == 'Alpha,Bravo,Charlie,Delta,Echo,Foxtrot looks=5', 'Sort ranks all 6 exactly, with a second look at each pair of neighbors', order)
     screenshot(run, 'sort-results')
+
+    # Ask until sure on the phone
+    cdp.js("document.querySelector('#rerun').click()")
+    cdp.wait("document.querySelector('#askDlg').open", 5)
+    cdp.js("document.querySelector('#askOk').click()")
+    time.sleep(0.5)
+    cdp.js("document.querySelector('#toSetup').click()")
+    cdp.wait("!!document.querySelector('[data-format=\\'ask\\']')", 5)
+    cdp.js("document.activeElement && document.activeElement.blur()")
+    time.sleep(0.5)
+    tap_element(cdp, '[data-format="ask"]')
+    run.check(cdp.wait("document.querySelector('[data-format=\\'ask\\']').getAttribute('aria-checked') === 'true'", 5), 'tapping the Ask until sure card picks it')
+    cdp.wait("!!document.querySelector('#dockGo')", 5)
+    cdp.js("document.querySelector('#dockGo').click()")
+    run.check(cdp.wait("!!document.querySelector('.sure-meter') && window.__rr.state().view === 'battle'", 10), 'Ask until sure opens with a sureness meter')
+    got = cdp.js("""(() => { const L = id => window.__rr.state().items.find(i => i.id === id).label; let n = 0;
+      while (window.__rr.state().view === 'battle' && window.__rr.current() && n < 80) { const m = window.__rr.current(); window.__rr.pick(L(m.a) < L(m.b) ? 'a' : 'b'); n++; }
+      const st = window.__rr.state();
+      return [window.__rr.ranking().slice(0, 3).map(r => L(r.id)).join(','), st.asks.length, st.view].join(' | '); })()""")
+    top3, asked, view = got.split(' | ')
+    run.check(top3 == 'Alpha,Bravo,Charlie' and int(asked) >= 5 and view == 'results',
+              'Ask until sure finds the exact top 3 on the phone, from real picks', got)
+    screenshot(run, 'ask-results')
 
     # Rank by hand, with real taps: tap a tile, tap a tier; then the list arrows
     cdp.js("document.querySelector('#toSetup').click()")

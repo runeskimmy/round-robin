@@ -241,6 +241,12 @@ main { flex: 1; padding: 8px clamp(14px, 3vw, 32px) 32px; width: 100%; max-width
 .fmt-count { font-size: 14px; }
 .fmt-count b { font-size: 16px; }
 .fmt-why { font-size: 13px; font-weight: 700; }
+.step-label { font-weight: 400; color: var(--twig); min-width: 34px; }
+.fmt-rounds > span:not(.step-label) { white-space: nowrap; }
+.sure-meter { position: relative; width: 150px; height: 12px; border-radius: 6px; background: var(--egg-deep); margin-top: 8px; }
+.sure-meter span { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 6px; background: var(--ink); }
+.sure-meter i { position: absolute; top: -4px; bottom: -4px; width: 3px; margin-left: -1px; background: var(--yolk); border-radius: 2px; }
+.row.rough { opacity: .72; }
 .fmt-rounds { display: inline-flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 700; }
 .step { width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--ink); background: transparent; font-weight: 700; font-size: 16px; line-height: 1; padding: 0; }
 .step:disabled { opacity: .3; cursor: default; }
@@ -365,6 +371,9 @@ main { flex: 1; padding: 8px clamp(14px, 3vw, 32px) 32px; width: 100%; max-width
 .who .rec { color: var(--twig); font-size: 14px; }
 .bar { height: 10px; background: var(--egg); border-radius: 5px; overflow: hidden; }
 .bar span { display: block; height: 100%; background: var(--ink); border-radius: 5px; }
+.bar.line { position: relative; overflow: visible; }
+.bar.line .band { position: absolute; top: 0; bottom: 0; border-radius: 5px; background: var(--egg-deep); }
+.bar.line .dot { position: absolute; top: 50%; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; background: var(--ink); border: 2px solid var(--shell); }
 .pct { text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; }
 .detail { padding: 2px 16px 14px 100px; display: grid; gap: 8px; font-size: 15px; }
 .detail div { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
@@ -568,7 +577,7 @@ const today = () => { const d = new Date(); return d.getFullYear() + '-' + Strin
 
 const blank = () => ({ v: 2, nextId: 1, items: [], results: {}, history: [], queue: [], tieBreaks: [], view: 'setup', tab: 'list',
   format: 'rr', swissRounds: 0, rounds: [], bracket: null, topN: 3, checks: {}, sortSeed: [],
-  hand: { tab: 'tiers', tiers: {}, names: {}, list: [] } });
+  hand: { tab: 'tiers', tiers: {}, names: {}, list: [] }, asks: [], askGoal: 3, askSure: 95, askSeed: [] });
 let S = blank();
 
 /* ---------- storage (IndexedDB, images kept separately) ---------- */
@@ -738,6 +747,7 @@ function removeItem(id) {
   entriesChanged();
   for (const k of Object.keys(S.results)) { const [a, b] = k.split('|'); if (a === id || b === id) delete S.results[k]; }
   for (const k of Object.keys(S.checks || {})) { const [a, b] = k.split('|'); if (a === id || b === id) delete S.checks[k]; }
+  S.asks = (S.asks || []).filter(q => q.a !== id && q.b !== id);
   S.history = S.history.filter(h => h.m || (h.a !== id && h.b !== id));
   S.queue = S.queue.filter(q => q.a !== id && q.b !== id);
   S.tieBreaks = S.tieBreaks.map(t => t.filter(x => x !== id)).filter(t => t.length > 1);
@@ -804,13 +814,13 @@ function schedule(pairs, priority) {
 }
 
 /* ---------- formats ---------- */
-const FORMATS = ['rr', 'rrplus', 'sort', 'swiss', 'topn', 'double', 'single'];
-const FORMAT_NAMES = { rr: 'Round robin', rrplus: 'Round robin+', sort: 'Sort', swiss: 'Swiss', topn: 'Top N', single: 'Single elimination', double: 'Double elimination' };
+const FORMATS = ['rr', 'rrplus', 'sort', 'ask', 'swiss', 'topn', 'double', 'single'];
+const FORMAT_NAMES = { rr: 'Round robin', rrplus: 'Round robin+', sort: 'Sort', ask: 'Ask until sure', swiss: 'Swiss', topn: 'Top N', single: 'Single elimination', double: 'Double elimination' };
 const fmtName = f => (f === 'topn' ? `Top ${topTarget()}` : FORMAT_NAMES[f]);
 const isElimFmt = f => f === 'single' || f === 'double';
 const isElim = () => isElimFmt(S.format);
 const isRounds = () => S.format === 'swiss' || S.format === 'topn';   // played in rounds, kept in S.rounds
-const noTies = () => isElim() || S.format === 'topn' || S.format === 'sort';
+const noTies = () => isElim() || S.format === 'topn' || S.format === 'sort' || S.format === 'ask';
 const freshFmt = f => isElimFmt(f) || f === 'topn';                   // can't pick up from earlier picks
 const elimStarted = () => !!(S.bracket && Object.keys(S.bracket.results).length);
 const anyPicks = () => S.history.length > 0 || Object.keys(S.results).length > 0 || elimStarted();
@@ -838,6 +848,7 @@ function formatCount(fmt, n) {
   if (fmt === 'rrplus') return [rr + n - 1, rr + n - 1, true];
   if (fmt === 'topn') { const L = topLivesFor(topTarget(), n), c = L * (n - L) + L * (L - 1) / 2 + Math.max(0, L - 1); return [c, c, true]; }
   if (fmt === 'sort') { const c = Math.round(sortCost(n)) + n - 1; return [c, c, true]; }
+  if (fmt === 'ask') { const c = askEstimate(n, askGoalOf(n), S.askSure || 95); return [c, Math.round(c * 1.5), true]; }
   return [rr, rr];
 }
 function timeText(m) {
@@ -985,6 +996,7 @@ function majority(list) {
 const usesChecks = () => S.format === 'rrplus' || S.format === 'topn' || S.format === 'sort';
 // The results the ranking uses: each double-checked pair counts its majority answer.
 function effResults() {
+  if (S.format === 'ask') return askEff();
   if (!usesChecks() || !S.checks || !Object.keys(S.checks).length) return S.results;
   const out = {};
   for (const [k, v] of Object.entries(S.results)) { const c = S.checks[k]; out[k] = c && c.length ? majority([v, ...c]) : v; }
@@ -1060,6 +1072,190 @@ function sortState() {
   }
   return { phase: 'done', need: null, order };
 }
+
+/* Ask until sure. Three steps, replayed from your answers each time:
+   1. A first order from a merge sort that never asks what earlier picks already answer. For "your top k" it keeps only
+      the top k+2 of each pile, which is much cheaper, and still keeps a real top-k entry after one slipped pick.
+   2. How often you flip close calls, learned from every pair you've been asked more than once.
+   3. Second looks at the shakiest pair of neighbors until the chance that the whole answer is right reaches your target.
+   A pair still undecided after 7 looks is called too close to call. */
+const ASK_GOALS = [1, 2, 3, 5, 10, 0], ASK_SURE = [80, 90, 95, 99];
+let ASK_EPS_A = 3, ASK_EPS_B = 7, ASK_MAX_PAIR = 7, ASK_HARD_MAX = 11, ASK_EXTRA = 2, ASK_REL = 1, ASK_PAIR_C = 8;
+const askGoalOf = n => { const g = S.askGoal || 0; return g && g < n ? g : n; };
+const askGoalShort = n => { const k = askGoalOf(n); return k >= n ? 'Everything' : k === 1 ? 'Your #1' : `Top ${k}`; };
+// the goal choices that make sense for this many entries; null when there's no step that way
+function askGoalStep(d) {
+  const n = S.items.length, opts = ASK_GOALS.filter(g => g === 0 || g < n);
+  const cur = askGoalOf(n) >= n ? 0 : S.askGoal, i = opts.indexOf(cur), j = i + d;
+  return i < 0 ? opts[0] : j < 0 || j >= opts.length ? null : opts[j];
+}
+const askGoalText = n => { const k = askGoalOf(n); return k >= n ? 'the whole order' : k === 1 ? 'your #1' : `your top ${k}`; };
+// Matchup estimate for the card: the first pass, simulated on a few random orders, plus second looks for a consistent picker.
+const askCostMemo = new Map();
+function askFirstPassCost(n, keep) {
+  const key = n + ':' + keep;
+  if (askCostMemo.has(key)) return askCostMemo.get(key);
+  let seed = 12345, total = 0;
+  const rnd = () => { seed = (Math.imul(seed, 1103515245) + 12345) >>> 0; return seed / 4294967296; };
+  for (let t = 0; t < 24; t++) {
+    const xs = Array.from({ length: n }, (_, i) => i);
+    for (let i = n - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [xs[i], xs[j]] = [xs[j], xs[i]]; }
+    const ms = a => {
+      if (a.length < 2) return a;
+      const L = ms(a.slice(0, a.length >> 1)), R = ms(a.slice(a.length >> 1)), out = []; let i = 0, j = 0;
+      while (out.length < keep && i < L.length && j < R.length) { total++; out.push(L[i] < R[j] ? L[i++] : R[j++]); }
+      while (out.length < keep && i < L.length) out.push(L[i++]);
+      while (out.length < keep && j < R.length) out.push(R[j++]);
+      return out;
+    };
+    ms(xs);
+  }
+  askCostMemo.set(key, total / 24);
+  return total / 24;
+}
+function askEstimate(n, K, sure) {
+  const first = askFirstPassCost(n, Math.min(n, K + ASK_EXTRA));
+  const pairs = K >= n ? n - 1 : Math.min(n - 1, K + ASK_REL);
+  const looks = { 80: 1.3, 90: 1.9, 95: 2.3, 99: 3.4 }[sure] || 2.3;
+  return Math.max(1, Math.round(first + pairs * looks));
+}
+function strHash(str) { let h = 2166136261; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+function cholesky(A, n) {
+  const L = new Float64Array(n * n);
+  for (let i = 0; i < n; i++) for (let j = 0; j <= i; j++) {
+    let v = A[i * n + j];
+    for (let k = 0; k < j; k++) v -= L[i * n + k] * L[j * n + k];
+    L[i * n + j] = i === j ? Math.sqrt(Math.max(v, 1e-12)) : v / L[j * n + j];
+  }
+  return L;
+}
+function cholSolve(L, n, b) {
+  const y = new Float64Array(n), x = new Float64Array(n);
+  for (let i = 0; i < n; i++) { let v = b[i]; for (let k = 0; k < i; k++) v -= L[i * n + k] * y[k]; y[i] = v / L[i * n + i]; }
+  for (let i = n - 1; i >= 0; i--) { let v = y[i]; for (let k = i + 1; k < n; k++) v -= L[k * n + i] * x[k]; x[i] = v / L[i * n + i]; }
+  return x;
+}
+const sigm = x => 1 / (1 + Math.exp(-x));
+function ensureAskSeed() {
+  const ids = S.items.map(i => i.id), have = new Set(ids), old = S.askSeed || [];
+  const seed = old.filter(id => have.has(id)), inSeed = new Set(seed), extra = shuffle(ids.filter(id => !inSeed.has(id)));
+  if (extra.length || seed.length !== old.length) S.askSeed = [...seed, ...extra];
+}
+const EPS = Array.from({ length: 49 }, (_, g) => (g + 1) / 100);  // possible flip rates, 1% to 49%
+let askCache = null;
+function askModel() {
+  ensureAskSeed();
+  const ids = S.items.map(i => i.id), n = ids.length, have = new Set(ids);
+  const asks = (S.asks || []).filter(q => q && have.has(q.a) && have.has(q.b) && q.a !== q.b && (q.w === q.a || q.w === q.b));
+  const K = askGoalOf(n), target = (S.askSure || 95) / 100;
+  const key = `${S.askSeed.join()}|${K}|${target}|${ASK_EPS_A},${ASK_EPS_B},${ASK_MAX_PAIR}|${strHash(asks.map(q => q.a + q.b + q.w).join(','))}`;
+  if (askCache && askCache.key === key) return askCache;
+  const m = { key, ids, n, K, count: asks.length, target, phase: 'done', next: null, first: false, order: [], pairs: [], sure: n < 2 ? 1 : 0, tooClose: new Set(), wins: new Map(), eps: 0, stopped: false };
+  askCache = m;
+  if (n < 2) { m.order = ids.slice(); return m; }
+  const firstAns = new Map();
+  for (const q of asks) {
+    const k = pk(q.a, q.b);
+    if (!firstAns.has(k)) firstAns.set(k, q.w);
+    const t = m.wins.get(k) || {}; t[q.w] = (t[q.w] || 0) + 1; m.wins.set(k, t);
+  }
+  const W = (x, y) => ((m.wins.get(pk(x, y)) || {})[x] || 0);
+  // 1. a first order
+  const keep = Math.min(n, K + ASK_EXTRA);
+  let need = null;
+  const before = (a, b) => { const r = firstAns.get(pk(a, b)); if (r === undefined) { need = [a, b]; return true; } return r !== b; };
+  const msort = xs => {
+    if (xs.length < 2) return xs;
+    const mid = xs.length >> 1, L = msort(xs.slice(0, mid)); if (need) return xs;
+    const R = msort(xs.slice(mid)); if (need) return xs;
+    const out = []; let i = 0, j = 0;
+    while (out.length < keep && i < L.length && j < R.length) { const left = before(L[i], R[j]); if (need) return xs; out.push(left ? L[i++] : R[j++]); }
+    while (out.length < keep && i < L.length) out.push(L[i++]);
+    while (out.length < keep && j < R.length) out.push(R[j++]);
+    return out;
+  };
+  const top = msort(S.askSeed.slice());
+  if (need) { m.phase = 'first'; m.next = need; return m; }
+  // 2. how often you flip close calls, from every pair asked more than once
+  const logw = EPS.map(e => (ASK_EPS_A - 1) * Math.log(e) + (ASK_EPS_B - 1) * Math.log(1 - e));
+  for (const t of m.wins.values()) {
+    const v = Object.values(t); if (v.length + (v.length < 2 ? 0 : 0) === 0) continue;
+    const a = Math.max(...v), b = v.length > 1 ? Math.min(...v) : 0;
+    if (a + b < 2) continue;
+    EPS.forEach((e, g) => { logw[g] += Math.log(0.5 * (Math.pow(1 - e, a) * Math.pow(e, b) + Math.pow(e, a) * Math.pow(1 - e, b))); });
+  }
+  const mx = Math.max(...logw), wsum = logw.reduce((x, l) => x + Math.exp(l - mx), 0), wt = logw.map(l => Math.exp(l - mx) / wsum);
+  m.eps = EPS.reduce((x, e, g) => x + e * wt[g], 0);
+  // how sure a pair is in its order: each pair gets its own flip rate, centered on yours, so a pair you've split on needs more looks
+  const pa = ASK_PAIR_C * m.eps, pb = ASK_PAIR_C * (1 - m.eps);
+  const pri = EPS.map(e => Math.exp((pa - 1) * Math.log(e) + (pb - 1) * Math.log(1 - e)));
+  const conf = (a, b) => {
+    if (a === b) return 0.5;
+    if (a < b) return 1 - conf(b, a);
+    let num = 0, den = 0;
+    EPS.forEach((e, g) => { const right = Math.pow(1 - e, a) * Math.pow(e, b), wrong = Math.pow(e, a) * Math.pow(1 - e, b); num += pri[g] * right; den += pri[g] * (right + wrong); });
+    return num / den;
+  };
+  // 3. second looks at neighbors; when the lower one has won more often, they swap
+  const order = top.slice(), cap = n * n; let swaps = 0;
+  for (let i = 0; i + 1 < order.length;) {
+    const x = order[i], y = order[i + 1], wx = W(x, y), wy = W(y, x);
+    if (!wx && !wy) { m.phase = 'check'; m.first = true; m.next = [x, y]; m.order = order; return m; }
+    if (wy > wx && swaps < cap) { order[i] = y; order[i + 1] = x; swaps++; i = Math.max(0, i - 1); continue; }
+    i++;
+  }
+  m.order = order;
+  let sure = 1, weakest = null, weakestOther = null;
+  const last = asks.length ? pk(asks[asks.length - 1].a, asks[asks.length - 1].b) : '';
+  // only the pairs that can change the answer: neighbors down to place k (plus one more, to catch a slip)
+  const upto = Math.min(order.length - 1, K >= n ? n - 1 : K + ASK_REL);
+  for (let i = 0; i < upto; i++) {
+    const x = order[i], y = order[i + 1], k = pk(x, y), wx = W(x, y), wy = W(y, x), p = conf(wx, wy);
+    m.pairs.push({ x, y, wx, wy, p });
+    if (wx + wy >= ASK_MAX_PAIR && p < 0.9) { m.tooClose.add(k); continue; }  // a real coin flip for you: too close to call
+    sure *= p;
+    if (wx + wy >= ASK_HARD_MAX) continue;  // asked enough: counts as it stands, no more looks
+    if (!weakest || p < weakest.p) weakest = { x, y, p };
+    if (k !== last && (!weakestOther || p < weakestOther.p)) weakestOther = { x, y, p };
+  }
+  m.sure = sure;
+  if (sure >= target) return m;
+  if (!weakest) { m.stopped = true; return m; }  // as sure as your picks allow
+  // ask the shakiest pair, but don't ask the same pair twice in a row while another one also needs a look
+  const pick = weakestOther && weakestOther.p < 0.999 ? weakestOther : weakest;
+  m.phase = 'check'; m.next = [pick.x, pick.y];
+  return m;
+}
+// Strength scores for the results: a Bradley-Terry fit, as the chance of beating a typical entry, with a plausible range.
+function askScores() {
+  const ids = S.items.map(i => i.id), n = ids.length, at = new Map(ids.map((id, i) => [id, i]));
+  const games = (S.asks || []).filter(q => at.has(q.a) && at.has(q.b) && (q.w === q.a || q.w === q.b)).map(q => [at.get(q.w), at.get(q.w === q.a ? q.b : q.a)]);
+  const s = new Float64Array(n), prior = 9;
+  let L = null;
+  for (let it = 0; it < 60; it++) {
+    const g = new Float64Array(n), H = new Float64Array(n * n);
+    for (let i = 0; i < n; i++) { g[i] = -s[i] / prior; H[i * n + i] = 1 / prior; }
+    for (const [w, l] of games) { const p = sigm(s[w] - s[l]), c = p * (1 - p); g[w] += 1 - p; g[l] -= 1 - p; H[w * n + w] += c; H[l * n + l] += c; H[w * n + l] -= c; H[l * n + w] -= c; }
+    L = cholesky(H, n);
+    const d = cholSolve(L, n, g); let mx = 0;
+    for (let i = 0; i < n; i++) { s[i] += d[i]; mx = Math.max(mx, Math.abs(d[i])); }
+    if (mx < 1e-8) break;
+  }
+  const mean = s.reduce((a, b) => a + b, 0) / Math.max(1, n), out = new Map();
+  for (let i = 0; i < n; i++) {
+    const e = new Float64Array(n); e[i] = 1;
+    const sd = n > 1 && L ? Math.sqrt(Math.max(0, cholSolve(L, n, e)[i])) : 0;
+    out.set(ids[i], { s: s[i], score: sigm(s[i] - mean), lo: sigm(s[i] - mean - 1.28 * sd), hi: sigm(s[i] - mean + 1.28 * sd) });
+  }
+  return out;
+}
+const askEff = () => {  // one answer per pair for the Table and loops: the answer you gave most often
+  const tally = {};
+  for (const q of S.asks || []) { const k = pk(q.a, q.b); (tally[k] = tally[k] || []).push(q.w); }
+  const out = {};
+  for (const [k, v] of Object.entries(tally)) out[k] = majority(v);
+  return out;
+};
 
 /* Elimination brackets. Any entry count works: byes go to the top seeds, and a match missing a player
    resolves by itself. Slots point at a seed, or at the winner or loser of an earlier match. */
@@ -1182,6 +1378,12 @@ function currentMatch() {
       : `Round ${S.rounds.length}, ${topAlive(topInfo()).length} still in`;
     return { a: p[0], b: p[1], label };
   }
+  if (S.format === 'ask') {
+    const m = askModel(); if (!m.next) return null;
+    const [a, b] = m.next, k = pk(a, b), f = hashBit(k + m.count);
+    const label = m.phase === 'first' ? 'Getting a rough order first' : m.first ? 'Checking new neighbors' : `${Math.floor(m.sure * 100)}% sure of ${askGoalText(m.n)} so far`;
+    return { a: f ? b : a, b: f ? a : b, ask: true, label };
+  }
   if (S.format === 'sort') {
     const st = sortState(); if (!st.need) return null;
     const [a, b] = st.need, k = pk(a, b);
@@ -1227,6 +1429,10 @@ function progress() {
     for (let i = 0; i < keep.length; i++) for (let j = i + 1; j < keep.length; j++) if (!(pk(keep[i], keep[j]) in S.results)) left++;
     return { done, total: done + Math.max(1, left) + Math.max(0, Math.min(L, alive.length) - 1), complete: false };
   }
+  if (S.format === 'ask') {
+    const m = askModel(), done = m.count, complete = n >= 2 && !m.next;
+    return { done, total: complete ? done : done + 1, complete, sure: m.sure, phase: m.phase, stopped: m.stopped };
+  }
   if (S.format === 'sort') {
     const st = sortState(), done = doneCount() + checkStats().asks;
     if (st.phase === 'done') return { done, total: done, complete: n >= 2 };
@@ -1249,15 +1455,21 @@ function progress() {
 }
 
 /* ---------- picking ---------- */
-let busy = false;
+let busy = false, shownKey = '', shownAt = 0;
+document.addEventListener('visibilitychange', () => { if (document.hidden) shownAt = 0; });
 function pick(side, fast) {
   if ((busy && !fast) || S.view !== 'battle') return;
   const m = currentMatch();
   if (!m) return;
   if (side === 'tie' && noTies()) { toast(m.mid ? 'No ties in a bracket. Pick the one that moves on.' : 'No ties here. Pick the one you like more.'); return; }
+  const ms = shownAt && shownKey === m.a + m.b ? Math.round(performance.now() - shownAt) : undefined;
+  shownKey = ''; shownAt = 0;
   if (m.mid) {
     S.bracket.results[m.mid] = m[side];
     S.history.push({ m: m.mid });
+  } else if (m.ask) {
+    S.asks.push({ a: m.a, b: m.b, w: m[side] });
+    S.history.push({ a: m.a, b: m.b, k: 1 });
   } else if (m.check) {
     const k = pk(m.a, m.b);
     S.checks[k] = [...(S.checks[k] || []), side === 'tie' ? 'tie' : m[side]];
@@ -1267,6 +1479,7 @@ function pick(side, fast) {
     S.history.push({ a: m.a, b: m.b });
     if (S.format === 'rr' || S.format === 'rrplus') S.queue.shift();
   }
+  if (ms !== undefined && ms < 600000) S.history[S.history.length - 1].t = ms;
   save();
   const finish = () => {
     busy = false;
@@ -1287,6 +1500,7 @@ function undo() {
   const h = S.history.pop();
   if (!h) return;
   if (h.m) { if (S.bracket) delete S.bracket.results[h.m]; }
+  else if (h.k) { if (S.asks && S.asks.length) S.asks.pop(); }
   else if (h.c) { const k = pk(h.a, h.b), c = S.checks[k]; if (c) { c.pop(); if (!c.length) delete S.checks[k]; } }
   else {
     const key = pk(h.a, h.b);
@@ -1482,7 +1696,23 @@ function sortStandings() {
   const rows = st.order.map((id, i) => ({ ...all.st.get(id), rank: i + 1, slot: i, slotSize: 1, place: n > 1 ? (n - 1 - i) / (n - 1) : 1 }));
   return { rows, st: all.st };
 }
-const ranking = () => (isElim() ? elimStandings() : S.format === 'topn' ? topStandings() : S.format === 'sort' ? sortStandings() : standings());
+// Ask until sure: the checked order first, then (for "your top k") everyone else by strength score.
+// A pair split evenly after the most looks counts as tied.
+function askStandings() {
+  const m = askModel(), all = standings(), sc = askScores(), rows = [];
+  if (m.n < 2) return all;
+  const listed = new Set(m.order), rest = m.ids.filter(id => !listed.has(id)).sort((x, y) => sc.get(y).s - sc.get(x).s);
+  const seq = [...m.order, ...rest], eff = askEff();
+  let pos = 1, slot = 0, i = 0;
+  while (i < seq.length) {
+    let j = i;
+    while (j + 1 < m.order.length && j + 1 < seq.length) { const k = pk(seq[j], seq[j + 1]); if (m.tooClose.has(k) && eff[k] === 'tie') j++; else break; }
+    for (let q = i; q <= j; q++) { const id = seq[q], v = sc.get(id); rows.push({ ...all.st.get(id), rank: pos, slot, slotSize: j - i + 1, pct: v.score, lo: v.lo, hi: v.hi, rough: q >= m.order.length }); }
+    pos += j - i + 1; slot++; i = j + 1;
+  }
+  return { rows, st: all.st };
+}
+const ranking = () => (isElim() ? elimStandings() : S.format === 'topn' ? topStandings() : S.format === 'sort' ? sortStandings() : S.format === 'ask' ? askStandings() : standings());
 // Tiers come from win rate, except in Sort, where they come from each entry's place in the ranking.
 const tierScore = r => (r.place !== undefined ? r.place : r.pct);
 
@@ -1521,6 +1751,7 @@ const FORMAT_WHAT = {
   rr: 'Everyone faces everyone once. A complete ranking of the whole list.',
   rrplus: 'Round robin, then a second look at each pair of neighbors in your ranking. Every pair faces off, and close calls get checked.',
   sort: 'Sorts your list like a deck of cards, skipping matchups your earlier picks already answer, then double-checks neighbors. The most exact ranking for the time.',
+  ask: "Say what you want to know and how sure you want to be. It asks the most useful matchup each time and stops when it's sure.",
   swiss: 'Entries face others with a similar record. A rough order of the whole list, much faster.',
   topn: 'Finds your top few and ranks just those exactly, with a second look. The rest get a rough order.',
   double: 'Out after two losses. The most reliable way to find your #1, and usually gets #2 too.',
@@ -1538,6 +1769,9 @@ const GUIDE = {
   sort: { good: "The most exact full ranking for the fewest matchups. It sorts your list the way you'd sort a deck of cards: split it into small piles, rank each pile, then merge the piles by comparing the tops. It never asks what your earlier picks already answer (if you picked A over B and B over C, it puts A above C without asking). Then it takes a second look at each pair of neighbors to catch any slips.",
     bad: "Seeing how consistent you are. Most pairs never meet, so the Table tab is mostly empty and the loop finder has little to check. It also assumes your tastes don't run in circles.",
     nums: '16 entries: about 66 matchups. #1 right 98% of the time. Top 3 in exact order 93%. The whole list exactly right 67%.' },
+  ask: { good: "Getting exactly as sure as you want, then stopping. You pick what you want to know (your #1, your top few, or everything) and how sure you want to be. It gets a rough order first, learns how often you flip close calls from the pairs it asks twice, and keeps asking the shakiest pair until it reaches your target. Consistent pickers finish fast. If you flip a lot, it asks more, and it tells you which pairs are too close to call.",
+    bad: "Knowing the count up front, since it depends on your answers. And if you flip close calls very often, its sureness about the top few runs a few points optimistic. The too-close-to-call flags are the warning sign.",
+    nums: '16 entries, aiming for 95% sure: your #1 takes about 36 matchups and is right over 99% of the time. Your top 3 takes about 49 and comes out in exact order 99% of the time. The whole order takes about 117 and is exactly right 96% of the time.' },
   swiss: { good: 'A classic chess-style tournament: rounds where entries face others with a similar record. When it ends, you can finish it as a full round robin and keep every pick.',
     bad: 'Exact places past 2nd. Entries in the middle never face most of the field, and Sort ranks the whole list far better in about the same number of matchups.',
     nums: '16 entries, 6 rounds: 48 matchups. #1 right 89% of the time. Top 3 in exact order 50%. On average, entries land about 1 place from where they belong.' },
@@ -1552,7 +1786,7 @@ const GUIDE = {
     nums: '16 entries: 16 matchups. #1 right 90% of the time. #2 right 45%. Top 3 in exact order 24%.' },
 };
 const GUIDE_QUICK = [
-  ['The most exact ranking for the time', 'sort'], ['Every pair faces off, with close calls double-checked', 'rrplus'],
+  ['Exactly as sure as you want, then stop', 'ask'], ['The most exact ranking for the time', 'sort'], ['Every pair faces off, with close calls double-checked', 'rrplus'],
   ['Your top few, fast', 'topn'], ['Just your #1', 'double'], ['Your #1, as fast as possible', 'single'],
   ['A classic chess-style tournament in rounds', 'swiss'], ['The classic: everyone faces everyone once', 'rr'],
 ];
@@ -1560,7 +1794,7 @@ function openGuide() {
   const n = S.items.length;
   $('#guideBody').innerHTML = `
     <ul class="g-quick">${GUIDE_QUICK.map(([want, f]) => `<li><span>${want}</span><b>${FORMAT_NAMES[f]}</b></li>`).join('')}</ul>
-    <p>The numbers below come from thousands of practice tournaments with 16 entries. The practice chooser is consistent but flips a close call now and then, about 1 time in 11 between neighbors, like a real person. With perfectly consistent picks, Round robin, Round robin+, Sort, and Top N get everything they rank exactly right.</p>
+    <p>The numbers below come from thousands of practice tournaments with 16 entries. The practice chooser is consistent but flips a close call now and then, about 1 time in 11 between neighbors, like a real person. With perfectly consistent picks, Round robin, Round robin+, Sort, Ask until sure, and Top N get everything they rank exactly right.</p>
     ${FORMATS.map(f => `<section class="g-fmt">
       <h4>${FORMAT_NAMES[f]}${n >= 2 ? `<span>${countText(f, n)} for your ${n} entries</span>` : ''}</h4>
       <p><b>Good for:</b> ${GUIDE[f].good}</p>
@@ -1572,7 +1806,7 @@ function openGuide() {
 }
 function countText(fmt, n) {
   const [lo, hi, rough] = formatCount(fmt, n);
-  return lo === hi ? (rough ? 'about ' : '') + plural(lo, 'matchup') : `${lo} or ${hi} matchups`;
+  return lo === hi ? (rough ? 'about ' : '') + plural(lo, 'matchup') : rough ? `about ${lo} to ${hi} matchups` : `${lo} or ${hi} matchups`;
 }
 // Round robin is the default and needs no explaining; the other styles wait behind a small link.
 let showFormats = false;
@@ -1595,6 +1829,14 @@ function formatsHTML(n) {
           <button type="button" class="step" data-rounds="-1" aria-label="Fewer rounds" ${why || t <= minRounds ? 'disabled' : ''}>−</button>
           <span>${plural(t, 'round')}</span>
           <button type="button" class="step" data-rounds="1" aria-label="More rounds" ${why || t >= maxRounds ? 'disabled' : ''}>+</button>
+        </span>` : f === 'ask' ? `<span class="fmt-rounds"><span class="step-label">Find</span>
+          <button type="button" class="step" data-askgoal="-1" aria-label="Find fewer places" ${why || askGoalStep(-1) === null ? 'disabled' : ''}>−</button>
+          <span>${askGoalShort(n)}</span>
+          <button type="button" class="step" data-askgoal="1" aria-label="Find more places" ${why || askGoalStep(1) === null ? 'disabled' : ''}>+</button>
+        </span><span class="fmt-rounds"><span class="step-label">Sure</span>
+          <button type="button" class="step" data-asksure="-1" aria-label="Less sure" ${why || (S.askSure || 95) <= ASK_SURE[0] ? 'disabled' : ''}>−</button>
+          <span>${S.askSure || 95}%</span>
+          <button type="button" class="step" data-asksure="1" aria-label="More sure" ${why || (S.askSure || 95) >= ASK_SURE[ASK_SURE.length - 1] ? 'disabled' : ''}>+</button>
         </span>` : f === 'topn' ? `<span class="fmt-rounds">
           <button type="button" class="step" data-topn="-1" aria-label="Fewer places" ${why || topLock || tt <= 1 ? 'disabled' : ''}>−</button>
           <span>Top ${tt}</span>
@@ -1647,6 +1889,7 @@ function renderSetup() {
   let msg;
   if (n < 2) msg = 'Add at least 2 entries to start.';
   else if (!P.done) msg = `${prefix}<b>${countText(S.format, n)}</b> for ${n} entries. That's ${timeText(formatCount(S.format, n)[1])} at a few seconds each.`;
+  else if (S.format === 'ask') msg = `${prefix}<b>${plural(P.done, 'matchup')}</b> so far. ${P.complete ? (P.stopped ? `Stopped at ${Math.floor(P.sure * 100)}% sure.` : `${Math.floor(P.sure * 100)}% sure of ${askGoalText(n)}.`) : `${Math.floor(P.sure * 100)}% sure of ${askGoalText(n)} so far.`}`;
   else msg = `${prefix}<b>${P.done} of ${P.total}</b> matchups done. ${P.complete ? 'All done.' : `${P.total - P.done} left, ${timeText(P.total - P.done)}.`}`;
   const canGo = n >= 2;
   dock.innerHTML = `<div class="dock">
@@ -1695,6 +1938,8 @@ function renderBattle() {
   const nm = names(), byId = new Map(S.items.map(i => [i.id, i]));
   const P = progress(), elim = isElim(), nt = noTies();
   const sub = m.label || `${S.format === 'sort' ? 'About ' : ''}${plural(P.total - P.done - 1, 'matchup')} after this`;
+  if (shownKey !== m.a + m.b) { shownKey = m.a + m.b; shownAt = document.hidden ? 0 : performance.now(); }
+  const askMode = S.format === 'ask', surePct = askMode ? Math.floor((P.sure || 0) * 100) : 0, aim = S.askSure || 95;
   dock.innerHTML = '';
   main.innerHTML = `
     <section class="battle">
@@ -1706,8 +1951,8 @@ function renderBattle() {
           <button class="btn" id="rerun" type="button" ${anyPicks() ? '' : 'disabled'}>Restart</button>
         </div>
         <div class="progress">
-          <div class="progress-txt"><b>${P.done + 1} of ${P.total}</b><span${elim ? ' class="stage"' : m.check ? ' class="check"' : ''}>${esc(sub)}</span></div>
-          ${elim ? '' : '<canvas id="tri" role="img"></canvas>'}
+          <div class="progress-txt"><b>${askMode ? `Matchup ${P.done + 1}` : `${P.done + 1} of ${P.total}`}</b><span${elim ? ' class="stage"' : m.check || askMode ? ' class="check"' : ''}>${esc(sub)}</span></div>
+          ${askMode ? `<div class="sure-meter" role="img" aria-label="${surePct}% sure, stopping at ${aim}%"><span style="width:${surePct}%"></span><i style="left:${aim}%"></i></div>` : elim ? '' : '<canvas id="tri" role="img"></canvas>'}
         </div>
       </div>
       <div class="arena">
@@ -1717,10 +1962,10 @@ function renderBattle() {
       </div>
       <div class="battle-bottom">
         ${nt ? '' : '<button class="btn" id="tieBtn" type="button">Tie</button>'}
-        <p class="keys">${nt ? `Keys: left arrow picks left, right arrow picks right, Z undoes. ${elim ? 'No ties in a bracket.' : `No ties in ${S.format === 'sort' ? 'Sort' : 'Top N'}.`}` : 'Keys: left arrow picks left, right arrow picks right, down arrow is a tie, Z undoes.'}</p>
+        <p class="keys">${nt ? `Keys: left arrow picks left, right arrow picks right, Z undoes. ${elim ? 'No ties in a bracket.' : `No ties in ${FORMAT_NAMES[S.format]}.`}` : 'Keys: left arrow picks left, right arrow picks right, down arrow is a tie, Z undoes.'}</p>
       </div>
     </section>`;
-  if (!elim) drawTri($('#tri'), m);
+  if (!elim && !askMode) drawTri($('#tri'), m);
 }
 
 function chip(id, nm, byId) {
@@ -1735,7 +1980,7 @@ function renderResults() {
   const nm = names(), byId = new Map(S.items.map(i => [i.id, i]));
   const P = progress(), done = P.done, total = P.total, complete = P.complete, elim = isElim(), n = S.items.length;
   const { rows, R } = ranking();
-  const hasResults = elim ? elimStarted() : doneCount() > 0;
+  const hasResults = elim ? elimStarted() : S.format === 'ask' ? (S.asks || []).length > 0 : doneCount() > 0;
   dock.innerHTML = '';
   const tabs = elim ? [['list', 'List'], ['bracket', 'Bracket']] : [['list', 'List'], ['tiers', 'Tiers'], ['table', 'Table']];
   if (!tabs.some(([k]) => k === S.tab)) S.tab = 'list';
@@ -1753,7 +1998,7 @@ function renderResults() {
         return `<div class="tt" title="${esc(n2.text)}"><div class="tt-box">${it.img ? `<img src="${imgURL(it)}" alt="">` : `<span class="txt">${esc(n2.text)}</span>`}</div><div class="tt-cap"><b>${r.rank}</b>${it.img ? `<span>${esc(n2.text)}</span>` : ''}</div></div>`;
       }).join('')}</div></div>`;
     }).join('')}</div>
-    <p class="note">${S.format === 'sort' ? 'Tiers come from place in the ranking: the top fifth is S, then A, B, C, and D.' : 'Tiers come from win rate. S is 80% and up, A is 60% and up, B is 40% and up, C is 20% and up, and D is below 20%.'} The small number on each tile is its rank.</p>`;
+    <p class="note">${S.format === 'sort' ? 'Tiers come from place in the ranking: the top fifth is S, then A, B, C, and D.' : S.format === 'ask' ? "Tiers come from each entry's score, its chance of beating a typical entry: S is 80 and up, A is 60 and up, B is 40 and up, C is 20 and up, and D is below 20." : 'Tiers come from win rate. S is 80% and up, A is 60% and up, B is 40% and up, C is 20% and up, and D is below 20%.'} The small number on each tile is its rank.</p>`;
   } else if (tab === 'table') {
     const order = rows.map(r => r.id), rankOf = new Map(rows.map(r => [r.id, r.rank])), RES = effResults();
     body = `<div class="xt-wrap"><table class="xt">
@@ -1782,7 +2027,7 @@ function renderResults() {
       if (marks.has(i - 1)) parts.push(sureHTML(marks.get(i - 1)));
     }
     parts.unshift(sureSummary(marks, complete));
-    body = `<div class="list${S.format === 'sort' ? ' nopct' : ''}">${parts.join('')}</div>${S.format === 'sort' ? '<p class="note">Sort only asks about the pairs it needs, so the win and loss counts here cover just those matchups. The order comes from the sort itself.</p>' : ''}`;
+    body = `<div class="list${S.format === 'sort' ? ' nopct' : ''}">${parts.join('')}</div>${S.format === 'sort' ? '<p class="note">Sort only asks about the pairs it needs, so the win and loss counts here cover just those matchups. The order comes from the sort itself.</p>' : ''}${S.format === 'ask' ? `<p class="note">Each score is the chance of beating a typical entry, from all your picks. The lighter band is its plausible range.${askGoalOf(n) < n ? ` Places below ${askGoalOf(n) + 1} are a rough order: the app only made sure of ${askGoalText(n)}.` : ''}</p>` : ''}`;
   }
 
   let loopsHTML = '';
@@ -1808,6 +2053,11 @@ function renderResults() {
     banner = `<div class="banner"><p>Want it more exact? ${S.rounds.length < n - 1 ? `Another round adds ${plural(more, 'matchup')}. ` : ''}Finishing as a full round robin adds ${plural(left, 'matchup')}, and every pick so far counts.</p>
       ${S.rounds.length < n - 1 ? '<button class="btn" id="swissMore" type="button">Play another round</button>' : ''}
       ${left ? '<button class="btn btn-go" id="toRR" type="button">Finish as round robin</button>' : ''}</div>`;
+  } else if (complete && S.format === 'ask') {
+    const more = (S.askSure || 95) < ASK_SURE[ASK_SURE.length - 1], all = askGoalOf(n) < n;
+    if (more || all) banner = `<div class="banner"><p>Want more? Every pick so far counts.</p>
+      ${more ? `<button class="btn btn-go" id="askMore" type="button">Be ${ASK_SURE[ASK_SURE.indexOf(S.askSure || 95) + 1]}% sure</button>` : ''}
+      ${all ? '<button class="btn" id="askAll" type="button">Rank everything</button>' : ''}</div>`;
   } else if (complete && (S.format === 'topn' || S.format === 'sort')) {
     const left = totalPairs() - doneCount();
     if (left) banner = `<div class="banner"><p>${S.format === 'topn' ? 'Want everyone ranked exactly, not just the top?' : 'Want to see every pair face off?'} Finishing as a full round robin adds ${plural(left, 'matchup')}, and every pick so far counts.</p>
@@ -1823,6 +2073,12 @@ function renderResults() {
       checkNote += cs.changed === cs.split ? (cs.split === 1 ? ' It ended up flipped.' : ' They all ended up flipped.')
         : cs.changed ? ` ${cs.changed} ended up flipped.` : (cs.split === 1 ? ' The third look backed your first answer.' : ' The third looks backed your first answers.');
     }
+  }
+  if (S.format === 'ask' && n >= 2) {
+    const m = askModel(), pc = Math.floor(m.sure * 100), g = askGoalText(n);
+    checkNote = !complete ? ` ${pc}% sure so far.` : m.stopped ? ` Stopped at ${pc}% sure: some close calls stayed split after many looks.` : ` ${pc}% sure ${g} ${g === 'your #1' || g === 'the whole order' ? 'is right' : 'is right, in this order'}.`;
+    if (m.tooClose.size && complete && !m.stopped) checkNote = ` ${pc}% sure of ${g}, apart from ${m.tooClose.size === 1 ? 'one pair that is' : `${m.tooClose.size} pairs that are`} too close to call.`;
+    else if (m.tooClose.size) checkNote += ` ${m.tooClose.size === 1 ? 'One pair is' : `${m.tooClose.size} pairs are`} too close to call.`;
   }
   const fmtLine = S.format === 'rr' ? '' : `<p class="fmt-line">${formatLabel()}.${checkNote}</p>`;
   main.innerHTML = `
@@ -1851,6 +2107,16 @@ function renderResults() {
 function sureNotes(rows, nm) {
   const out = new Map(), fmt = S.format;
   if (isElim()) return out;
+  if (fmt === 'ask') {
+    const m = askModel();
+    m.pairs.forEach((q, i) => {
+      if (i + 1 >= rows.length || rows[i].rank === rows[i + 1].rank) return;
+      const U = nm.get(rows[i].id).text, L = nm.get(rows[i + 1].id).text, k = pk(q.x, q.y);
+      if (m.tooClose.has(k)) out.set(i, { kind: 'close', text: `Too close to call: you picked ${U} ${q.wx} of ${q.wx + q.wy} times.` });
+      else if (q.p < 0.9) out.set(i, { kind: 'close', text: `Close call: about ${Math.round(q.p * 100)}% sure ${U} is ahead of ${L}.` });
+    });
+    return out;
+  }
   for (let i = 0; i + 1 < rows.length; i++) {
     const up = rows[i], lo = rows[i + 1];
     if (up.rank === lo.rank) continue;  // already shown as a tie
@@ -1875,20 +2141,22 @@ const sureHTML = m => `<div class="sure sure-${m.kind}"><b aria-hidden="true">${
 function sureSummary(marks, complete) {
   const syms = [...new Set([...marks.values()].map(m => (m.kind === 'close' ? '≈' : '⇅')))].join(' or ');
   if (marks.size) return `<p class="sure-sum">${marks.size === 1 ? "One spot is a close call. It's" : `${marks.size} spots are close calls. They're`} marked below with ${syms}.</p>`;
-  if (complete && usesChecks() && checkStats().checked) return `<p class="sure-sum">Every pair of neighbors${S.format === 'topn' ? ' among the finalists' : ''} got the same answer each time you saw them, so this order is solid.</p>`;
+  if (complete && usesChecks() && S.format !== 'ask' && checkStats().checked) return `<p class="sure-sum">Every pair of neighbors${S.format === 'topn' ? ' among the finalists' : ''} got the same answer each time you saw them, so this order is solid.</p>`;
   return '';
 }
 function rowHTML(r, nm, byId) {
   const it = byId.get(r.id), n = nm.get(r.id);
   const pct = Math.round(r.pct * 100);
   const list = (label, arr) => arr.length ? `<div><b>${label}</b>${arr.map(id => chip(id, nm, byId)).join('')}</div>` : '';
-  return `<details class="row ${r.rank === 1 && r.slotSize === 1 && r.n ? 'champ' : ''}">
+  return `<details class="row ${r.rank === 1 && r.slotSize === 1 && r.n ? 'champ' : ''}${r.rough ? ' rough' : ''}">
     <summary>
       <div class="rank">${r.rank}</div>
       ${thumb(it, n)}
       <div class="who"><div class="name ${n.unnamed && it.img ? 'unnamed' : ''}">${esc(n.text)}</div><div class="rec">${r.stage ? `<span class="stage">${esc(r.stage)}.</span> ` : ''}${recText(r)}</div></div>
-      <div class="bar"><span style="width:${pct}%"></span></div>
-      <div class="pct">${pct}%</div>
+      ${r.lo !== undefined
+        ? `<div class="bar line" title="Score ${pct}, plausible range ${Math.round(r.lo * 100)} to ${Math.round(r.hi * 100)}"><i class="band" style="left:${Math.round(r.lo * 100)}%;width:${Math.max(2, Math.round((r.hi - r.lo) * 100))}%"></i><b class="dot" style="left:${pct}%"></b></div>`
+        : `<div class="bar"><span style="width:${pct}%"></span></div>`}
+      <div class="pct">${r.lo !== undefined ? pct : pct + '%'}</div>
     </summary>
     <div class="detail">${list('Beat', r.beat)}${list('Lost to', r.lost)}${list('Tied', r.drew)}${r.n ? '' : '<div>No matchups yet.</div>'}</div>
   </details>`;
@@ -2253,6 +2521,7 @@ function formatLabel() {
   if (S.format === 'topn') { const c = checkStats(); return `Top ${topTarget()}, out after ${plural(topLives(), 'loss', 'losses')}${c.checked ? `, ${plural(c.checked, 'finalist matchup')} double-checked` : ''}`; }
   if (S.format === 'rrplus') { const c = checkStats(); return c.checked ? `Round robin+, ${plural(c.checked, 'close call')} double-checked` : 'Round robin+'; }
   if (S.format === 'sort') { const c = checkStats(); return c.checked ? `Sort, ${plural(c.checked, 'pair')} of neighbors double-checked` : 'Sort'; }
+  if (S.format === 'ask') return `Ask until sure, ${askGoalText(S.items.length)} at ${S.askSure || 95}%`;
   return FORMAT_NAMES[S.format];
 }
 function rankingText() {
@@ -2442,17 +2711,20 @@ async function importJSON(file) {
     bracket = { seeds: ob.seeds.slice(), results: {} };
     for (const [m, w] of Object.entries(ob.results || {})) if (/^(W\d+-\d+|L\d+-\d+|B|F1|F2)$/.test(m) && ids.has(w)) bracket.results[m] = w;
   }
-  const history = (Array.isArray(obj.history) ? obj.history : []).filter(h => h && (h.m ? !!(bracket && h.m in bracket.results) : ids.has(h.a) && ids.has(h.b) && pk(h.a, h.b) in results && (!h.c || pk(h.a, h.b) in checks)));
+  const history = (Array.isArray(obj.history) ? obj.history : []).filter(h => h && (h.m ? !!(bracket && h.m in bracket.results) : ids.has(h.a) && ids.has(h.b) && (h.k ? true : pk(h.a, h.b) in results && (!h.c || pk(h.a, h.b) in checks))));
   const maxId = items.reduce((m, i) => Math.max(m, parseInt(i.id.slice(1), 10) || 0), 0);
   for (const id of [...urlCache.keys()]) dropURL(id);
   const sortSeed = Array.isArray(obj.sortSeed) ? [...new Set(obj.sortSeed.filter(id => ids.has(id)))] : [];
+  const asks = (Array.isArray(obj.asks) ? obj.asks : []).filter(q => q && ids.has(q.a) && ids.has(q.b) && q.a !== q.b && (q.w === q.a || q.w === q.b)).map(q => ({ a: q.a, b: q.b, w: q.w }));
+  const askSeed = Array.isArray(obj.askSeed) ? [...new Set(obj.askSeed.filter(id => ids.has(id)))] : [];
   const oh = obj.hand && typeof obj.hand === 'object' ? obj.hand : {}, hand = { tab: oh.tab === 'list' ? 'list' : 'tiers', tiers: {}, names: {}, list: [] };
   for (const k of HAND_TIERS) {
     if (oh.tiers && Array.isArray(oh.tiers[k])) hand.tiers[k] = oh.tiers[k].filter(id => ids.has(id));
     if (oh.names && typeof oh.names[k] === 'string') hand.names[k] = oh.names[k].slice(0, 24);
   }
   if (Array.isArray(oh.list)) hand.list = oh.list.filter(id => ids.has(id));
-  S = { ...blank(), items, results, history, format, rounds, bracket, checks, sortSeed, hand, topN: Math.max(1, Math.floor(Number(obj.topN) || 3)), swissRounds: Math.max(0, Math.floor(Number(obj.swissRounds) || 0)),
+  S = { ...blank(), items, results, history, format, rounds, bracket, checks, sortSeed, hand, asks, askSeed,
+    askGoal: ASK_GOALS.includes(obj.askGoal) ? obj.askGoal : 3, askSure: ASK_SURE.includes(obj.askSure) ? obj.askSure : 95, topN: Math.max(1, Math.floor(Number(obj.topN) || 3)), swissRounds: Math.max(0, Math.floor(Number(obj.swissRounds) || 0)),
     tieBreaks: Array.isArray(obj.tieBreaks) ? obj.tieBreaks.filter(t => Array.isArray(t) && t.every(x => ids.has(x))) : [], nextId: Math.max(Number(obj.nextId) || 1, maxId + 1) };
   S.view = obj.view === 'hand' ? 'hand' : items.length > 1 && progress().complete ? 'results' : 'setup';
   if (Store.ok) { try { await Store.clear(); for (const it of items) await saveImg(it); } catch (e) { setSaveOK(false); } }
@@ -2508,6 +2780,10 @@ document.addEventListener('click', e => {
   }
   const step = e.target.closest('[data-rounds]');
   if (step) { if (!step.disabled) changeRounds(Number(step.dataset.rounds)); return; }
+  const gstep = e.target.closest('[data-askgoal]');
+  if (gstep) { if (!gstep.disabled) { const g = askGoalStep(Number(gstep.dataset.askgoal)); if (g !== null) { S.askGoal = g; render(); save(); } } return; }
+  const sstep = e.target.closest('[data-asksure]');
+  if (sstep) { if (!sstep.disabled) { const i = ASK_SURE.indexOf(S.askSure || 95) + Number(sstep.dataset.asksure); if (ASK_SURE[i]) { S.askSure = ASK_SURE[i]; render(); save(); } } return; }
   const tstep = e.target.closest('[data-topn]');
   if (tstep) { if (!tstep.disabled) changeTop(Number(tstep.dataset.topn)); return; }
   const card = e.target.closest('[data-format]');
@@ -2515,6 +2791,8 @@ document.addEventListener('click', e => {
   const t = e.target.closest('button, [data-tab]');
   if (!t) return;
   if (t.id === 'swissMore') { S.swissRounds = Math.min(S.items.length - 1, S.rounds.length + 1); go('battle'); return; }
+  if (t.id === 'askMore') { S.askSure = ASK_SURE[Math.min(ASK_SURE.length - 1, ASK_SURE.indexOf(S.askSure || 95) + 1)]; go('battle'); return; }
+  if (t.id === 'askAll') { S.askGoal = 0; go('battle'); return; }
   if (t.id === 'toRR') { S.format = 'rr'; S.queue = []; go('battle'); toast('Finishing as a full round robin. Every pick so far counts.'); return; }
   if (t.id === 'moreFmts') {
     showFormats = true; render();
@@ -2566,7 +2844,7 @@ document.addEventListener('click', e => {
   if (t.id === 'rerun') {
     ask('Restart? This clears every pick and starts the matchups over. Your entries stay.', 'Restart').then(ok => {
       if (!ok) return;
-      S.results = {}; S.history = []; S.queue = []; S.tieBreaks = []; S.rounds = []; S.bracket = null; S.checks = {}; S.sortSeed = [];
+      S.results = {}; S.history = []; S.queue = []; S.tieBreaks = []; S.rounds = []; S.bracket = null; S.checks = {}; S.sortSeed = []; S.asks = []; S.askSeed = [];
       go(S.view === 'setup' ? 'setup' : 'battle'); toast('Restarted. Your entries are still here.');
     });
     return;

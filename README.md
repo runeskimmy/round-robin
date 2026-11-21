@@ -25,6 +25,7 @@ The app opens as a plain round robin: add entries and press Start. The other sty
 | Round robin | Everyone faces everyone once. | The classic. Shows exactly where your picks contradict each other. |
 | Round robin+ | A round robin, then a second look at each pair of neighbors in the ranking. Same answer twice settles it; a different answer gets a third look. | Every pair faces off, with close calls double-checked. |
 | Sort | Sorts the list like a deck of cards, never asking what earlier picks already answer (if A beat B and B beat C, A goes above C), then double-checks each pair of neighbors. | The most exact ranking for the time. |
+| Ask until sure | You choose what to find (your #1, your top few, or everything) and how sure to be (80% to 99%). It gets a rough order, learns how often you flip close calls from the pairs it asks twice, and keeps asking the shakiest pair until it reaches your target. | Being exactly as sure as you want, then stopping. |
 | Swiss | Rounds where entries face others with a similar record, never the same pair twice. Can be finished as a full round robin. | A classic chess-style tournament. |
 | Top N | Everyone is out after N+1 losses, until the survivors have all faced each other. Then the finalists get second looks. | Your top few, ranked exactly, fast. |
 | Double elimination | Out after two losses, with a grand final rematch if needed. | Just your #1. |
@@ -39,12 +40,16 @@ From thousands of simulated tournaments with 16 entries, played by a chooser who
 | Round robin | 120 | 90% | 71% | 18% |
 | Round robin+ | about 139 | 96% | 88% | 57% |
 | Sort | about 66 | 98% | 93% | 67% |
+| Ask until sure, top 3 at 95% | about 49 | over 99% | 99% | ranks only the top |
+| Ask until sure, everything at 95% | about 117 | over 99% | 99% | 96% |
 | Swiss | 48 | 89% | 50% | 0% |
 | Top 3 | about 58 | 97% | 89% | ranks only the top |
 | Double elimination | 30 or 31 | 98% | 63% | 0% |
 | Single elimination | 16 | 90% | 24% | 0% |
 
-With perfectly consistent picks, Round robin, Round robin+, Sort, and Top N get everything they rank exactly right.
+With perfectly consistent picks, Round robin, Round robin+, Sort, Ask until sure, and Top N get everything they rank exactly right. If you flip close calls very often (about 1 time in 4), Ask until sure's stated sureness about the top few runs a few points optimistic; its "too close to call" flags are the sign.
+
+The app also records how long each pick takes (kept only on your device and in your save files), to test later whether slow picks mean close calls.
 
 ### Rank by hand
 
