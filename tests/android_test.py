@@ -436,12 +436,16 @@ def steps(run):
     time.sleep(0.5)
     tap_element(cdp, '[data-format="ask"]')
     run.check(cdp.wait("document.querySelector('[data-format=\\'ask\\']').getAttribute('aria-checked') === 'true'", 5), 'tapping the Ask until sure card picks it')
+    cdp.wait("!!document.querySelector('#dockGo')", 5)
     cdp.js("document.querySelector('#dockGo').click()")
-    cdp.wait("!!document.querySelector('.sure-meter')", 10)
+    run.check(cdp.wait("!!document.querySelector('.sure-meter') && window.__rr.state().view === 'battle'", 10), 'Ask until sure opens with a sureness meter')
     got = cdp.js("""(() => { const L = id => window.__rr.state().items.find(i => i.id === id).label; let n = 0;
-      while (window.__rr.current() && n < 80) { const m = window.__rr.current(); window.__rr.pick(L(m.a) < L(m.b) ? 'a' : 'b'); n++; }
-      return window.__rr.ranking().slice(0, 3).map(r => L(r.id)).join(','); })()""")
-    run.check(got == 'Alpha,Bravo,Charlie', 'Ask until sure finds the exact top 3 on the phone', got)
+      while (window.__rr.state().view === 'battle' && window.__rr.current() && n < 80) { const m = window.__rr.current(); window.__rr.pick(L(m.a) < L(m.b) ? 'a' : 'b'); n++; }
+      const st = window.__rr.state();
+      return [window.__rr.ranking().slice(0, 3).map(r => L(r.id)).join(','), st.asks.length, st.view].join(' | '); })()""")
+    top3, asked, view = got.split(' | ')
+    run.check(top3 == 'Alpha,Bravo,Charlie' and int(asked) >= 5 and view == 'results',
+              'Ask until sure finds the exact top 3 on the phone, from real picks', got)
     screenshot(run, 'ask-results')
 
     # Rank by hand, with real taps: tap a tile, tap a tier; then the list arrows
