@@ -390,7 +390,7 @@ def steps(run):
     time.sleep(0.5)
     tap_element(cdp, '#guideBtn')
     run.check(cdp.wait("document.querySelector('#guideDlg').open", 5), 'tapping "Which one should I pick?" opens the guide')
-    run.check(cdp.js("document.querySelector('#guideBody').innerText.split('Good for:').length - 1") == 6, 'the guide covers all six formats')
+    run.check(cdp.js("document.querySelector('#guideBody').innerText.split('Good for:').length - 1") == 7, 'the guide covers all seven styles')
     screenshot(run, 'guide')
     cdp.js("document.querySelector('#guideClose').click()")
     time.sleep(0.5)
