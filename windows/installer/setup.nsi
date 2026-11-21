@@ -3,7 +3,7 @@ Unicode true
 !include "MUI2.nsh"
 
 !define APPNAME "Round Robin"
-!define VERSION "1.5.0"
+!define VERSION "1.6.0"
 !define UNINSTKEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\RoundRobin"
 
 Name "${APPNAME}"
@@ -14,7 +14,7 @@ RequestExecutionLevel user
 SetCompressor /SOLID lzma
 BrandingText "${APPNAME} ${VERSION}"
 
-VIProductVersion "1.5.0.0"
+VIProductVersion "1.6.0.0"
 VIAddVersionKey "ProductName" "${APPNAME}"
 VIAddVersionKey "FileDescription" "${APPNAME} installer"
 VIAddVersionKey "FileVersion" "${VERSION}"
