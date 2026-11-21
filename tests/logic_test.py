@@ -40,6 +40,8 @@ def setup(page, n, fmt, rounds=None, top=None):
     page.wait_for_selector('#lines')
     page.fill('#lines', '\n'.join(LETTERS[:n]))
     page.click('#addLines')
+    if not page.query_selector('.fmt-grid'):
+        page.click('#moreFmts')
     page.click(f'[data-format="{fmt}"]')
     if top is not None:
         for _ in range(60):
