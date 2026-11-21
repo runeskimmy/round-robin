@@ -373,6 +373,32 @@ def steps(run):
     run.check('Alpha' in cdp.js("document.querySelector('.champ-line').innerText"), 'the best entry is champion')
     screenshot(run, 'double-bracket')
 
+    # The guide and Top N on the phone, with real taps
+    cdp.js("document.querySelector('#rerun').click()")
+    cdp.wait("document.querySelector('#askDlg').open", 5)
+    cdp.js("document.querySelector('#askOk').click()")
+    time.sleep(0.5)
+    cdp.js("document.querySelector('#toSetup').click()")
+    cdp.wait("!!document.querySelector('#guideBtn')", 5)
+    cdp.js("document.activeElement && document.activeElement.blur()")
+    time.sleep(0.5)
+    tap_element(cdp, '#guideBtn')
+    run.check(cdp.wait("document.querySelector('#guideDlg').open", 5), 'tapping "Which one should I pick?" opens the guide')
+    run.check(cdp.js("document.querySelector('#guideBody').innerText.split('Good for:').length - 1") == 6, 'the guide covers all six formats')
+    screenshot(run, 'guide')
+    cdp.js("document.querySelector('#guideClose').click()")
+    time.sleep(0.5)
+    tap_element(cdp, '[data-format="topn"]')
+    run.check(cdp.wait("document.querySelector('[data-format=\\'topn\\']').getAttribute('aria-checked') === 'true'", 5), 'tapping the Top N card picks it')
+    cdp.js("document.querySelector('#dockGo').click()")
+    run.check(cdp.wait("!!document.querySelector('.fighter') && !document.querySelector('#tieBtn')"), 'Top N matchups start, with no Tie button')
+    picks = cdp.js("""(() => { const L = id => window.__rr.state().items.find(i => i.id === id).label; let n = 0;
+      while (window.__rr.current() && n < 60) { const m = window.__rr.current(); window.__rr.pick(L(m.a) < L(m.b) ? 'a' : 'b'); n++; }
+      return n; })()""")
+    top4 = cdp.js("window.__rr.ranking().slice(0, 4).map(r => window.__rr.state().items.find(i => i.id === r.id).label).join(',')")
+    run.check(picks == 17 and top4 == 'Alpha,Bravo,Charlie,Delta', 'Top 3 of 6: 14 matchups plus 3 second looks, finalists ranked exactly', (picks, top4))
+    screenshot(run, 'topn-results')
+
     cdp.close()
 
 

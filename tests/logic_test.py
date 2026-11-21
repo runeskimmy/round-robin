@@ -1,4 +1,4 @@
-"""Logic stress test for Swiss and elimination brackets.
+"""Logic stress test for Swiss, Top N, Round robin+ and elimination brackets.
 
 Plays hundreds of simulated tournaments (2 to 40 entries, random or consistent picks, with undo)
 through the real app in Chrome, and checks the rules each format must follow.
@@ -32,7 +32,7 @@ PLAY_JS = """async ({ mode, tieRate, undoAt }) => {
 }"""
 
 
-def setup(page, n, fmt, rounds=None):
+def setup(page, n, fmt, rounds=None, top=None):
     if page.query_selector('#newT'):
         page.click('#newT')
         if page.query_selector('#askDlg[open]'):
@@ -41,6 +41,15 @@ def setup(page, n, fmt, rounds=None):
     page.fill('#lines', '\n'.join(LETTERS[:n]))
     page.click('#addLines')
     page.click(f'[data-format="{fmt}"]')
+    if top is not None:
+        for _ in range(60):
+            shown = int(page.inner_text('[data-format="topn"] .fmt-rounds span').split()[-1])
+            if shown == top:
+                break
+            sel = '[data-topn="1"]' if shown < top else '[data-topn="-1"]'
+            if page.is_disabled(sel):
+                break
+            page.click(sel)
     if rounds is not None:
         for _ in range(60):
             shown = int(page.inner_text('.fmt-rounds span').split()[0])
@@ -56,7 +65,7 @@ def setup(page, n, fmt, rounds=None):
 def body(run):
     url = (ROOT / 'web' / 'round-robin.html').as_uri()
     rng = random.Random(7)
-    counts = {'single': 0, 'double': 0, 'swiss': 0}
+    counts = {'single': 0, 'double': 0, 'swiss': 0, 'rrplus': 0, 'topn': 0}
     fallback_rounds = 0
     with sync_playwright() as p:
         try:
@@ -84,11 +93,25 @@ def body(run):
             cases.append(('swiss-max', n, 'random', 0))   # every possible round, stressing the pairing
         for n in [7, 12, 20]:
             cases.append(('swiss', n, 'random', 6))        # with undo
+        for n in range(2, 21):
+            cases.append(('rrplus', n, 'random', 0))
+        for n in [3, 5, 8, 13, 20]:
+            cases.append(('rrplus', n, 'prefer', 0))
+        for n, at in [(6, 17), (11, 58)]:
+            cases.append(('rrplus', n, 'random', at))      # undo across the switch to second looks
+        for top in (1, 2, 3, 5):
+            for n in range(2, 31):
+                cases.append((f'topn{top}', n, 'random', 0))
+            for n in [4, 8, 13, 16, 25]:
+                cases.append((f'topn{top}', n, 'prefer', 0))
+        for n in [9, 18]:
+            cases.append(('topn3', n, 'random', 12))       # with undo
 
         for fmt, n, mode, undo_at in cases:
-            real = 'swiss' if fmt.startswith('swiss') else fmt
-            setup(page, n, real, rounds=(n - 1) if fmt == 'swiss-max' else None)
-            page.evaluate(PLAY_JS, {'mode': mode, 'tieRate': 0.1, 'undoAt': undo_at})
+            real = 'swiss' if fmt.startswith('swiss') else 'topn' if fmt.startswith('topn') else fmt
+            top = int(fmt[4:]) if real == 'topn' else None
+            setup(page, n, real, rounds=(n - 1) if fmt == 'swiss-max' else None, top=top)
+            page.evaluate(PLAY_JS, {'mode': mode, 'tieRate': 0 if real == 'topn' else 0.1, 'undoAt': undo_at})
             st = page.evaluate('window.__rr.state()')
             pr = page.evaluate('window.__rr.progress()')
             rows = page.evaluate('window.__rr.ranking()')
@@ -101,7 +124,13 @@ def body(run):
             if ranks != sorted(ranks) or ranks[0] != 1:
                 run.check(False, f'{tag}: ranks are in order', ranks)
 
-            if real in ('single', 'double'):
+            if real == 'rrplus':
+                check_rrplus(run, tag, n, mode, st, rows, label)
+                counts['rrplus'] += 1
+            elif real == 'topn':
+                check_topn(run, tag, n, mode, top, st, rows, label)
+                counts['topn'] += 1
+            elif real in ('single', 'double'):
                 br = page.evaluate('window.__rr.bracket()')
                 played = len(st['bracket']['results'])
                 left = [m for m in br['matches'] if m['status'] in ('ready', 'waiting')]
@@ -150,9 +179,85 @@ def body(run):
         run.check(True, f"single elimination: {counts['single']} tournaments (2 to 40 entries) follow every rule")
         run.check(True, f"double elimination: {counts['double']} tournaments (2 to 40 entries) follow every rule")
         run.check(True, f"Swiss: {counts['swiss']} tournaments: no repeat pairings, everyone once per round")
+        run.check(True, f"Round robin+: {counts['rrplus']} tournaments: every pair once, every neighbor settled, consistent picks ranked exactly")
+        run.check(True, f"Top N: {counts['topn']} tournaments: no repeats, nobody plays after going out, consistent picks get the exact top N")
         run.log(f'Swiss rounds where a full repeat-free pairing was impossible: {fallback_rounds}')
         run.check(not errors, 'no script errors', errors[:3])
         browser.close()
+
+
+def pk(a, b):
+    return f'{a}|{b}' if a < b else f'{b}|{a}'
+
+
+def answers(st, k):
+    return [st['results'][k]] + st['checks'].get(k, []) if k in st['results'] else []
+
+
+def is_settled(st, k):
+    a = answers(st, k)
+    return len(a) >= 3 or (len(a) == 2 and a[0] == a[1])
+
+
+def check_rrplus(run, tag, n, mode, st, rows, label):
+    if len(st['results']) != n * (n - 1) // 2:
+        run.check(False, f'{tag}: every pair played once', len(st['results']))
+    for k, c in st['checks'].items():
+        if not 1 <= len(c) <= 2:
+            run.check(False, f'{tag}: no pair asked more than three times', (k, c))
+    for x, y in zip(rows, rows[1:]):
+        if not is_settled(st, pk(x['id'], y['id'])):
+            run.check(False, f'{tag}: every pair of neighbors is settled', (x['id'], y['id']))
+    if mode == 'prefer':
+        asks = sum(len(c) for c in st['checks'].values())
+        order = [label[r['id']] for r in rows]
+        if order != sorted(label.values()) or any(r['slotSize'] != 1 for r in rows):
+            run.check(False, f'{tag}: consistent picks are ranked exactly', order)
+        if asks != n - 1:
+            run.check(False, f'{tag}: one second look per neighbor pair', asks)
+
+
+def check_topn(run, tag, n, mode, top, st, rows, label):
+    N = max(1, min(top, max(1, n - 2)))
+    L = max(1, min(N + 1, n - 1))
+    losses = {i['id']: 0 for i in st['items']}
+    seen = set()
+    for ri, r in enumerate(st['rounds']):
+        ids = [x for p in r['pairs'] for x in p]
+        if len(ids) != len(set(ids)) or set(ids) & set(r['byes']):
+            run.check(False, f'{tag}: round {ri + 1} uses each entry at most once', r)
+        for a, b in r['pairs']:
+            if losses[a] >= L or losses[b] >= L:
+                run.check(False, f'{tag}: nobody plays after going out', (ri + 1, a, b, losses[a], losses[b]))
+            key = pk(a, b)
+            if key in seen:
+                run.check(False, f'{tag}: no pair meets twice', key)
+            seen.add(key)
+        for a, b in r['pairs']:
+            w = st['results'].get(pk(a, b))
+            if w in (a, b):
+                losses[b if w == a else a] += 1
+    alive = [i for i, l in losses.items() if l < L]
+    out = [i for i, l in losses.items() if l >= L]
+    if any(losses[i] != L for i in out):
+        run.check(False, f'{tag}: everyone who went out has exactly {L} losses', {i: losses[i] for i in out})
+    for i in range(len(alive)):
+        for j in range(i + 1, len(alive)):
+            if pk(alive[i], alive[j]) not in st['results']:
+                run.check(False, f'{tag}: the finalists have all faced each other', (alive[i], alive[j]))
+    fin = rows[:len(alive)]
+    if set(r['id'] for r in fin) != set(alive):
+        run.check(False, f'{tag}: the finalists are ranked first', [r['id'] for r in fin])
+    for x, y in zip(fin, fin[1:]):
+        if not is_settled(st, pk(x['id'], y['id'])):
+            run.check(False, f'{tag}: every pair of neighboring finalists is settled', (x['id'], y['id']))
+    if mode == 'prefer':
+        want = sorted(label.values())[:L]
+        got = [label[r['id']] for r in fin]
+        if got != want:
+            run.check(False, f'{tag}: the finalists are exactly the real top {L}, in order', (got, want))
+        if len(st['results']) != L * (n - L) + L * (L - 1) // 2:
+            run.check(False, f'{tag}: exactly the predicted number of matchups', len(st['results']))
 
 
 if __name__ == '__main__':

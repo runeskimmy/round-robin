@@ -174,8 +174,21 @@ main { flex: 1; padding: 8px clamp(14px, 3vw, 32px) 32px; width: 100%; max-width
 
 /* format picker */
 .formats { margin: 26px 0 0; }
-.formats h2 { font-family: var(--display); font-weight: 800; font-size: 28px; margin: 0 0 12px; line-height: 1; }
-.fmt-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.formats h2 { font-family: var(--display); font-weight: 800; font-size: 28px; margin: 0; line-height: 1; }
+.formats-head { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 16px; margin: 0 0 12px; }
+#guideDlg { max-width: min(720px, 94vw); width: 720px; max-height: 90vh; padding-bottom: 16px; display: none; flex-direction: column; }
+#guideDlg[open] { display: flex; }
+.g-body { overflow: auto; min-height: 0; flex: 1; margin: 6px -4px 0; padding: 0 4px; }
+.g-body p { color: var(--ink); margin: 0 0 10px; }
+.g-quick { list-style: none; padding: 0; margin: 4px 0 14px; display: grid; gap: 4px; }
+.g-quick li { display: flex; justify-content: space-between; gap: 12px; padding: 8px 12px; background: var(--egg); border-radius: 10px; }
+.g-quick span { color: var(--twig); }
+.g-quick b { text-align: right; }
+.g-fmt { border-top: 2px solid var(--egg-deep); padding: 14px 0 4px; }
+.g-fmt h4 { font-family: var(--display); font-weight: 800; font-size: 24px; margin: 0 0 8px; line-height: 1; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+.g-fmt h4 span { font-family: var(--body); font-weight: 400; font-size: 14px; color: var(--twig); }
+.g-fmt .g-nums { background: var(--egg); border-radius: 10px; padding: 8px 12px; font-size: 15px; }
+.fmt-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
 .fmt {
   position: relative; display: flex; flex-direction: column; gap: 6px;
   padding: 14px; border: 2px solid var(--egg-deep); border-radius: 12px; background: var(--shell); cursor: pointer;
@@ -254,6 +267,7 @@ main { flex: 1; padding: 8px clamp(14px, 3vw, 32px) 32px; width: 100%; max-width
 .res-title { margin-right: auto; }
 .res-head h2 { font-family: var(--display); font-weight: 800; font-size: 44px; line-height: .95; margin: 0; }
 .fmt-line { margin: 4px 0 0; color: var(--twig); font-size: 15px; }
+.progress-txt span.check { color: var(--ink); font-weight: 700; }
 .who .rec .stage { color: var(--ink); font-weight: 700; }
 
 /* bracket */
@@ -449,7 +463,7 @@ body.dragging .dropcover { display: grid; }
     <svg width="40" height="40" viewBox="0 0 30 30" aria-hidden="true"><g fill="currentColor"><rect x="2" y="2" width="8" height="8" rx="1.5"/><rect x="2" y="11" width="8" height="8" rx="1.5"/><rect x="11" y="11" width="8" height="8" rx="1.5" fill="#F2B705"/><rect x="2" y="20" width="8" height="8" rx="1.5"/><rect x="11" y="20" width="8" height="8" rx="1.5"/><rect x="20" y="20" width="8" height="8" rx="1.5"/></g></svg>
     <div>
       <h1>Round Robin</h1>
-      <p>Every entry faces every other entry. You get a real ranking.</p>
+      <p>Pick between two at a time. You get a real ranking.</p>
     </div>
   </div>
   <div class="top-actions">
@@ -471,6 +485,11 @@ body.dragging .dropcover { display: grid; }
     <button class="btn" id="askCancel" type="button">Cancel</button>
     <button class="btn btn-go" id="askOk" type="button">OK</button>
   </div>
+</dialog>
+<dialog id="guideDlg" aria-labelledby="guideTitle">
+  <h3 id="guideTitle">Which one should I pick?</h3>
+  <div class="g-body" id="guideBody"></div>
+  <div class="dlg-actions"><button class="btn btn-go" id="guideClose" type="button">Got it</button></div>
 </dialog>
 <dialog id="tieDlg">
   <h3>Break the tie</h3>
@@ -497,7 +516,7 @@ const plural = (n, one, many) => n + ' ' + (n === 1 ? one : (many || one + 's'))
 const today = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
 
 const blank = () => ({ v: 2, nextId: 1, items: [], results: {}, history: [], queue: [], tieBreaks: [], view: 'setup', tab: 'list',
-  format: 'rr', swissRounds: 0, rounds: [], bracket: null });
+  format: 'rr', swissRounds: 0, rounds: [], bracket: null, topN: 3, checks: {} });
 let S = blank();
 
 /* ---------- storage (IndexedDB, images kept separately) ---------- */
@@ -656,7 +675,7 @@ function addItem(label, img) {
 // Before a bracket starts, a new entry means a new draw. A Swiss round that hasn't started yet gets re-paired.
 function entriesChanged() {
   if (isElim() && !elimStarted()) S.bracket = null;
-  if (S.format === 'swiss') {
+  if (isRounds()) {
     const last = S.rounds[S.rounds.length - 1];
     if (last && !last.pairs.some(([a, b]) => pk(a, b) in S.results)) S.rounds.pop();
   }
@@ -666,6 +685,7 @@ function removeItem(id) {
   S.items = S.items.filter(i => i.id !== id);
   entriesChanged();
   for (const k of Object.keys(S.results)) { const [a, b] = k.split('|'); if (a === id || b === id) delete S.results[k]; }
+  for (const k of Object.keys(S.checks || {})) { const [a, b] = k.split('|'); if (a === id || b === id) delete S.checks[k]; }
   S.history = S.history.filter(h => h.m || (h.a !== id && h.b !== id));
   S.queue = S.queue.filter(q => q.a !== id && q.b !== id);
   S.tieBreaks = S.tieBreaks.map(t => t.filter(x => x !== id)).filter(t => t.length > 1);
@@ -732,9 +752,14 @@ function schedule(pairs, priority) {
 }
 
 /* ---------- formats ---------- */
-const FORMAT_NAMES = { rr: 'Round robin', swiss: 'Swiss', single: 'Single elimination', double: 'Double elimination' };
+const FORMATS = ['rr', 'rrplus', 'swiss', 'topn', 'double', 'single'];
+const FORMAT_NAMES = { rr: 'Round robin', rrplus: 'Round robin+', swiss: 'Swiss', topn: 'Top N', single: 'Single elimination', double: 'Double elimination' };
+const fmtName = f => (f === 'topn' ? `Top ${topTarget()}` : FORMAT_NAMES[f]);
 const isElimFmt = f => f === 'single' || f === 'double';
 const isElim = () => isElimFmt(S.format);
+const isRounds = () => S.format === 'swiss' || S.format === 'topn';   // played in rounds, kept in S.rounds
+const noTies = () => isElim() || S.format === 'topn';
+const freshFmt = f => isElimFmt(f) || f === 'topn';                   // can't pick up from earlier picks
 const elimStarted = () => !!(S.bracket && Object.keys(S.bracket.results).length);
 const anyPicks = () => S.history.length > 0 || Object.keys(S.results).length > 0 || elimStarted();
 const entriesLocked = () => isElim() && elimStarted();
@@ -743,13 +768,24 @@ function swissTarget() {
   const n = S.items.length;
   return Math.max(1, Math.min(Math.max(1, n - 1), S.swissRounds || autoSwissRounds(n)));
 }
-// How many matchups a format takes for n entries: [fewest, most].
+// Top N: everyone is out after a set number of losses, and play goes on until the survivors have all
+// faced each other. Your real #k can only lose to the k-1 entries above it, so "out after N losses"
+// can never knock out your real top N. One spare life covers a pick you'd take back.
+let TOP_SPARE = 1;
+const topMax = n => Math.max(1, n - 1 - TOP_SPARE);
+const topTarget = () => Math.max(1, Math.min(S.topN || 3, topMax(S.items.length)));
+const topLivesFor = (N, n) => Math.max(1, Math.min(N + TOP_SPARE, n - 1));
+const topLives = () => topLivesFor(topTarget(), S.items.length);
+// How many matchups a format takes for n entries: [fewest, most, only roughly?].
 function formatCount(fmt, n) {
   if (n < 2) return [0, 0];
   if (fmt === 'swiss') { const c = swissTarget() * Math.floor(n / 2); return [c, c]; }
   if (fmt === 'single') { const c = n - 1 + (n >= 4 ? 1 : 0); return [c, c]; }
   if (fmt === 'double') return [2 * n - 2, 2 * n - 1];
-  const c = n * (n - 1) / 2; return [c, c];
+  const rr = n * (n - 1) / 2;
+  if (fmt === 'rrplus') return [rr + n - 1, rr + n - 1, true];
+  if (fmt === 'topn') { const L = topLivesFor(topTarget(), n), c = L * (n - L) + L * (L - 1) / 2 + Math.max(0, L - 1); return [c, c, true]; }
+  return [rr, rr];
 }
 function timeText(m) {
   const mins = Math.round(m * 3 / 60);
@@ -818,6 +854,113 @@ function pairUp(order, played) {
     return false;
   };
   return next() ? res : null;
+}
+
+/* Top N rounds: pair the entries still in by record, never a repeat. */
+function topInfo() {
+  const L = topLives(), info = new Map(S.items.map(i => [i.id, { id: i.id, losses: 0, wins: 0, out: 0 }]));
+  S.rounds.forEach((r, ri) => {
+    for (const [a, b] of roundPairs(r)) {
+      const res = S.results[pk(a, b)];
+      if (res === undefined || res === 'tie') continue;
+      const W = info.get(res), Lo = info.get(res === a ? b : a);
+      W.wins++; Lo.losses++;
+      if (Lo.losses === L && !Lo.out) Lo.out = ri + 1;
+    }
+  });
+  return info;
+}
+const topAlive = info => [...info.values()].filter(v => v.losses < topLives()).map(v => v.id);
+function topComplete(info) {
+  info = info || topInfo();
+  const last = S.rounds[S.rounds.length - 1];
+  if (last && !roundDone(last)) return false;
+  const alive = topAlive(info);
+  for (let i = 0; i < alive.length; i++) for (let j = i + 1; j < alive.length; j++) if (!(pk(alive[i], alive[j]) in S.results)) return false;
+  return true;
+}
+function ensureTopRound() {
+  if (S.items.length < 2) return;
+  const last = S.rounds[S.rounds.length - 1];
+  if (last && !roundDone(last)) return;
+  const info = topInfo();
+  if (topComplete(info)) return;
+  const r = makeTopRound(info);
+  if (r.pairs.length) S.rounds.push(r);
+}
+function makeTopRound(info) {
+  const order = shuffle(topAlive(info)).sort((a, b) => info.get(a).losses - info.get(b).losses || info.get(b).wins - info.get(a).wins);
+  const played = new Set(Object.keys(S.results));
+  const byeCount = id => S.rounds.reduce((c, r) => c + ((r.byes || []).includes(id) ? 1 : 0), 0);
+  let pairs = null, byes = [];
+  if (order.length % 2 === 0) pairs = pairUp(order, played);
+  else {  // odd count: the lowest-placed entry with the fewest byes sits out, if the rest can still pair up
+    const cands = order.map((_, i) => i).reverse().sort((x, y) => byeCount(order[x]) - byeCount(order[y])).slice(0, 6);
+    for (const c of cands) {
+      const p = pairUp(order.filter((_, i) => i !== c), played);
+      if (p) { pairs = p; byes = [order[c]]; break; }
+    }
+  }
+  if (!pairs) {  // no full pairing: pair who we can, the rest sit out this round
+    pairs = []; byes = []; const used = new Set();
+    for (let i = 0; i < order.length; i++) {
+      if (used.has(order[i])) continue;
+      for (let j = i + 1; j < order.length; j++) {
+        if (used.has(order[j]) || played.has(pk(order[i], order[j]))) continue;
+        pairs.push([order[i], order[j]]); used.add(order[i]); used.add(order[j]); break;
+      }
+    }
+    for (const id of order) if (!used.has(id)) byes.push(id);
+  }
+  pairs = shuffle(pairs.map(([a, b]) => (Math.random() < 0.5 ? [a, b] : [b, a])));
+  const last = S.history[S.history.length - 1];
+  if (last && last.a && pairs.length > 1 && pairs[0].some(x => x === last.a || x === last.b)) pairs.push(pairs.shift());
+  return { pairs, byes };
+}
+
+/* Second looks (Round robin+, and the finalists in Top N): a second look at every pair of neighbors in the ranking.
+   Same answer twice settles it; a different answer gets a third look, and the majority counts.
+   The first answers stay in S.results; second and third looks go in S.checks. */
+const hashBit = str => { let h = 7; for (const c of str) h = (h * 31 + c.charCodeAt(0)) | 0; return h & 1; };
+const answersFor = k => (S.results[k] === undefined ? [] : [S.results[k], ...((S.checks && S.checks[k]) || [])]);
+const settled = k => { const a = answersFor(k); return a.length >= 3 || (a.length === 2 && a[0] === a[1]); };
+function majority(list) {
+  const c = new Map(); for (const x of list) c.set(x, (c.get(x) || 0) + 1);
+  const best = Math.max(...c.values()), top = [...c.keys()].filter(x => c.get(x) === best);
+  return top.length === 1 ? top[0] : 'tie';
+}
+const usesChecks = () => S.format === 'rrplus' || S.format === 'topn';
+// The results the ranking uses: each double-checked pair counts its majority answer.
+function effResults() {
+  if (!usesChecks() || !S.checks || !Object.keys(S.checks).length) return S.results;
+  const out = {};
+  for (const [k, v] of Object.entries(S.results)) { const c = S.checks[k]; out[k] = c && c.length ? majority([v, ...c]) : v; }
+  return out;
+}
+function unsettledNeighbors(rows) {
+  const out = [];
+  for (let i = 0; i + 1 < rows.length; i++) { const k = pk(rows[i].id, rows[i + 1].id); if (!settled(k)) out.push(k); }
+  return out;
+}
+// Whose neighbors get second looks: everyone after a round robin, the finalists once Top N's rounds are done.
+function checkRows() {
+  if (S.format === 'topn') { const info = topInfo(); return topComplete(info) ? standings(undefined, topAlive(info)).rows : null; }
+  return totalPairs() > doneCount() ? null : standings().rows;
+}
+function nextCheck() {
+  const rows = checkRows();
+  return rows ? unsettledNeighbors(rows)[0] || null : null;
+}
+function checkStats() {
+  const ids = new Set(S.items.map(i => i.id)); let checked = 0, changed = 0, split = 0, asks = 0;
+  for (const [k, c] of Object.entries(S.checks || {})) {
+    const [a, b] = k.split('|');
+    if (!c.length || !ids.has(a) || !ids.has(b) || S.results[k] === undefined) continue;
+    checked++; asks += c.length;
+    if (c.some(x => x !== S.results[k])) split++;                          // answered differently at least once
+    if (majority([S.results[k], ...c]) !== S.results[k]) changed++;        // and the final answer flipped
+  }
+  return { checked, changed, split, asks };
 }
 
 /* Elimination brackets. Any entry count works: byes go to the top seeds, and a match missing a player
@@ -920,6 +1063,7 @@ const flipOf = id => { let h = 7; for (const c of id + S.bracket.seeds.join()) h
 /* What to show next, whatever the format. */
 function prepareFormat() {
   if (S.format === 'swiss') ensureSwissRound();
+  else if (S.format === 'topn') ensureTopRound();
   else if (isElim()) ensureBracket();
   else ensureQueue();
 }
@@ -932,12 +1076,21 @@ function currentMatch() {
     const f = flipOf(m.id);
     return { a: f ? m.b : m.a, b: f ? m.a : m.b, mid: m.id, label: m.label };
   }
-  if (S.format === 'swiss') {
+  if (isRounds()) {
     const r = S.rounds[S.rounds.length - 1]; if (!r) return null;
     const p = roundPairs(r).find(([a, b]) => !(pk(a, b) in S.results));
-    return p ? { a: p[0], b: p[1], label: `Round ${S.rounds.length} of ${Math.max(swissTarget(), S.rounds.length)}` } : null;
+    if (!p) return S.format === 'topn' ? checkMatch() : null;
+    const label = S.format === 'swiss' ? `Round ${S.rounds.length} of ${Math.max(swissTarget(), S.rounds.length)}`
+      : `Round ${S.rounds.length}, ${topAlive(topInfo()).length} still in`;
+    return { a: p[0], b: p[1], label };
   }
-  return S.queue[0] || null;
+  if (S.queue[0] || S.format !== 'rrplus') return S.queue[0] || null;
+  return checkMatch();
+}
+function checkMatch() {
+  const k = nextCheck(); if (!k) return null;
+  const [a, b] = k.split('|'), f = hashBit(k + answersFor(k).length);
+  return { a: f ? b : a, b: f ? a : b, check: true, label: S.format === 'topn' ? 'Second look at the finalists' : 'Second look at a close call' };
 }
 function progress() {
   const n = S.items.length;
@@ -953,6 +1106,25 @@ function progress() {
     // the plan is rounds x pairs; late rounds can come up short when every remaining pairing is a repeat
     return { done, total: complete ? done : Math.max(done, swissTarget() * Math.floor(n / 2)), complete };
   }
+  if (S.format === 'topn') {
+    const info = topInfo(), L = topLives(), done = swissPlayed() + checkStats().asks;
+    if (n >= 2 && topComplete(info)) {
+      const left = unsettledNeighbors(standings(undefined, topAlive(info)).rows).length;
+      return { done, total: done + left, complete: left === 0 };
+    }
+    // estimate: the entries with the fewest losses survive and still play each other; everyone else plays until out
+    const alive = topAlive(info).sort((a, b) => info.get(a).losses - info.get(b).losses);
+    const keep = alive.slice(0, L);
+    let left = alive.slice(L).reduce((x, id) => x + L - info.get(id).losses, 0);
+    for (let i = 0; i < keep.length; i++) for (let j = i + 1; j < keep.length; j++) if (!(pk(keep[i], keep[j]) in S.results)) left++;
+    return { done, total: done + Math.max(1, left) + Math.max(0, Math.min(L, alive.length) - 1), complete: false };
+  }
+  if (S.format === 'rrplus') {
+    const asks = checkStats().asks, rrDone = doneCount();
+    if (rrDone < totalPairs()) return { done: rrDone + asks, total: totalPairs() + asks + Math.max(0, n - 1), complete: false };
+    const left = unsettledNeighbors(standings().rows).length;
+    return { done: rrDone + asks, total: rrDone + asks + left, complete: n >= 2 && left === 0 };
+  }
   const done = doneCount(), total = totalPairs();
   return { done, total, complete: total > 0 && done === total };
 }
@@ -963,19 +1135,24 @@ function pick(side, fast) {
   if ((busy && !fast) || S.view !== 'battle') return;
   const m = currentMatch();
   if (!m) return;
-  if (side === 'tie' && m.mid) { toast('No ties in a bracket. Pick the one that moves on.'); return; }
+  if (side === 'tie' && noTies()) { toast(m.mid ? 'No ties in a bracket. Pick the one that moves on.' : 'No ties here. Pick the one you like more.'); return; }
   if (m.mid) {
     S.bracket.results[m.mid] = m[side];
     S.history.push({ m: m.mid });
+  } else if (m.check) {
+    const k = pk(m.a, m.b);
+    S.checks[k] = [...(S.checks[k] || []), side === 'tie' ? 'tie' : m[side]];
+    S.history.push({ a: m.a, b: m.b, c: 1 });
   } else {
     S.results[pk(m.a, m.b)] = side === 'tie' ? 'tie' : m[side];
     S.history.push({ a: m.a, b: m.b });
-    if (S.format === 'rr') S.queue.shift();
+    if (S.format === 'rr' || S.format === 'rrplus') S.queue.shift();
   }
   save();
   const finish = () => {
     busy = false;
     if (S.format === 'swiss') ensureSwissRound();
+    else if (S.format === 'topn') ensureTopRound();
     if (!currentMatch()) { S.view = 'results'; save(); }
     render();
   };
@@ -991,13 +1168,14 @@ function undo() {
   const h = S.history.pop();
   if (!h) return;
   if (h.m) { if (S.bracket) delete S.bracket.results[h.m]; }
+  else if (h.c) { const k = pk(h.a, h.b), c = S.checks[k]; if (c) { c.pop(); if (!c.length) delete S.checks[k]; } }
   else {
     const key = pk(h.a, h.b);
     delete S.results[key];
-    if (S.format === 'rr') {
+    if (S.format === 'rr' || S.format === 'rrplus') {
       S.queue = S.queue.filter(q => pk(q.a, q.b) !== key);
       S.queue.unshift({ a: h.a, b: h.b });
-    } else if (S.format === 'swiss') {
+    } else if (isRounds()) {
       // later rounds were paired using this result, so they go; the undone matchup comes up first again
       const ri = S.rounds.findIndex(r => r.pairs.some(([a, b]) => pk(a, b) === key));
       if (ri >= 0) {
@@ -1021,10 +1199,11 @@ function go(view) {
 }
 
 /* ---------- ranking ---------- */
-function standings() {
-  const ids = S.items.map(i => i.id);
+function standings(res, only) {
+  res = res || effResults();
+  const ids = only || S.items.map(i => i.id);
   const st = new Map(ids.map(id => [id, { id, pts: 0, w: 0, l: 0, t: 0, n: 0, beat: [], lost: [], drew: [] }]));
-  for (const [k, r] of Object.entries(S.results)) {
+  for (const [k, r] of Object.entries(res)) {
     const [a, b] = k.split('|'), A = st.get(a), B = st.get(b);
     if (!A || !B) continue;
     A.n++; B.n++;
@@ -1043,7 +1222,7 @@ function standings() {
   const h2h = g => {
     const p = new Map(g.map(id => [id, 0]));
     for (let i = 0; i < g.length; i++) for (let j = i + 1; j < g.length; j++) {
-      const r = S.results[pk(g[i], g[j])];
+      const r = res[pk(g[i], g[j])];
       if (r === undefined) continue;
       if (r === 'tie') { p.set(g[i], p.get(g[i]) + 0.5); p.set(g[j], p.get(g[j]) + 0.5); }
       else p.set(r, p.get(r) + 1);
@@ -1093,7 +1272,7 @@ function findLoops(outcomes) {
 }
 // Who beat whom, as pairs. In a bracket two entries can meet twice; a split counts as a tie.
 function pairOutcomes() {
-  if (!isElim()) return S.results;
+  if (!isElim()) return effResults();
   const o = {}, R = resolveBracket();
   if (R) for (const m of R.out.values()) if (m.status === 'done') { const k = pk(m.a, m.b); o[k] = k in o && o[k] !== m.winner ? 'tie' : m.winner; }
   return o;
@@ -1152,7 +1331,31 @@ function elimStandings() {
   });
   return { rows, st, R };
 }
-const ranking = () => (isElim() ? elimStandings() : standings());
+// Top N ranking: the finalists by their games against each other, then everyone else by how long they lasted.
+function topStandings() {
+  const all = standings(S.results), info = topInfo(), complete = S.items.length >= 2 && topComplete(info);
+  const aliveSet = new Set(topAlive(info));
+  const slotsOf = rows => { const m = new Map(); for (const r of rows) { if (!m.has(r.slot)) m.set(r.slot, []); m.get(r.slot).push(r.id); } return [...m.values()]; };
+  const top = complete ? slotsOf(standings(undefined, [...aliveSet]).rows) : slotsOf(all.rows.filter(r => aliveSet.has(r.id)));
+  const outs = new Map();
+  for (const r of all.rows) {
+    if (aliveSet.has(r.id)) continue;
+    const o = info.get(r.id).out;
+    if (!outs.has(o)) outs.set(o, []);
+    outs.get(o).push(r);
+  }
+  const rest = [...outs.entries()].sort((x, y) => y[0] - x[0]).flatMap(([, rs]) => slotsOf(rs));
+  const rows = []; let pos = 1;
+  [...top, ...rest].forEach((slot, si) => {
+    for (const id of slot) {
+      const stage = aliveSet.has(id) ? (complete ? 'Finalist' : 'Still in') : `Out in round ${info.get(id).out}`;
+      rows.push({ ...all.st.get(id), stage, rank: pos, slot: si, slotSize: slot.length });
+    }
+    pos += slot.length;
+  });
+  return { rows, st: all.st };
+}
+const ranking = () => (isElim() ? elimStandings() : S.format === 'topn' ? topStandings() : standings());
 
 const TIERS = [
   { l: 'S', min: 0.8, c: '#FF7F7F' },
@@ -1185,33 +1388,79 @@ function faceHTML(it, nm, cls) {
 }
 
 const FORMAT_WHAT = {
-  rr: 'Everyone faces everyone. The most exact full ranking.',
-  swiss: 'Entries face others with a similar record. Finds your top 2 and a rough full ranking, much faster.',
+  rr: 'Everyone faces everyone once. A complete ranking of the whole list.',
+  rrplus: 'Round robin, then a second look at each pair of neighbors in your ranking. The most exact ranking here.',
+  swiss: 'Entries face others with a similar record. A rough order of the whole list, much faster.',
+  topn: 'Finds your top few and ranks just those exactly, with a second look. The rest get a rough order.',
+  double: 'Out after two losses. The most reliable way to find your #1, and usually gets #2 too.',
   single: "Lose once and you're out. The fastest way to find your #1. 2nd and 3rd come down to the draw.",
-  double: 'Out after two losses. Reliably finds your #1 and #2, and usually your #3.',
 };
+// The guide: what each format is good and bad at. Numbers come from tools/accuracy.py: 16 entries, and a
+// chooser who is consistent but flips a close call now and then (about 1 time in 11 between neighbors).
+const GUIDE = {
+  rr: { good: 'A complete ranking where every entry has faced every other one. The Table tab and the loop finder show exactly where your picks contradicted each other.',
+    bad: 'Long lists, since matchups pile up fast (30 entries is 435). And it asks about each pair once, so one shaky answer on a close call can decide a place.',
+    nums: '16 entries: 120 matchups. #1 right 90% of the time. Top 3 in exact order 71%. The whole list exactly right 18%.' },
+  rrplus: { good: "The most exact ranking you can get here. After the round robin, it takes a second look at each pair of neighbors in your ranking, so one shaky answer can't decide a place. If you answer differently the second time, a third look settles it.",
+    bad: "Saving time. It's the longest format, a bit more than a round robin.",
+    nums: '16 entries: about 139 matchups. #1 right 96% of the time. Top 3 in exact order 88%. The whole list exactly right 57%.' },
+  swiss: { good: 'A rough order of a long list in a fraction of the time. When it ends, you can finish it as a full round robin and keep every pick.',
+    bad: 'Exact places past 2nd. Entries in the middle never face most of the field.',
+    nums: '16 entries, 6 rounds: 48 matchups. #1 right 89% of the time. Top 3 in exact order 50%. On average, entries land about 1 place from where they belong.' },
+  topn: { good: 'Knowing your top few exactly, fast. Everyone is out after one more loss than the number of places you want (Top 3 means out after 4 losses). Play goes on until the survivors have all faced each other, then it takes a second look at the finalists. Your real top 3 can never collect 3 losses, so they stay in even if you slip once.',
+    bad: 'The middle and bottom of the list. Entries that go out are only sorted by how long they lasted.',
+    nums: 'Top 3 of 16 entries: about 58 matchups. #1 right 97% of the time. Top 3 in exact order 89%.' },
+  double: { good: 'Finding your single favorite. It is the most reliable format here at #1, because your top two can meet more than once, so one bad call gets a second chance.',
+    bad: 'Anything past 2nd place. Below that, entries are only sorted by how far they got.',
+    nums: '16 entries: 30 or 31 matchups. #1 right 98% of the time. #2 right 88%. Top 3 in exact order 63%.' },
+  single: { good: "The fastest answer to \"what's my favorite?\" 16 entries take just 16 matchups.",
+    bad: 'Places past 1st, which depend on who landed in which half of the draw. One bad call knocks out a favorite for good.',
+    nums: '16 entries: 16 matchups. #1 right 90% of the time. #2 right 45%. Top 3 in exact order 24%.' },
+};
+const GUIDE_QUICK = [
+  ['Every place exactly right', 'rrplus'], ['Your top few, fast', 'topn'], ['Just your #1', 'double'],
+  ['A rough order of a long list', 'swiss'], ['Your #1, as fast as possible', 'single'], ['The classic: everyone faces everyone once', 'rr'],
+];
+function openGuide() {
+  const n = S.items.length;
+  $('#guideBody').innerHTML = `
+    <ul class="g-quick">${GUIDE_QUICK.map(([want, f]) => `<li><span>${want}</span><b>${FORMAT_NAMES[f]}</b></li>`).join('')}</ul>
+    <p>The numbers below come from thousands of practice tournaments with 16 entries. The practice chooser is consistent but flips a close call now and then, about 1 time in 11 between neighbors, like a real person. With perfectly consistent picks, Round robin, Round robin+, and Top N get everything they rank exactly right.</p>
+    ${FORMATS.map(f => `<section class="g-fmt">
+      <h4>${FORMAT_NAMES[f]}${n >= 2 ? `<span>${countText(f, n)} for your ${n} entries</span>` : ''}</h4>
+      <p><b>Good for:</b> ${GUIDE[f].good}</p>
+      <p><b>Not so good for:</b> ${GUIDE[f].bad}</p>
+      <p class="g-nums">${GUIDE[f].nums}</p>
+    </section>`).join('')}`;
+  $('#guideDlg').showModal();
+  $('#guideBody').scrollTop = 0;
+}
 function countText(fmt, n) {
-  const [lo, hi] = formatCount(fmt, n);
-  return lo === hi ? plural(lo, 'matchup') : `${lo} or ${hi} matchups`;
+  const [lo, hi, rough] = formatCount(fmt, n);
+  return lo === hi ? (rough ? 'about ' : '') + plural(lo, 'matchup') : `${lo} or ${hi} matchups`;
 }
 function formatsHTML(n) {
   const elimBusy = isElim() && elimStarted();
   const pairBusy = !isElim() && Object.keys(S.results).length > 0;
   const minRounds = S.format === 'swiss' ? Math.max(1, S.rounds.length) : 1, maxRounds = Math.max(1, n - 1);
   return `<section class="formats">
-    <h2>How should they face off?</h2>
-    <div class="fmt-grid" role="radiogroup" aria-label="Format">${['rr', 'swiss', 'single', 'double'].map(f => {
+    <div class="formats-head"><h2>How should they face off?</h2><button class="btn btn-quiet" id="guideBtn" type="button">Which one should I pick?</button></div>
+    <div class="fmt-grid" role="radiogroup" aria-label="Format">${FORMATS.map(f => {
       const on = S.format === f;
       let why = '';
       if (!on && elimBusy) why = 'Restart the bracket to switch.';
-      else if (!on && pairBusy && isElimFmt(f)) why = 'Brackets start fresh. Restart to use one.';
+      else if (!on && pairBusy && freshFmt(f)) why = isElimFmt(f) ? 'Brackets start fresh. Restart to use one.' : 'Top N starts fresh. Restart to use it.';
       const [, hi] = formatCount(f, n);
       const count = n < 2 ? 'Needs 2 or more entries' : `<b>${countText(f, n)}</b>, ${timeText(hi)}`;
-      const t = swissTarget();
+      const t = swissTarget(), tt = topTarget(), topLock = S.format === 'topn' && S.history.length > 0;
       const stepper = f === 'swiss' ? `<span class="fmt-rounds">
           <button type="button" class="step" data-rounds="-1" aria-label="Fewer rounds" ${why || t <= minRounds ? 'disabled' : ''}>−</button>
           <span>${plural(t, 'round')}</span>
           <button type="button" class="step" data-rounds="1" aria-label="More rounds" ${why || t >= maxRounds ? 'disabled' : ''}>+</button>
+        </span>` : f === 'topn' ? `<span class="fmt-rounds">
+          <button type="button" class="step" data-topn="-1" aria-label="Fewer places" ${why || topLock || tt <= 1 ? 'disabled' : ''}>−</button>
+          <span>Top ${tt}</span>
+          <button type="button" class="step" data-topn="1" aria-label="More places" ${why || topLock || tt >= topMax(n) ? 'disabled' : ''}>+</button>
         </span>` : '';
       return `<div class="fmt${on ? ' on' : ''}${why ? ' off' : ''}" role="radio" tabindex="${why ? -1 : 0}" aria-checked="${on}" aria-disabled="${!!why}" data-format="${f}" data-why="${esc(why)}">
         <span class="fmt-name">${FORMAT_NAMES[f]}</span>
@@ -1236,7 +1485,7 @@ function renderSetup() {
       ${locked ? '' : `<button class="tile-x" data-remove="${it.id}" aria-label="Remove ${esc(nm.get(it.id).text)}">×</button>`}
     </div>`;
   }).join('');
-  const note = locked ? '' : !started ? '' : S.format === 'swiss'
+  const note = locked ? '' : !started ? '' : isRounds()
     ? '<p>Removing an entry deletes its matchups. New entries join from the next round.</p>'
     : '<p>Removing an entry deletes its matchups. New entries get added to the schedule.</p>';
   main.innerHTML = `
@@ -1256,11 +1505,11 @@ function renderSetup() {
     ${n ? `<div class="grid">${tiles}</div>` : `<p class="empty">Nothing here yet. Add at least two entries to start.</p>`}
   `;
   if (keep && $('#lines')) $('#lines').value = keep;
-  const fmtName = S.format === 'rr' ? '' : FORMAT_NAMES[S.format] + ': ';
+  const prefix = S.format === 'rr' ? '' : fmtName(S.format) + ': ';
   let msg;
   if (n < 2) msg = 'Add at least 2 entries to start.';
-  else if (!P.done) msg = `${fmtName}<b>${countText(S.format, n)}</b> for ${n} entries. That's ${timeText(formatCount(S.format, n)[1])} at a few seconds each.`;
-  else msg = `${fmtName}<b>${P.done} of ${P.total}</b> matchups done. ${P.complete ? 'All done.' : `${P.total - P.done} left, ${timeText(P.total - P.done)}.`}`;
+  else if (!P.done) msg = `${prefix}<b>${countText(S.format, n)}</b> for ${n} entries. That's ${timeText(formatCount(S.format, n)[1])} at a few seconds each.`;
+  else msg = `${prefix}<b>${P.done} of ${P.total}</b> matchups done. ${P.complete ? 'All done.' : `${P.total - P.done} left, ${timeText(P.total - P.done)}.`}`;
   const canGo = n >= 2;
   dock.innerHTML = `<div class="dock">
     <p>${msg}</p>
@@ -1306,7 +1555,7 @@ function renderBattle() {
   const m = currentMatch();
   if (!m) { S.view = 'results'; renderResults(); return; }
   const nm = names(), byId = new Map(S.items.map(i => [i.id, i]));
-  const P = progress(), elim = isElim();
+  const P = progress(), elim = isElim(), nt = noTies();
   const sub = m.label || `${plural(P.total - P.done - 1, 'matchup')} after this`;
   dock.innerHTML = '';
   main.innerHTML = `
@@ -1319,7 +1568,7 @@ function renderBattle() {
           <button class="btn" id="rerun" type="button" ${anyPicks() ? '' : 'disabled'}>Restart</button>
         </div>
         <div class="progress">
-          <div class="progress-txt"><b>${P.done + 1} of ${P.total}</b><span${elim ? ' class="stage"' : ''}>${esc(sub)}</span></div>
+          <div class="progress-txt"><b>${P.done + 1} of ${P.total}</b><span${elim ? ' class="stage"' : m.check ? ' class="check"' : ''}>${esc(sub)}</span></div>
           ${elim ? '' : '<canvas id="tri" role="img"></canvas>'}
         </div>
       </div>
@@ -1329,8 +1578,8 @@ function renderBattle() {
         ${fighterHTML(byId.get(m.b), 'b', nm)}
       </div>
       <div class="battle-bottom">
-        ${elim ? '' : '<button class="btn" id="tieBtn" type="button">Tie</button>'}
-        <p class="keys">${elim ? 'Keys: left arrow picks left, right arrow picks right, Z undoes. No ties in a bracket.' : 'Keys: left arrow picks left, right arrow picks right, down arrow is a tie, Z undoes.'}</p>
+        ${nt ? '' : '<button class="btn" id="tieBtn" type="button">Tie</button>'}
+        <p class="keys">${nt ? `Keys: left arrow picks left, right arrow picks right, Z undoes. ${elim ? 'No ties in a bracket.' : 'No ties in Top N.'}` : 'Keys: left arrow picks left, right arrow picks right, down arrow is a tie, Z undoes.'}</p>
       </div>
     </section>`;
   if (!elim) drawTri($('#tri'), m);
@@ -1368,20 +1617,20 @@ function renderResults() {
     }).join('')}</div>
     <p class="note">Tiers come from win rate. S is 80% and up, A is 60% and up, B is 40% and up, C is 20% and up, and D is below 20%. The small number on each tile is its rank.</p>`;
   } else if (tab === 'table') {
-    const order = rows.map(r => r.id), rankOf = new Map(rows.map(r => [r.id, r.rank]));
+    const order = rows.map(r => r.id), rankOf = new Map(rows.map(r => [r.id, r.rank])), RES = effResults();
     body = `<div class="xt-wrap"><table class="xt">
       <thead><tr><th></th>${order.map(id => `<th title="${esc(nm.get(id).text)}">${rankOf.get(id)}</th>`).join('')}</tr></thead>
       <tbody>${order.map(rid => `<tr><th><span class="xr">${rankOf.get(rid)}</span><span class="xn">${esc(nm.get(rid).text)}</span></th>${order.map(cid => {
         if (rid === cid) return `<td class="self"></td>`;
-        const r = S.results[pk(rid, cid)];
+        const r = RES[pk(rid, cid)];
         const a = nm.get(rid).text, b = nm.get(cid).text;
-        if (r === undefined) return `<td class="u" title="${esc(a)} vs ${esc(b)}: not played${S.format === 'swiss' ? '' : ' yet'}"></td>`;
+        if (r === undefined) return `<td class="u" title="${esc(a)} vs ${esc(b)}: not played${isRounds() ? '' : ' yet'}"></td>`;
         if (r === 'tie') return `<td class="t" title="${esc(a)} tied ${esc(b)}"></td>`;
         const up = rankOf.get(rid) > rankOf.get(cid);
         if (r === rid) return `<td class="w${up ? ' up' : ''}" title="${esc(a)} beat ${esc(b)}${up ? ' (upset)' : ''}"></td>`;
         return `<td class="l" title="${esc(a)} lost to ${esc(b)}"></td>`;
       }).join('')}</tr>`).join('')}</tbody></table></div>
-      <p class="note">Each row is one entry. Dark squares are its wins, pale squares are its losses, and grey squares are ties. Squares with a yellow ring are upsets, where a lower-ranked entry beat a higher-ranked one.${S.format === 'swiss' ? ' Dashed squares are pairs that never met: Swiss only plays some of the pairs.' : ''} Hover a square to see the matchup.</p>`;
+      <p class="note">Each row is one entry. Dark squares are its wins, pale squares are its losses, and grey squares are ties. Squares with a yellow ring are upsets, where a lower-ranked entry beat a higher-ranked one.${isRounds() ? ` Dashed squares are pairs that never met: ${S.format === 'swiss' ? 'Swiss' : 'Top N'} only plays some of the pairs.` : ''}${usesChecks() && checkStats().checked ? ' Double-checked pairs show the answer you gave most often.' : ''} Hover a square to see the matchup.</p>`;
   } else {
     const parts = []; let i = 0;
     const tieWhy = elim ? "They went out at the same stage, so the bracket can't separate them." : "Same record, and their head-to-head games don't separate them.";
@@ -1399,12 +1648,12 @@ function renderResults() {
   let loopsHTML = '';
   if (hasResults && n >= 3) {
     const L = findLoops(pairOutcomes());
-    const fullRR = S.format === 'rr' && complete;
+    const fullRR = (S.format === 'rr' || S.format === 'rrplus') && complete;
     const consistency = L.max ? Math.min(L.count ? 99 : 100, Math.round((1 - L.count / L.max) * 100)) : 100;
     const head = L.count === 0
       ? (complete ? 'No loops. Every pick lines up with every other pick.' : 'No loops so far.')
       : (fullRR && n >= 5 ? `Your picks were ${consistency}% consistent, with ${plural(L.count, 'loop')}.` : `${plural(L.count, 'loop')}${complete ? '' : ' so far'}.`);
-    const canRedo = S.format === 'rr';
+    const canRedo = S.format === 'rr' || S.format === 'rrplus';
     loopsHTML = `<details class="loops" ${L.count && L.count <= 5 ? 'open' : ''}><summary>${head}</summary>
       <p>A loop is like rock, paper, scissors: you picked A over B and B over C, but then C over A. A few loops are normal. They usually mean those entries are close calls.${canRedo ? " You can redo any loop's three matchups." : ''}</p>
       ${L.count ? `<ul>${L.list.map(([a, b, c]) => `<li>${chip(a, nm, byId)}<span class="gt">beat</span>${chip(b, nm, byId)}<span class="gt">beat</span>${chip(c, nm, byId)}<span class="gt">beat</span>${chip(a, nm, byId)}${canRedo ? `<button class="btn btn-quiet" type="button" data-redo="${[a, b, c].join(',')}">Redo these 3</button>` : ''}</li>`).join('')}</ul>${L.count > L.list.length ? `<p>Showing the first ${L.list.length}.</p>` : ''}` : ''}
@@ -1419,9 +1668,23 @@ function renderResults() {
     banner = `<div class="banner"><p>Want it more exact? ${S.rounds.length < n - 1 ? `Another round adds ${plural(more, 'matchup')}. ` : ''}Finishing as a full round robin adds ${plural(left, 'matchup')}, and every pick so far counts.</p>
       ${S.rounds.length < n - 1 ? '<button class="btn" id="swissMore" type="button">Play another round</button>' : ''}
       ${left ? '<button class="btn btn-go" id="toRR" type="button">Finish as round robin</button>' : ''}</div>`;
+  } else if (complete && S.format === 'topn') {
+    const left = totalPairs() - doneCount();
+    if (left) banner = `<div class="banner"><p>Want everyone ranked exactly, not just the top? Finishing as a full round robin adds ${plural(left, 'matchup')}, and every pick so far counts.</p>
+      <button class="btn btn-go" id="toRR" type="button">Finish as round robin</button></div>`;
   }
 
-  const fmtLine = S.format === 'rr' ? '' : `<p class="fmt-line">${FORMAT_NAMES[S.format]}${S.format === 'swiss' ? `, ${plural(S.rounds.length, 'round')}` : ''}</p>`;
+  const cs = usesChecks() ? checkStats() : null;
+  let checkNote = '';
+  if (cs && cs.checked) {
+    if (!cs.split) checkNote = ' You gave the same answer every time.';
+    else {
+      checkNote = ` ${cs.split === 1 ? '1 close call' : plural(cs.split, 'close call')} got a different answer on the second look.`;
+      checkNote += cs.changed === cs.split ? (cs.split === 1 ? ' It ended up flipped.' : ' They all ended up flipped.')
+        : cs.changed ? ` ${cs.changed} ended up flipped.` : (cs.split === 1 ? ' The third look backed your first answer.' : ' The third looks backed your first answers.');
+    }
+  }
+  const fmtLine = S.format === 'rr' ? '' : `<p class="fmt-line">${formatLabel()}.${checkNote}</p>`;
   main.innerHTML = `
     <section class="results">
       ${banner}
@@ -1570,7 +1833,10 @@ async function copyText(t) {
   }
 }
 function formatLabel() {
-  return FORMAT_NAMES[S.format] + (S.format === 'swiss' ? `, ${plural(S.rounds.length, 'round')}` : '');
+  if (S.format === 'swiss') return `Swiss, ${plural(S.rounds.length, 'round')}`;
+  if (S.format === 'topn') { const c = checkStats(); return `Top ${topTarget()}, out after ${plural(topLives(), 'loss', 'losses')}${c.checked ? `, ${plural(c.checked, 'finalist matchup')} double-checked` : ''}`; }
+  if (S.format === 'rrplus') { const c = checkStats(); return c.checked ? `Round robin+, ${plural(c.checked, 'close call')} double-checked` : 'Round robin+'; }
+  return FORMAT_NAMES[S.format];
 }
 function rankingText() {
   const nm = names(), { rows } = ranking(), P = progress();
@@ -1736,7 +2002,14 @@ async function importJSON(file) {
   const ids = new Set(items.map(i => i.id));
   const results = {};
   for (const [k, v] of Object.entries(obj.results || {})) { const [a, b] = k.split('|'); if (ids.has(a) && ids.has(b) && a !== b && (v === 'tie' || v === a || v === b)) results[pk(a, b)] = v; }
-  const format = ['rr', 'swiss', 'single', 'double'].includes(obj.format) ? obj.format : 'rr';
+  const format = FORMATS.includes(obj.format) ? obj.format : 'rr';
+  const checks = {};
+  for (const [k, v] of Object.entries(obj.checks || {})) {
+    const [a, b] = k.split('|'), key = pk(a, b);
+    if (!(key in results) || !Array.isArray(v)) continue;
+    const c = v.filter(x => x === 'tie' || x === a || x === b).slice(0, 2);
+    if (c.length) checks[key] = c;
+  }
   const rounds = (Array.isArray(obj.rounds) ? obj.rounds : []).filter(r => r && Array.isArray(r.pairs)).map(r => ({
     pairs: r.pairs.filter(p => Array.isArray(p) && p.length === 2 && p[0] !== p[1] && ids.has(p[0]) && ids.has(p[1])),
     byes: (Array.isArray(r.byes) ? r.byes : []).filter(id => ids.has(id)),
@@ -1747,10 +2020,10 @@ async function importJSON(file) {
     bracket = { seeds: ob.seeds.slice(), results: {} };
     for (const [m, w] of Object.entries(ob.results || {})) if (/^(W\d+-\d+|L\d+-\d+|B|F1|F2)$/.test(m) && ids.has(w)) bracket.results[m] = w;
   }
-  const history = (Array.isArray(obj.history) ? obj.history : []).filter(h => h && (h.m ? !!(bracket && h.m in bracket.results) : ids.has(h.a) && ids.has(h.b) && pk(h.a, h.b) in results));
+  const history = (Array.isArray(obj.history) ? obj.history : []).filter(h => h && (h.m ? !!(bracket && h.m in bracket.results) : ids.has(h.a) && ids.has(h.b) && pk(h.a, h.b) in results && (!h.c || pk(h.a, h.b) in checks)));
   const maxId = items.reduce((m, i) => Math.max(m, parseInt(i.id.slice(1), 10) || 0), 0);
   for (const id of [...urlCache.keys()]) dropURL(id);
-  S = { ...blank(), items, results, history, format, rounds, bracket, swissRounds: Math.max(0, Math.floor(Number(obj.swissRounds) || 0)),
+  S = { ...blank(), items, results, history, format, rounds, bracket, checks, topN: Math.max(1, Math.floor(Number(obj.topN) || 3)), swissRounds: Math.max(0, Math.floor(Number(obj.swissRounds) || 0)),
     tieBreaks: Array.isArray(obj.tieBreaks) ? obj.tieBreaks.filter(t => Array.isArray(t) && t.every(x => ids.has(x))) : [], nextId: Math.max(Number(obj.nextId) || 1, maxId + 1) };
   S.view = items.length > 1 && progress().complete ? 'results' : 'setup';
   if (Store.ok) { try { await Store.clear(); for (const it of items) await saveImg(it); } catch (e) { setSaveOK(false); } }
@@ -1782,7 +2055,7 @@ function chooseFormat(card) {
   if (card.getAttribute('aria-disabled') === 'true') { toast(card.dataset.why); return; }
   const f = card.dataset.format;
   if (f === S.format) return;
-  if (f === 'swiss') S.rounds = [];
+  if (f === 'swiss' || f === 'topn') S.rounds = [];
   S.bracket = null;
   S.format = f;
   render(); save();
@@ -1792,15 +2065,23 @@ function changeRounds(d) {
   S.swissRounds = Math.max(min, Math.min(Math.max(1, n - 1), swissTarget() + d));
   render(); save();
 }
+function changeTop(d) {
+  S.topN = Math.max(1, Math.min(topMax(S.items.length), topTarget() + d));
+  render(); save();
+}
 document.addEventListener('click', e => {
   const step = e.target.closest('[data-rounds]');
   if (step) { if (!step.disabled) changeRounds(Number(step.dataset.rounds)); return; }
+  const tstep = e.target.closest('[data-topn]');
+  if (tstep) { if (!tstep.disabled) changeTop(Number(tstep.dataset.topn)); return; }
   const card = e.target.closest('[data-format]');
   if (card) { chooseFormat(card); return; }
   const t = e.target.closest('button, [data-tab]');
   if (!t) return;
   if (t.id === 'swissMore') { S.swissRounds = Math.min(S.items.length - 1, S.rounds.length + 1); go('battle'); return; }
   if (t.id === 'toRR') { S.format = 'rr'; S.queue = []; go('battle'); toast('Finishing as a full round robin. Every pick so far counts.'); return; }
+  if (t.id === 'guideBtn') return openGuide();
+  if (t.id === 'guideClose') return $('#guideDlg').close();
   if (t.id === 'dropBtn') return $('#imgIn').click();
   if (t.id === 'addLines') return addLines();
   if (t.dataset.remove) return removeItem(t.dataset.remove);
@@ -1815,7 +2096,7 @@ document.addEventListener('click', e => {
   if (t.dataset.redo) {
     const [a, b, c] = t.dataset.redo.split(',');
     const keys = [pk(a, b), pk(b, c), pk(a, c)];
-    keys.forEach(k => delete S.results[k]);
+    keys.forEach(k => { delete S.results[k]; if (S.checks) delete S.checks[k]; });
     S.history = S.history.filter(h => !keys.includes(pk(h.a, h.b)));
     S.view = 'battle';
     ensureQueue(keys);
@@ -1826,7 +2107,7 @@ document.addEventListener('click', e => {
   if (t.id === 'rerun') {
     ask('Restart? This clears every pick and starts the matchups over. Your entries stay.', 'Restart').then(ok => {
       if (!ok) return;
-      S.results = {}; S.history = []; S.queue = []; S.tieBreaks = []; S.rounds = []; S.bracket = null;
+      S.results = {}; S.history = []; S.queue = []; S.tieBreaks = []; S.rounds = []; S.bracket = null; S.checks = {};
       go(S.view === 'setup' ? 'setup' : 'battle'); toast('Restarted. Your entries are still here.');
     });
     return;

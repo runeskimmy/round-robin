@@ -197,8 +197,9 @@ def check_formats(page, run):
     page.wait_for_selector('#lines')
     page.fill('#lines', '\n'.join(NATO))
     page.click('#addLines')
-    counts = {f: page.inner_text(f'[data-format="{f}"] .fmt-count') for f in ('rr', 'swiss', 'single', 'double')}
-    run.check('28 matchups' in counts['rr'] and '20 matchups' in counts['swiss'] and '8 matchups' in counts['single']
+    counts = {f: page.inner_text(f'[data-format="{f}"] .fmt-count') for f in ('rr', 'rrplus', 'swiss', 'topn', 'single', 'double')}
+    run.check('28 matchups' in counts['rr'] and 'about 35 matchups' in counts['rrplus'] and '20 matchups' in counts['swiss']
+              and 'about 25 matchups' in counts['topn'] and '8 matchups' in counts['single']
               and '14 or 15 matchups' in counts['double'], 'each format shows its matchup count and time', counts)
 
     # Swiss, 4 rounds
@@ -271,6 +272,68 @@ def check_formats(page, run):
     run.check(all(page.query_selector(f'.bsec h3:text("{t}")') for t in ('Winners bracket', 'Losers bracket', 'Finals')),
               'bracket picture shows winners, losers, and finals')
     page.screenshot(path=run.shot('double-bracket'), full_page=True)
+
+    # The guide
+    _restart(page)
+    page.click('#toSetup')
+    page.click('#guideBtn')
+    page.wait_for_selector('#guideDlg[open]')
+    txt = page.inner_text('#guideBody')
+    run.check(txt.count('Good for:') == 6 and txt.count('Not so good for:') == 6 and 'about 35 matchups for your 8 entries' in txt,
+              'the guide says what all six formats are good and bad at')
+    page.screenshot(path=run.shot('guide'))
+    page.click('#guideClose')
+    run.check(not page.query_selector('#guideDlg[open]'), 'the guide closes')
+
+    # Round robin+: one second look gets a different answer, and the third look settles it
+    page.click('[data-format="rrplus"]')
+    page.click('#dockGo')
+    page.wait_for_selector('.fighter')
+    played, flipped, first_look = 0, False, None
+    while page.query_selector('.fighter') and played < 80:
+        a = page.get_attribute('.fighter[data-side="a"]', 'aria-label')[5:]
+        b = page.get_attribute('.fighter[data-side="b"]', 'aria-label')[5:]
+        sub = page.inner_text('.progress-txt span')
+        better = 'ArrowLeft' if NATO.index(a) < NATO.index(b) else 'ArrowRight'
+        key = better
+        if sub == 'Second look at a close call':
+            if first_look is None:
+                first_look = page.inner_text('.progress-txt b')
+                page.screenshot(path=run.shot('second-look'))
+            if not flipped:
+                key, flipped = ('ArrowRight' if better == 'ArrowLeft' else 'ArrowLeft'), True
+        before = page.inner_text('.progress-txt b')
+        page.keyboard.press(key)
+        _wait_progress_change(page, before)
+        played += 1
+    run.check(first_look == '29 of 35', 'second looks start right after the 28 round robin matchups', first_look)
+    rows = ranking(page)
+    run.check(played == 36 and rows == [[str(i + 1), x] for i, x in enumerate(NATO)],
+              'Round robin+: 7 second looks plus one third look, and the ranking is exact', (played, rows[:3]))
+    line = page.inner_text('.fmt-line')
+    run.check('7 close calls double-checked' in line and 'third look backed your first answer' in line,
+              'the results say one answer changed and the third look settled it', line)
+    page.screenshot(path=run.shot('rrplus-results'), full_page=True)
+
+    # Top N
+    _restart(page)
+    page.click('#toSetup')
+    page.click('[data-format="topn"]')
+    run.check('Top 3: about 25 matchups' in page.inner_text('.dock p'), 'Top 3 of 8 is about 25 matchups', page.inner_text('.dock p'))
+    page.click('#dockGo')
+    page.wait_for_selector('.fighter')
+    run.check(not page.query_selector('#tieBtn') and page.inner_text('.progress-txt span') == 'Round 1, 8 still in',
+              'Top N: no Tie button, and it shows how many are still in', page.inner_text('.progress-txt span'))
+    page.screenshot(path=run.shot('topn-matchup'))
+    played = _play_by_preference(page, NATO)
+    rows = ranking(page)
+    run.check(played == 25 and rows[:4] == [[str(i + 1), x] for i, x in enumerate(NATO[:4])],
+              'Top 3: the 4 finalists (top 3 plus a spare) are ranked exactly', (played, rows[:5]))
+    run.check(page.inner_text('.row >> nth=0').count('Finalist') == 1 and 'Out in round' in page.inner_text('.row >> nth=4'),
+              'finalists and the rest are labeled')
+    run.check('Top 3, out after 4 losses' in page.inner_text('.fmt-line') and page.query_selector('#toRR'),
+              'results name the format and offer to finish as a round robin', page.inner_text('.fmt-line'))
+    page.screenshot(path=run.shot('topn-results'), full_page=True)
 
     _restart(page)
     page.click('#toSetup')
