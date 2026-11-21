@@ -162,3 +162,117 @@ def check_restart(page, run):
     page.click('#toSetup')
     page.wait_for_selector('.tile', timeout=5000)
     run.check(len(page.query_selector_all('.tile')) == 8, 'Restart keeps all 8 entries')
+
+
+NATO = ['Alpha', 'Bravo', 'Charlie', 'Delta', 'Echo', 'Foxtrot', 'Golf', 'Hotel']
+
+
+def _play_by_preference(page, order):
+    """Plays every matchup, always picking whichever entry comes first in `order`."""
+    n = 0
+    while page.query_selector('.fighter'):
+        a = page.get_attribute('.fighter[data-side="a"]', 'aria-label')[5:]
+        b = page.get_attribute('.fighter[data-side="b"]', 'aria-label')[5:]
+        before = page.inner_text('.progress-txt b')
+        page.keyboard.press('ArrowLeft' if order.index(a) < order.index(b) else 'ArrowRight')
+        _wait_progress_change(page, before)
+        n += 1
+        if n > 60:
+            break
+    return n
+
+
+def _restart(page):
+    page.click('#rerun')
+    page.wait_for_selector('#askDlg[open]', timeout=5000)
+    page.click('#askOk')
+    page.wait_for_timeout(300)
+
+
+def check_formats(page, run):
+    """Swiss (then finished as a round robin), single elimination, and double elimination."""
+    page.click('#newT')
+    if page.query_selector('#askDlg[open]'):
+        page.click('#askOk')
+    page.wait_for_selector('#lines')
+    page.fill('#lines', '\n'.join(NATO))
+    page.click('#addLines')
+    counts = {f: page.inner_text(f'[data-format="{f}"] .fmt-count') for f in ('rr', 'swiss', 'single', 'double')}
+    run.check('28 matchups' in counts['rr'] and '20 matchups' in counts['swiss'] and '8 matchups' in counts['single']
+              and '14 or 15 matchups' in counts['double'], 'each format shows its matchup count and time', counts)
+
+    # Swiss, 4 rounds
+    page.click('[data-format="swiss"]')
+    page.click('[data-rounds="-1"]')
+    run.check('Swiss: 16 matchups' in page.inner_text('.dock p'), 'Swiss with 4 rounds is 16 matchups', page.inner_text('.dock p'))
+    page.click('#dockGo')
+    page.wait_for_selector('.fighter')
+    run.check(page.inner_text('.progress-txt span') == 'Round 1 of 4', 'Swiss shows the round', page.inner_text('.progress-txt span'))
+    page.screenshot(path=run.shot('swiss-matchup'))
+    played = _play_by_preference(page, NATO)
+    run.check(played == 16, 'Swiss plays 16 matchups', played)
+    page.wait_for_selector('#toRR')
+    rows = ranking(page)
+    run.check(rows[0] == ['1', 'Alpha'], 'Swiss puts the best entry first', rows[:2])
+    run.check('Swiss, 4 rounds' in page.inner_text('.fmt-line'), 'results say it was a 4-round Swiss')
+    page.screenshot(path=run.shot('swiss-results'), full_page=True)
+
+    # ...then finish it as a full round robin, keeping every pick
+    page.click('#toRR')
+    page.wait_for_selector('.fighter')
+    run.check(page.inner_text('.progress-txt b') == '17 of 28', 'finishing as a round robin keeps all 16 picks', page.inner_text('.progress-txt b'))
+    played = _play_by_preference(page, NATO)
+    rows = ranking(page)
+    run.check(played == 12 and rows == [[str(i + 1), x] for i, x in enumerate(NATO)],
+              'the full round robin then ranks all 8 exactly right', rows)
+
+    # Single elimination
+    _restart(page)
+    page.click('#toSetup')
+    page.click('[data-format="single"]')
+    page.click('#dockGo')
+    page.wait_for_selector('.fighter')
+    run.check(not page.query_selector('#tieBtn'), 'no Tie button in a bracket')
+    page.keyboard.press('ArrowDown')
+    page.wait_for_selector('#toast:not([hidden])', timeout=3000)
+    run.check('No ties' in page.inner_text('#toast'), 'the tie key explains there are no ties in a bracket', page.inner_text('#toast'))
+    played = _play_by_preference(page, NATO)
+    page.wait_for_selector('.res-head h2')
+    rows = ranking(page)
+    run.check(played == 8 and page.inner_text('.res-head h2') == 'Final results', 'single elimination: 7 matches plus the 3rd-place match', played)
+    run.check(rows[0] == ['1', 'Alpha'] and 'Champion' in page.inner_text('.row >> nth=0'), 'the best entry is champion')
+    page.screenshot(path=run.shot('single-results'), full_page=True)
+    page.click('[data-tab="bracket"]')
+    run.check(len(page.query_selector_all('.bm')) == 8 and 'Alpha' in page.inner_text('.champ-line'), 'bracket picture shows all 8 matches and the champion')
+    page.screenshot(path=run.shot('single-bracket'), full_page=True)
+
+    # Double elimination
+    _restart(page)
+    page.click('#toSetup')
+    page.click('[data-format="double"]')
+    page.click('#dockGo')
+    page.wait_for_selector('.fighter')
+    for _ in range(3):
+        a = page.get_attribute('.fighter[data-side="a"]', 'aria-label')[5:]
+        b = page.get_attribute('.fighter[data-side="b"]', 'aria-label')[5:]
+        before = page.inner_text('.progress-txt b')
+        page.keyboard.press('ArrowLeft' if NATO.index(a) < NATO.index(b) else 'ArrowRight')
+        _wait_progress_change(page, before)
+    page.click('#toSetup')
+    run.check(page.query_selector('.locked') and not page.query_selector('.tile-x'), 'entries lock once a bracket starts')
+    page.click('#dockGo')
+    page.wait_for_selector('.fighter')
+    played = 3 + _play_by_preference(page, NATO)
+    page.click('[data-tab="list"]')
+    rows = ranking(page)
+    run.check(played == 14, 'double elimination: 14 matches when the favorite never loses', played)
+    run.check(rows[:2] == [['1', 'Alpha'], ['2', 'Bravo']], 'double elimination gets 1st and 2nd exactly right', rows[:3])
+    page.click('[data-tab="bracket"]')
+    run.check(all(page.query_selector(f'.bsec h3:text("{t}")') for t in ('Winners bracket', 'Losers bracket', 'Finals')),
+              'bracket picture shows winners, losers, and finals')
+    page.screenshot(path=run.shot('double-bracket'), full_page=True)
+
+    _restart(page)
+    page.click('#toSetup')
+    page.click('[data-format="rr"]')
+    run.check(page.get_attribute('[data-format="rr"]', 'aria-checked') == 'true', 'back to round robin')

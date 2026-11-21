@@ -172,6 +172,32 @@ main { flex: 1; padding: 8px clamp(14px, 3vw, 32px) 32px; width: 100%; max-width
 .dock .btn-go { border-color: var(--yolk); }
 .dock .btn-go:hover { text-decoration: none; }
 
+/* format picker */
+.formats { margin: 26px 0 0; }
+.formats h2 { font-family: var(--display); font-weight: 800; font-size: 28px; margin: 0 0 12px; line-height: 1; }
+.fmt-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.fmt {
+  position: relative; display: flex; flex-direction: column; gap: 6px;
+  padding: 14px; border: 2px solid var(--egg-deep); border-radius: 12px; background: var(--shell); cursor: pointer;
+}
+.fmt:hover { border-color: var(--ink); }
+.fmt.on { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.fmt.on::after {
+  content: ''; position: absolute; top: 14px; right: 14px; width: 12px; height: 12px; border-radius: 50%;
+  background: var(--yolk); box-shadow: 0 0 0 3px var(--shell), 0 0 0 5px var(--ink);
+}
+.fmt.off { opacity: .55; cursor: default; }
+.fmt.off:hover { border-color: var(--egg-deep); }
+.fmt-name { font-family: var(--display); font-weight: 800; font-size: 24px; line-height: 1; padding-right: 26px; }
+.fmt-what { font-size: 14px; color: var(--twig); flex: 1; }
+.fmt-count { font-size: 14px; }
+.fmt-count b { font-size: 16px; }
+.fmt-why { font-size: 13px; font-weight: 700; }
+.fmt-rounds { display: inline-flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 700; }
+.step { width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--ink); background: transparent; font-weight: 700; font-size: 16px; line-height: 1; padding: 0; }
+.step:disabled { opacity: .3; cursor: default; }
+.locked { margin: 0; padding: 12px 16px; background: var(--shell); border-left: 4px solid var(--yolk); border-radius: 6px; }
+
 /* battle */
 .battle-top { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 14px; }
 .battle-tools { display: flex; gap: 8px; flex-wrap: wrap; margin-right: auto; }
@@ -180,6 +206,7 @@ main { flex: 1; padding: 8px clamp(14px, 3vw, 32px) 32px; width: 100%; max-width
 .progress-txt { text-align: right; line-height: 1.1; }
 .progress-txt b { font-family: var(--display); font-weight: 800; font-size: 34px; display: block; }
 .progress-txt span { color: var(--twig); font-size: 14px; }
+.progress-txt span.stage { color: var(--ink); font-weight: 700; font-size: 16px; }
 
 .arena { display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px; align-items: center; }
 .vs { font-family: var(--display); font-weight: 800; font-size: 26px; color: var(--twig); }
@@ -224,7 +251,39 @@ main { flex: 1; padding: 8px clamp(14px, 3vw, 32px) 32px; width: 100%; max-width
 }
 .banner p { margin: 0 auto 0 0; }
 .res-head { display: flex; align-items: flex-end; gap: 14px; flex-wrap: wrap; margin-bottom: 14px; }
-.res-head h2 { font-family: var(--display); font-weight: 800; font-size: 44px; line-height: .95; margin: 0 auto 0 0; }
+.res-title { margin-right: auto; }
+.res-head h2 { font-family: var(--display); font-weight: 800; font-size: 44px; line-height: .95; margin: 0; }
+.fmt-line { margin: 4px 0 0; color: var(--twig); font-size: 15px; }
+.who .rec .stage { color: var(--ink); font-weight: 700; }
+
+/* bracket */
+.bracket { display: flex; flex-direction: column; gap: 22px; }
+.champ-line { display: flex; align-items: center; gap: 12px; }
+.champ-line > span { font-family: var(--display); font-weight: 800; font-size: 28px; }
+.champ-line .chip { background: var(--yolk); color: var(--on-yolk); font-weight: 700; padding-top: 4px; padding-bottom: 4px; }
+.swipe-hint { display: none; margin: 0 0 6px; color: var(--twig); font-size: 14px; }
+.bsec h3 { font-family: var(--display); font-weight: 800; font-size: 24px; margin: 0 0 8px; line-height: 1; }
+.bscroll { overflow-x: auto; padding-bottom: 6px; }
+.bcols { display: flex; gap: 14px; align-items: stretch; width: max-content; }
+.bcol { display: flex; flex-direction: column; gap: 6px; width: 196px; }
+.bcol-h { font-size: 13px; font-weight: 700; color: var(--twig); }
+.bcol-ms { flex: 1; display: flex; flex-direction: column; justify-content: space-around; gap: 10px; }
+.bm { background: var(--shell); border-radius: 8px; overflow: hidden; border: 2px solid transparent; }
+.bm.ready { border-color: var(--yolk); }
+.bm-tag { font-size: 11px; font-weight: 700; color: var(--twig); padding: 5px 8px 0; }
+.bm-row { display: flex; align-items: center; gap: 8px; padding: 5px 8px; font-size: 14px; min-height: 38px; }
+.bm-row + .bm-row { border-top: 1.5px solid var(--egg); }
+.bm-row.win { font-weight: 700; }
+.bm-row.win::after { content: ''; margin-left: auto; width: 9px; height: 9px; border-radius: 50%; background: var(--yolk); flex: none; }
+.bm-row.lose { color: var(--twig); }
+.bm-row.lose .bm-th { opacity: .5; }
+.bm-row.tbd { color: var(--twig); font-style: italic; }
+.bm-n { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.bm-th {
+  width: 28px; height: 28px; border-radius: 5px; background: var(--egg-deep); flex: none; overflow: hidden;
+  display: flex; align-items: center; justify-content: center; font-family: var(--display); font-weight: 800; font-size: 15px;
+}
+.bm-th img { width: 100%; height: 100%; object-fit: contain; display: block; }
 .tabs { display: inline-flex; border: 2px solid var(--ink); border-radius: 8px; overflow: hidden; }
 .tabs button { border: 0; background: transparent; padding: 7px 14px; font-weight: 700; }
 .tabs button + button { border-left: 2px solid var(--ink); }
@@ -339,8 +398,16 @@ dialog p { margin: 0 0 14px; color: var(--twig); }
 }
 body.dragging .dropcover { display: grid; }
 
+@media (max-width: 960px) {
+  .fmt-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 @media (max-width: 760px) {
   body { font-size: 16px; }
+  .fmt { padding: 12px; }
+  .fmt-name { font-size: 21px; }
+  .formats h2 { font-size: 24px; }
+  .bcol { width: 168px; }
+  .swipe-hint { display: block; }
   .top { padding: 10px 14px; gap: 8px 10px; }
   .brand svg { width: 30px; height: 30px; }
   .brand h1 { font-size: 27px; }
@@ -429,7 +496,8 @@ const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const plural = (n, one, many) => n + ' ' + (n === 1 ? one : (many || one + 's'));
 const today = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
 
-const blank = () => ({ v: 1, nextId: 1, items: [], results: {}, history: [], queue: [], tieBreaks: [], view: 'setup', tab: 'list' });
+const blank = () => ({ v: 2, nextId: 1, items: [], results: {}, history: [], queue: [], tieBreaks: [], view: 'setup', tab: 'list',
+  format: 'rr', swissRounds: 0, rounds: [], bracket: null });
 let S = blank();
 
 /* ---------- storage (IndexedDB, images kept separately) ---------- */
@@ -547,6 +615,7 @@ function labelFromFile(name) {
   return base.replace(/_+/g, ' ').trim();
 }
 async function addFiles(files) {
+  if (entriesLocked()) { toast('Entries are locked while the bracket is being played. Restart to change them.'); return; }
   const imgs = [...files].filter(f => f && (f.type.startsWith('image/') || /\.(png|jpe?g|gif|webp|bmp|svg|avif)$/i.test(f.name || '')));
   if (!imgs.length) { if (files.length) toast("Those files aren't images."); return; }
   let added = 0; const failed = [];
@@ -581,12 +650,23 @@ function addItem(label, img) {
   const it = { id: 'i' + (S.nextId++), label: label || '', img: img || null };
   S.items.push(it);
   saveImg(it);
+  entriesChanged();
   return it;
 }
+// Before a bracket starts, a new entry means a new draw. A Swiss round that hasn't started yet gets re-paired.
+function entriesChanged() {
+  if (isElim() && !elimStarted()) S.bracket = null;
+  if (S.format === 'swiss') {
+    const last = S.rounds[S.rounds.length - 1];
+    if (last && !last.pairs.some(([a, b]) => pk(a, b) in S.results)) S.rounds.pop();
+  }
+}
 function removeItem(id) {
+  if (entriesLocked()) { toast('Entries are locked while the bracket is being played. Restart to change them.'); return; }
   S.items = S.items.filter(i => i.id !== id);
+  entriesChanged();
   for (const k of Object.keys(S.results)) { const [a, b] = k.split('|'); if (a === id || b === id) delete S.results[k]; }
-  S.history = S.history.filter(h => h.a !== id && h.b !== id);
+  S.history = S.history.filter(h => h.m || (h.a !== id && h.b !== id));
   S.queue = S.queue.filter(q => q.a !== id && q.b !== id);
   S.tieBreaks = S.tieBreaks.map(t => t.filter(x => x !== id)).filter(t => t.length > 1);
   delImg(id); dropURL(id);
@@ -651,41 +731,290 @@ function schedule(pairs, priority) {
   return out;
 }
 
+/* ---------- formats ---------- */
+const FORMAT_NAMES = { rr: 'Round robin', swiss: 'Swiss', single: 'Single elimination', double: 'Double elimination' };
+const isElimFmt = f => f === 'single' || f === 'double';
+const isElim = () => isElimFmt(S.format);
+const elimStarted = () => !!(S.bracket && Object.keys(S.bracket.results).length);
+const anyPicks = () => S.history.length > 0 || Object.keys(S.results).length > 0 || elimStarted();
+const entriesLocked = () => isElim() && elimStarted();
+const autoSwissRounds = n => Math.max(1, Math.min(n - 1, Math.ceil(Math.log2(Math.max(2, n))) + 2));
+function swissTarget() {
+  const n = S.items.length;
+  return Math.max(1, Math.min(Math.max(1, n - 1), S.swissRounds || autoSwissRounds(n)));
+}
+// How many matchups a format takes for n entries: [fewest, most].
+function formatCount(fmt, n) {
+  if (n < 2) return [0, 0];
+  if (fmt === 'swiss') { const c = swissTarget() * Math.floor(n / 2); return [c, c]; }
+  if (fmt === 'single') { const c = n - 1 + (n >= 4 ? 1 : 0); return [c, c]; }
+  if (fmt === 'double') return [2 * n - 2, 2 * n - 1];
+  const c = n * (n - 1) / 2; return [c, c];
+}
+function timeText(m) {
+  const mins = Math.round(m * 3 / 60);
+  if (mins < 1) return 'under a minute';
+  if (mins < 90) return 'about ' + plural(mins, 'minute');
+  const h = Math.round(mins / 30) / 2;
+  return `about ${h} ${h === 1 ? 'hour' : 'hours'}`;
+}
+
+/* Swiss: each round pairs entries with the closest-ranked entry they haven't faced yet. */
+function roundPairs(r) { const ids = new Set(S.items.map(i => i.id)); return r.pairs.filter(([a, b]) => ids.has(a) && ids.has(b)); }
+const roundDone = r => roundPairs(r).every(([a, b]) => pk(a, b) in S.results);
+const swissComplete = () => S.rounds.length >= swissTarget() && S.rounds.every(roundDone);
+function swissPlayed() { let c = 0; for (const r of S.rounds) for (const [a, b] of roundPairs(r)) if (pk(a, b) in S.results) c++; return c; }
+function ensureSwissRound() {
+  if (S.items.length < 2) return;
+  const last = S.rounds[S.rounds.length - 1];
+  if (last && !roundDone(last)) return;
+  if (S.rounds.length >= swissTarget()) return;
+  const r = makeSwissRound();
+  if (r.pairs.length) S.rounds.push(r);
+}
+function makeSwissRound() {
+  const { st } = standings();
+  const order = shuffle(S.items.map(i => i.id)).sort((a, b) => st.get(b).pts - st.get(a).pts || st.get(b).sb - st.get(a).sb);
+  const byeCount = id => S.rounds.reduce((c, r) => c + ((r.byes || []).includes(id) ? 1 : 0), 0);
+  const byes = [];
+  if (order.length % 2) {  // odd count: the lowest-ranked entry with the fewest byes sits out
+    let best = order.length - 1;
+    for (let i = order.length - 2; i >= 0; i--) if (byeCount(order[i]) < byeCount(order[best])) best = i;
+    byes.push(order.splice(best, 1)[0]);
+  }
+  const played = new Set(Object.keys(S.results));
+  let pairs = pairUp(order, played);
+  if (!pairs) {  // no pairing avoids every repeat: pair who we can, the rest sit out this round
+    pairs = []; const used = new Set();
+    for (let i = 0; i < order.length; i++) {
+      if (used.has(order[i])) continue;
+      for (let j = i + 1; j < order.length; j++) {
+        if (used.has(order[j]) || played.has(pk(order[i], order[j]))) continue;
+        pairs.push([order[i], order[j]]); used.add(order[i]); used.add(order[j]); break;
+      }
+    }
+    for (const id of order) if (!used.has(id)) byes.push(id);
+  }
+  pairs = shuffle(pairs.map(([a, b]) => (Math.random() < 0.5 ? [a, b] : [b, a])));
+  const last = S.history[S.history.length - 1];
+  if (last && last.a && pairs.length > 1 && pairs[0].some(x => x === last.a || x === last.b)) pairs.push(pairs.shift());
+  return { pairs, byes };
+}
+function pairUp(order, played) {
+  const n = order.length, used = new Array(n).fill(false), res = [];
+  let steps = 0;
+  const next = () => {
+    const i = used.indexOf(false);
+    if (i < 0) return true;
+    used[i] = true;
+    for (let j = i + 1; j < n; j++) {
+      if (used[j] || played.has(pk(order[i], order[j]))) continue;
+      if (++steps > 100000) break;
+      used[j] = true; res.push([order[i], order[j]]);
+      if (next()) return true;
+      used[j] = false; res.pop();
+    }
+    used[i] = false;
+    return false;
+  };
+  return next() ? res : null;
+}
+
+/* Elimination brackets. Any entry count works: byes go to the top seeds, and a match missing a player
+   resolves by itself. Slots point at a seed, or at the winner or loser of an earlier match. */
+const bracketCache = new Map();
+function bracketOrder(P) { let a = [1]; while (a.length < P) { const m = a.length * 2; a = a.flatMap(s => [s, m + 1 - s]); } return a; }
+function roundName(r, k, many) {
+  const left = k - r;
+  if (left === 0) return 'Final';
+  if (left === 1) return many ? 'Semifinals' : 'Semifinal';
+  if (left === 2) return many ? 'Quarterfinals' : 'Quarterfinal';
+  return 'Round of ' + 2 ** (left + 1);
+}
+function buildBracket(kind, n) {
+  const key = kind + ':' + n;
+  if (bracketCache.has(key)) return bracketCache.get(key);
+  const P = 2 ** Math.ceil(Math.log2(Math.max(2, n))), k = Math.round(Math.log2(P));
+  const ms = [], W = [], L = [];
+  const add = m => { ms.push(m); return m; };
+  const pos = bracketOrder(P);
+  for (let r = 1; r <= k; r++) {
+    W[r] = [];
+    for (let i = 0; i < P / 2 ** r; i++) {
+      const slots = r === 1 ? [{ seed: pos[2 * i] }, { seed: pos[2 * i + 1] }] : [{ win: W[r - 1][2 * i].id }, { win: W[r - 1][2 * i + 1].id }];
+      const label = kind === 'single' ? roundName(r, k) : (r === k ? (k === 1 ? 'Opening match' : 'Winners final') : `Winners round ${r}`);
+      W[r].push(add({ id: `W${r}-${i}`, sec: 'W', r, label, slots, stage: r }));
+    }
+  }
+  if (kind === 'single') {
+    if (n >= 4) add({ id: 'B', sec: 'B', r: k, label: '3rd-place match', slots: [{ lose: W[k - 1][0].id }, { lose: W[k - 1][1].id }], stage: k - 0.5 });
+  } else {
+    for (let j = 1; j <= 2 * k - 2; j++) {
+      L[j] = [];
+      const label = j === 2 * k - 2 ? 'Losers final' : `Losers round ${j}`;
+      if (j === 1) {
+        for (let i = 0; i < P / 4; i++) L[1].push(add({ id: `L1-${i}`, sec: 'L', r: 1, label, slots: [{ lose: W[1][2 * i].id }, { lose: W[1][2 * i + 1].id }], stage: 1 }));
+      } else if (j % 2 === 0) {  // survivors meet the entries just dropped from the winners bracket (reversed, to avoid quick rematches)
+        const m = j / 2, cnt = P / 2 ** (m + 1);
+        for (let i = 0; i < cnt; i++) L[j].push(add({ id: `L${j}-${i}`, sec: 'L', r: j, label, slots: [{ win: L[j - 1][i].id }, { lose: W[m + 1][cnt - 1 - i].id }], stage: j }));
+      } else {  // survivors play each other
+        const m = (j - 1) / 2, cnt = P / 2 ** (m + 2);
+        for (let i = 0; i < cnt; i++) L[j].push(add({ id: `L${j}-${i}`, sec: 'L', r: j, label, slots: [{ win: L[j - 1][2 * i].id }, { win: L[j - 1][2 * i + 1].id }], stage: j }));
+      }
+    }
+    add({ id: 'F1', sec: 'F', r: 1, label: 'Grand final', slots: [{ win: W[k][0].id }, k >= 2 ? { win: L[2 * k - 2][0].id } : { lose: W[1][0].id }], stage: 2 * k - 1 });
+    add({ id: 'F2', sec: 'F', r: 2, label: 'Grand final rematch', slots: [], reset: true, stage: 2 * k });
+  }
+  // play order: each winners round, then the losers rounds it feeds
+  const ids = arr => (arr || []).map(m => m.id), seq = [];
+  if (kind === 'single') {
+    for (let r = 1; r <= k; r++) { if (r === k && n >= 4) seq.push('B'); seq.push(...ids(W[r])); }
+  } else {
+    seq.push(...ids(W[1]), ...ids(L[1]));
+    for (let r = 2; r <= k; r++) seq.push(...ids(W[r]), ...ids(L[2 * r - 2]), ...ids(L[2 * r - 1]));
+    seq.push('F1', 'F2');
+  }
+  const byId = new Map(ms.map(m => [m.id, m]));
+  const out = { kind, n, P, k, matches: seq.map((id, i) => Object.assign(byId.get(id), { order: i })) };
+  bracketCache.set(key, out);
+  return out;
+}
+function ensureBracket() {
+  const ids = S.items.map(i => i.id);
+  const ok = S.bracket && S.bracket.seeds.length === ids.length && S.bracket.seeds.every(id => ids.includes(id));
+  if (!ok) S.bracket = { seeds: shuffle(ids.slice()), results: {} };
+}
+// Works out who plays in every match from the seeds and the picks so far.
+// a/b: entry id, null for a bye, undefined while still unknown.
+function resolveBracket() {
+  if (!S.bracket || !isElim() || S.bracket.seeds.length < 2) return null;
+  const B = buildBracket(S.format, S.bracket.seeds.length);
+  const res = S.bracket.results, seeds = S.bracket.seeds, out = new Map();
+  const val = s => {
+    if ('seed' in s) return s.seed <= seeds.length ? seeds[s.seed - 1] : null;
+    const m = out.get(s.win || s.lose);
+    return m ? (s.win ? m.winner : m.loser) : undefined;
+  };
+  for (const m of B.matches) {
+    let a, b;
+    if (m.reset) {  // rematch only if the losers-bracket champion won the grand final
+      const f1 = out.get('F1');
+      if (f1.winner === undefined) a = b = undefined;
+      else if (f1.winner === f1.a) { out.set(m.id, { ...m, a: f1.a, b: f1.b, status: 'skip', winner: f1.winner, loser: f1.loser }); continue; }
+      else { a = f1.a; b = f1.b; }
+    } else [a, b] = m.slots.map(val);
+    let status, winner, loser;
+    if (a === undefined || b === undefined) status = 'waiting';
+    else if (a === null && b === null) { status = 'void'; winner = loser = null; }
+    else if (a === null || b === null) { status = 'auto'; winner = a === null ? b : a; loser = null; }
+    else if (res[m.id] === a || res[m.id] === b) { status = 'done'; winner = res[m.id]; loser = winner === a ? b : a; }
+    else status = 'ready';
+    out.set(m.id, { ...m, a, b, status, winner, loser });
+  }
+  const champion = S.format === 'single' ? out.get(`W${B.k}-0`).winner : (['skip', 'done'].includes(out.get('F2').status) ? out.get('F2').winner : undefined);
+  const bronze = out.get('B');
+  return { B, out, champion, complete: champion != null && (!bronze || bronze.winner !== undefined) };
+}
+const flipOf = id => { let h = 7; for (const c of id + S.bracket.seeds.join()) h = (h * 31 + c.charCodeAt(0)) | 0; return h & 1; };
+
+/* What to show next, whatever the format. */
+function prepareFormat() {
+  if (S.format === 'swiss') ensureSwissRound();
+  else if (isElim()) ensureBracket();
+  else ensureQueue();
+}
+function currentMatch() {
+  if (S.items.length < 2) return null;
+  if (isElim()) {
+    const R = resolveBracket(); if (!R) return null;
+    const m = [...R.out.values()].filter(x => x.status === 'ready').sort((x, y) => x.order - y.order)[0];
+    if (!m) return null;
+    const f = flipOf(m.id);
+    return { a: f ? m.b : m.a, b: f ? m.a : m.b, mid: m.id, label: m.label };
+  }
+  if (S.format === 'swiss') {
+    const r = S.rounds[S.rounds.length - 1]; if (!r) return null;
+    const p = roundPairs(r).find(([a, b]) => !(pk(a, b) in S.results));
+    return p ? { a: p[0], b: p[1], label: `Round ${S.rounds.length} of ${Math.max(swissTarget(), S.rounds.length)}` } : null;
+  }
+  return S.queue[0] || null;
+}
+function progress() {
+  const n = S.items.length;
+  if (isElim()) {
+    const R = resolveBracket();
+    const done = S.bracket ? Object.keys(S.bracket.results).length : 0;
+    let total = formatCount(S.format, n)[0];
+    if (R && S.format === 'double' && ['ready', 'done'].includes(R.out.get('F2').status)) total += 1;
+    return { done, total, complete: !!(R && R.complete) };
+  }
+  if (S.format === 'swiss') {
+    const done = swissPlayed(), complete = n >= 2 && swissComplete();
+    // the plan is rounds x pairs; late rounds can come up short when every remaining pairing is a repeat
+    return { done, total: complete ? done : Math.max(done, swissTarget() * Math.floor(n / 2)), complete };
+  }
+  const done = doneCount(), total = totalPairs();
+  return { done, total, complete: total > 0 && done === total };
+}
+
 /* ---------- picking ---------- */
 let busy = false;
-function pick(side) {
-  if (busy || S.view !== 'battle') return;
-  const m = S.queue[0];
+function pick(side, fast) {
+  if ((busy && !fast) || S.view !== 'battle') return;
+  const m = currentMatch();
   if (!m) return;
-  busy = true;
-  S.results[pk(m.a, m.b)] = side === 'tie' ? 'tie' : m[side];
-  S.history.push({ a: m.a, b: m.b });
-  S.queue.shift();
+  if (side === 'tie' && m.mid) { toast('No ties in a bracket. Pick the one that moves on.'); return; }
+  if (m.mid) {
+    S.bracket.results[m.mid] = m[side];
+    S.history.push({ m: m.mid });
+  } else {
+    S.results[pk(m.a, m.b)] = side === 'tie' ? 'tie' : m[side];
+    S.history.push({ a: m.a, b: m.b });
+    if (S.format === 'rr') S.queue.shift();
+  }
   save();
+  const finish = () => {
+    busy = false;
+    if (S.format === 'swiss') ensureSwissRound();
+    if (!currentMatch()) { S.view = 'results'; save(); }
+    render();
+  };
+  if (fast) { finish(); return; }
+  busy = true;
   const A = $('.fighter[data-side="a"]'), B = $('.fighter[data-side="b"]');
   if (side === 'tie') { A && A.classList.add('drew'); B && B.classList.add('drew'); }
   else { const W = side === 'a' ? A : B, L = side === 'a' ? B : A; W && W.classList.add('won'); L && L.classList.add('lost'); }
-  setTimeout(() => {
-    busy = false;
-    if (!S.queue.length) { S.view = 'results'; save(); }
-    render();
-  }, reduceMotion ? 60 : 170);
+  setTimeout(finish, reduceMotion ? 60 : 170);
 }
 function undo() {
   if (busy) return;
   const h = S.history.pop();
   if (!h) return;
-  delete S.results[pk(h.a, h.b)];
-  S.queue = S.queue.filter(q => pk(q.a, q.b) !== pk(h.a, h.b));
-  S.queue.unshift({ a: h.a, b: h.b });
+  if (h.m) { if (S.bracket) delete S.bracket.results[h.m]; }
+  else {
+    const key = pk(h.a, h.b);
+    delete S.results[key];
+    if (S.format === 'rr') {
+      S.queue = S.queue.filter(q => pk(q.a, q.b) !== key);
+      S.queue.unshift({ a: h.a, b: h.b });
+    } else if (S.format === 'swiss') {
+      // later rounds were paired using this result, so they go; the undone matchup comes up first again
+      const ri = S.rounds.findIndex(r => r.pairs.some(([a, b]) => pk(a, b) === key));
+      if (ri >= 0) {
+        S.rounds.length = ri + 1;
+        const r = S.rounds[ri], at = r.pairs.findIndex(([a, b]) => pk(a, b) === key);
+        r.pairs.unshift(r.pairs.splice(at, 1)[0]);
+      }
+    }
+  }
   S.view = 'battle';
   render(); save();
 }
 function go(view) {
   S.view = view;
   if (view === 'battle') {
-    ensureQueue();
-    if (!S.queue.length) S.view = 'results';
+    prepareFormat();
+    if (!currentMatch()) S.view = 'results';
   }
   render(); save();
   window.scrollTo(0, 0);
@@ -740,12 +1069,12 @@ function standings() {
   });
   return { rows, st };
 }
-function findLoops() {
+function findLoops(outcomes) {
   const ids = S.items.map(i => i.id), n = ids.length;
   const M = new Int8Array(n * n);
   for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
     if (i === j) continue;
-    const r = S.results[pk(ids[i], ids[j])];
+    const r = outcomes[pk(ids[i], ids[j])];
     M[i * n + j] = r === undefined || r === 'tie' ? 0 : (r === ids[i] ? 1 : -1);
   }
   let count = 0; const list = [];
@@ -762,6 +1091,69 @@ function findLoops() {
   const max = n < 3 ? 0 : (n % 2 ? (n ** 3 - n) / 24 : (n ** 3 - 4 * n) / 24);
   return { count, list, max };
 }
+// Who beat whom, as pairs. In a bracket two entries can meet twice; a split counts as a tie.
+function pairOutcomes() {
+  if (!isElim()) return S.results;
+  const o = {}, R = resolveBracket();
+  if (R) for (const m of R.out.values()) if (m.status === 'done') { const k = pk(m.a, m.b); o[k] = k in o && o[k] !== m.winner ? 'tie' : m.winner; }
+  return o;
+}
+// Bracket ranking: by how far each entry got. Within the same stage, more wins first, then any tie you broke.
+function elimStandings() {
+  const ids = S.items.map(i => i.id);
+  const st = new Map(ids.map(id => [id, { id, pts: 0, w: 0, l: 0, t: 0, n: 0, beat: [], lost: [], drew: [], key: 50 }]));
+  const R = resolveBracket(), lives = S.format === 'double' ? 2 : 1;
+  if (R) {
+    const losses = new Map();
+    for (const m of R.B.matches) {
+      const r = R.out.get(m.id);
+      if (r.status !== 'done') continue;
+      const W = st.get(r.winner), Lo = st.get(r.loser);
+      if (!W || !Lo) continue;
+      W.w++; W.n++; W.pts++; W.beat.push(Lo.id);
+      Lo.l++; Lo.n++; Lo.lost.push(W.id);
+      const c = (losses.get(Lo.id) || 0) + 1; losses.set(Lo.id, c);
+      if (c >= lives) Lo.key = r.stage;
+    }
+    const b = R.out.get('B');
+    if (b && b.status === 'done') { st.get(b.winner).key = R.B.k - 0.5; st.get(b.loser).key = R.B.k - 0.75; }
+    if (R.champion) st.get(R.champion).key = 100;
+  }
+  for (const s of st.values()) s.pct = s.n ? s.pts / s.n : 0;
+  const k = R ? R.B.k : 1;
+  const stageText = s => {
+    if (s.key === 100) return 'Champion';
+    if (s.key === 50) return R && R.complete ? '' : 'Still in';
+    if (S.format === 'single') {
+      if (s.key === k) return 'Lost in the final';
+      if (s.key === k - 0.5) return 'Won the 3rd-place match';
+      if (s.key === k - 0.75) return 'Lost the 3rd-place match';
+      return 'Lost in the ' + roundName(s.key, k, true).toLowerCase();
+    }
+    if (s.key >= 2 * k - 1) return 'Lost in the grand final';
+    if (s.key === 2 * k - 2) return 'Lost in the losers final';
+    return `Out in losers round ${s.key}`;
+  };
+  const groups = new Map();
+  for (const s of st.values()) { if (!groups.has(s.key)) groups.set(s.key, []); groups.get(s.key).push(s.id); }
+  const slots = [...groups.entries()].sort((x, y) => y[0] - x[0]).flatMap(([, g]) => {
+    const byW = new Map();
+    for (const id of g) { const w = st.get(id).w; if (!byW.has(w)) byW.set(w, []); byW.get(w).push(id); }
+    return [...byW.entries()].sort((x, y) => y[0] - x[0]).flatMap(([, gg]) => {
+      if (gg.length < 2) return [gg];
+      const tb = S.tieBreaks.find(list => gg.every(id => list.includes(id)));
+      return tb ? [...gg].sort((x, y) => tb.indexOf(x) - tb.indexOf(y)).map(id => [id]) : [gg];
+    });
+  });
+  const rows = []; let pos = 1;
+  slots.forEach((slot, si) => {
+    for (const id of slot) { const s = st.get(id); rows.push({ ...s, stage: stageText(s), rank: pos, slot: si, slotSize: slot.length }); }
+    pos += slot.length;
+  });
+  return { rows, st, R };
+}
+const ranking = () => (isElim() ? elimStandings() : standings());
+
 const TIERS = [
   { l: 'S', min: 0.8, c: '#FF7F7F' },
   { l: 'A', min: 0.6, c: '#FFBF7F' },
@@ -792,19 +1184,63 @@ function faceHTML(it, nm, cls) {
   return it.img ? `<img src="${imgURL(it)}" alt="">` : `<div class="${cls || 'txt'}">${esc(nm.text)}</div>`;
 }
 
+const FORMAT_WHAT = {
+  rr: 'Everyone faces everyone. The most exact full ranking.',
+  swiss: 'Each round, entries face others with the same record. A good full ranking, much faster.',
+  single: "Lose once and you're out. Finds your winner fast, with a 3rd-place match for your top 3.",
+  double: "Out after two losses, so one bad draw can't sink a favorite. Finds your top 3.",
+};
+function countText(fmt, n) {
+  const [lo, hi] = formatCount(fmt, n);
+  return lo === hi ? plural(lo, 'matchup') : `${lo} or ${hi} matchups`;
+}
+function formatsHTML(n) {
+  const elimBusy = isElim() && elimStarted();
+  const pairBusy = !isElim() && Object.keys(S.results).length > 0;
+  const minRounds = S.format === 'swiss' ? Math.max(1, S.rounds.length) : 1, maxRounds = Math.max(1, n - 1);
+  return `<section class="formats">
+    <h2>How should they face off?</h2>
+    <div class="fmt-grid" role="radiogroup" aria-label="Format">${['rr', 'swiss', 'single', 'double'].map(f => {
+      const on = S.format === f;
+      let why = '';
+      if (!on && elimBusy) why = 'Restart the bracket to switch.';
+      else if (!on && pairBusy && isElimFmt(f)) why = 'Brackets start fresh. Restart to use one.';
+      const [, hi] = formatCount(f, n);
+      const count = n < 2 ? 'Needs 2 or more entries' : `<b>${countText(f, n)}</b>, ${timeText(hi)}`;
+      const t = swissTarget();
+      const stepper = f === 'swiss' ? `<span class="fmt-rounds">
+          <button type="button" class="step" data-rounds="-1" aria-label="Fewer rounds" ${why || t <= minRounds ? 'disabled' : ''}>−</button>
+          <span>${plural(t, 'round')}</span>
+          <button type="button" class="step" data-rounds="1" aria-label="More rounds" ${why || t >= maxRounds ? 'disabled' : ''}>+</button>
+        </span>` : '';
+      return `<div class="fmt${on ? ' on' : ''}${why ? ' off' : ''}" role="radio" tabindex="${why ? -1 : 0}" aria-checked="${on}" aria-disabled="${!!why}" data-format="${f}" data-why="${esc(why)}">
+        <span class="fmt-name">${FORMAT_NAMES[f]}</span>
+        <span class="fmt-what">${FORMAT_WHAT[f]}</span>
+        ${stepper}
+        <span class="fmt-count">${count}</span>
+        ${why ? `<span class="fmt-why">${why}</span>` : ''}
+      </div>`;
+    }).join('')}</div>
+  </section>`;
+}
+
 function renderSetup() {
-  const n = S.items.length, pairs = totalPairs(), done = doneCount();
+  const keep = $('#lines') ? $('#lines').value : '';
+  const n = S.items.length, P = progress(), started = anyPicks(), locked = entriesLocked();
   const nm = names();
   const tiles = S.items.map(it => {
     const isText = !it.img;
     return `<div class="tile" data-id="${it.id}">
       <div class="tile-face">${it.img ? `<img src="${imgURL(it)}" alt="">` : `<div class="txt">${esc(nm.get(it.id).text)}</div>`}</div>
       <input class="tile-name" value="${esc(it.label)}" placeholder="${isText ? 'Text' : 'Name (optional)'}" aria-label="${isText ? 'Entry text' : 'Image name'}">
-      <button class="tile-x" data-remove="${it.id}" aria-label="Remove ${esc(nm.get(it.id).text)}">×</button>
+      ${locked ? '' : `<button class="tile-x" data-remove="${it.id}" aria-label="Remove ${esc(nm.get(it.id).text)}">×</button>`}
     </div>`;
   }).join('');
+  const note = locked ? '' : !started ? '' : S.format === 'swiss'
+    ? '<p>Removing an entry deletes its matchups. New entries join from the next round.</p>'
+    : '<p>Removing an entry deletes its matchups. New entries get added to the schedule.</p>';
   main.innerHTML = `
-    <section class="intake">
+    ${locked ? `<p class="locked">Entries are locked while the bracket is being played, so the draw stays fair. You can still rename them. Restart to add or remove entries.</p>` : `<section class="intake">
       <button class="drop" id="dropBtn" type="button">
         <strong>Drop images here or click to choose them</strong>
         <span>You can paste images too. Each image can have a name.</span>
@@ -814,26 +1250,23 @@ function renderSetup() {
         <textarea id="lines" placeholder="Pizza&#10;Tacos&#10;Ramen"></textarea>
         <div class="typer-row"><button class="btn" id="addLines" type="button">Add entries</button><small>Ctrl + Enter adds them too.</small></div>
       </div>
-    </section>
-    <div class="entries-head"><h2>${n ? plural(n, 'entry', 'entries') : 'Entries'}</h2>${done ? `<p>Removing an entry deletes its matchups. New entries get added to the schedule.</p>` : ''}</div>
+    </section>`}
+    ${formatsHTML(n)}
+    <div class="entries-head"><h2>${n ? plural(n, 'entry', 'entries') : 'Entries'}</h2>${note}</div>
     ${n ? `<div class="grid">${tiles}</div>` : `<p class="empty">Nothing here yet. Add at least two entries to start.</p>`}
   `;
+  if (keep && $('#lines')) $('#lines').value = keep;
+  const fmtName = S.format === 'rr' ? '' : FORMAT_NAMES[S.format] + ': ';
   let msg;
   if (n < 2) msg = 'Add at least 2 entries to start.';
-  else {
-    const mins = Math.round((pairs - done) * 3 / 60);
-    const time = mins < 1 ? 'under a minute' : `about ${plural(mins, 'minute')}`;
-    msg = done
-      ? `<b>${done} of ${pairs}</b> matchups done. ${pairs - done ? `${pairs - done} left, ${time}.` : 'All done.'}`
-      : `<b>${plural(pairs, 'matchup')}</b> for ${n} entries. That's ${time} at a few seconds each.`;
-  }
+  else if (!P.done) msg = `${fmtName}<b>${countText(S.format, n)}</b> for ${n} entries. That's ${timeText(formatCount(S.format, n)[1])} at a few seconds each.`;
+  else msg = `${fmtName}<b>${P.done} of ${P.total}</b> matchups done. ${P.complete ? 'All done.' : `${P.total - P.done} left, ${timeText(P.total - P.done)}.`}`;
   const canGo = n >= 2;
-  const complete = canGo && done === pairs;
   dock.innerHTML = `<div class="dock">
     <p>${msg}</p>
-    ${done ? `<button class="btn" id="rerun" type="button">Restart</button>` : ''}
-    ${done ? `<button class="btn" id="dockResults" type="button">${complete ? 'See the ranking' : 'Standings so far'}</button>` : ''}
-    ${complete ? '' : `<button class="btn btn-go" id="dockGo" type="button" ${canGo ? '' : 'disabled'}>${done ? 'Keep going' : 'Start'}</button>`}
+    ${started ? `<button class="btn" id="rerun" type="button">Restart</button>` : ''}
+    ${started ? `<button class="btn" id="dockResults" type="button">${P.complete ? (isElim() ? 'See the results' : 'See the ranking') : 'Standings so far'}</button>` : ''}
+    ${P.complete ? '' : `<button class="btn btn-go" id="dockGo" type="button" ${canGo ? '' : 'disabled'}>${P.done ? 'Keep going' : 'Start'}</button>`}
   </div>`;
 }
 
@@ -869,11 +1302,12 @@ function fighterHTML(it, side, nm) {
 }
 
 function renderBattle() {
-  ensureQueue();
-  const m = S.queue[0];
+  prepareFormat();
+  const m = currentMatch();
   if (!m) { S.view = 'results'; renderResults(); return; }
   const nm = names(), byId = new Map(S.items.map(i => [i.id, i]));
-  const total = totalPairs(), done = doneCount();
+  const P = progress(), elim = isElim();
+  const sub = m.label || `${plural(P.total - P.done - 1, 'matchup')} after this`;
   dock.innerHTML = '';
   main.innerHTML = `
     <section class="battle">
@@ -882,11 +1316,11 @@ function renderBattle() {
           <button class="btn" id="undoBtn" type="button" ${S.history.length ? '' : 'disabled'}>Undo</button>
           <button class="btn" id="toResults" type="button">Standings<span class="wide-only"> so far</span></button>
           <button class="btn" id="toSetup" type="button">Edit entries</button>
-          <button class="btn" id="rerun" type="button" ${done ? '' : 'disabled'}>Restart</button>
+          <button class="btn" id="rerun" type="button" ${anyPicks() ? '' : 'disabled'}>Restart</button>
         </div>
         <div class="progress">
-          <div class="progress-txt"><b>${done + 1} of ${total}</b><span>${plural(total - done - 1, 'matchup')} after this</span></div>
-          <canvas id="tri" role="img"></canvas>
+          <div class="progress-txt"><b>${P.done + 1} of ${P.total}</b><span${elim ? ' class="stage"' : ''}>${esc(sub)}</span></div>
+          ${elim ? '' : '<canvas id="tri" role="img"></canvas>'}
         </div>
       </div>
       <div class="arena">
@@ -895,11 +1329,11 @@ function renderBattle() {
         ${fighterHTML(byId.get(m.b), 'b', nm)}
       </div>
       <div class="battle-bottom">
-        <button class="btn" id="tieBtn" type="button">Tie</button>
-        <p class="keys">Keys: left arrow picks left, right arrow picks right, down arrow is a tie, Z undoes.</p>
+        ${elim ? '' : '<button class="btn" id="tieBtn" type="button">Tie</button>'}
+        <p class="keys">${elim ? 'Keys: left arrow picks left, right arrow picks right, Z undoes. No ties in a bracket.' : 'Keys: left arrow picks left, right arrow picks right, down arrow is a tie, Z undoes.'}</p>
       </div>
     </section>`;
-  drawTri($('#tri'), m);
+  if (!elim) drawTri($('#tri'), m);
 }
 
 function chip(id, nm, byId) {
@@ -912,19 +1346,24 @@ function thumb(it, n) {
 
 function renderResults() {
   const nm = names(), byId = new Map(S.items.map(i => [i.id, i]));
-  const total = totalPairs(), done = doneCount(), complete = total > 0 && done === total;
-  const { rows } = standings();
+  const P = progress(), done = P.done, total = P.total, complete = P.complete, elim = isElim(), n = S.items.length;
+  const { rows, R } = ranking();
+  const hasResults = elim ? elimStarted() : doneCount() > 0;
   dock.innerHTML = '';
-  const tab = S.tab || 'list';
+  const tabs = elim ? [['list', 'List'], ['bracket', 'Bracket']] : [['list', 'List'], ['tiers', 'Tiers'], ['table', 'Table']];
+  if (!tabs.some(([k]) => k === S.tab)) S.tab = 'list';
+  const tab = S.tab;
   let body = '';
-  if (!done) {
-    body = `<p class="empty">No picks yet. The ranking shows up after your first matchup.</p>`;
+  if (!hasResults) {
+    body = `<p class="empty">No picks yet. The ${elim ? 'results show' : 'ranking shows'} up after your first matchup.</p>`;
+  } else if (tab === 'bracket') {
+    body = bracketHTML(R, nm, byId);
   } else if (tab === 'tiers') {
     body = `<div class="tiers">${TIERS.map(t => {
       const its = rows.filter(r => tierOf(r.pct) === t);
       return `<div class="tier" style="--c:${t.c}"><div class="tier-label">${t.l}</div><div class="tier-items">${its.map(r => {
-        const it = byId.get(r.id), n = nm.get(r.id);
-        return `<div class="tt" title="${esc(n.text)}"><div class="tt-box">${it.img ? `<img src="${imgURL(it)}" alt="">` : `<span class="txt">${esc(n.text)}</span>`}</div><div class="tt-cap"><b>${r.rank}</b>${it.img ? `<span>${esc(n.text)}</span>` : ''}</div></div>`;
+        const it = byId.get(r.id), n2 = nm.get(r.id);
+        return `<div class="tt" title="${esc(n2.text)}"><div class="tt-box">${it.img ? `<img src="${imgURL(it)}" alt="">` : `<span class="txt">${esc(n2.text)}</span>`}</div><div class="tt-cap"><b>${r.rank}</b>${it.img ? `<span>${esc(n2.text)}</span>` : ''}</div></div>`;
       }).join('')}</div></div>`;
     }).join('')}</div>
     <p class="note">Tiers come from win rate. S is 80% and up, A is 60% and up, B is 40% and up, C is 20% and up, and D is below 20%. The small number on each tile is its rank.</p>`;
@@ -932,24 +1371,25 @@ function renderResults() {
     const order = rows.map(r => r.id), rankOf = new Map(rows.map(r => [r.id, r.rank]));
     body = `<div class="xt-wrap"><table class="xt">
       <thead><tr><th></th>${order.map(id => `<th title="${esc(nm.get(id).text)}">${rankOf.get(id)}</th>`).join('')}</tr></thead>
-      <tbody>${order.map((rid, ri) => `<tr><th><span class="xr">${rankOf.get(rid)}</span><span class="xn">${esc(nm.get(rid).text)}</span></th>${order.map((cid, ci) => {
+      <tbody>${order.map(rid => `<tr><th><span class="xr">${rankOf.get(rid)}</span><span class="xn">${esc(nm.get(rid).text)}</span></th>${order.map(cid => {
         if (rid === cid) return `<td class="self"></td>`;
         const r = S.results[pk(rid, cid)];
         const a = nm.get(rid).text, b = nm.get(cid).text;
-        if (r === undefined) return `<td class="u" title="${esc(a)} vs ${esc(b)}: not played yet"></td>`;
+        if (r === undefined) return `<td class="u" title="${esc(a)} vs ${esc(b)}: not played${S.format === 'swiss' ? '' : ' yet'}"></td>`;
         if (r === 'tie') return `<td class="t" title="${esc(a)} tied ${esc(b)}"></td>`;
         const up = rankOf.get(rid) > rankOf.get(cid);
         if (r === rid) return `<td class="w${up ? ' up' : ''}" title="${esc(a)} beat ${esc(b)}${up ? ' (upset)' : ''}"></td>`;
         return `<td class="l" title="${esc(a)} lost to ${esc(b)}"></td>`;
       }).join('')}</tr>`).join('')}</tbody></table></div>
-      <p class="note">Each row is one entry. Dark squares are its wins, pale squares are its losses, and grey squares are ties. Squares with a yellow ring are upsets, where a lower-ranked entry beat a higher-ranked one. Hover a square to see the matchup.</p>`;
+      <p class="note">Each row is one entry. Dark squares are its wins, pale squares are its losses, and grey squares are ties. Squares with a yellow ring are upsets, where a lower-ranked entry beat a higher-ranked one.${S.format === 'swiss' ? ' Dashed squares are pairs that never met: Swiss only plays some of the pairs.' : ''} Hover a square to see the matchup.</p>`;
   } else {
     const parts = []; let i = 0;
+    const tieWhy = elim ? "They went out at the same stage, so the bracket can't separate them." : "Same record, and their head-to-head games don't separate them.";
     while (i < rows.length) {
       const r = rows[i];
       if (r.slotSize > 1) {
         const grp = rows.slice(i, i + r.slotSize);
-        parts.push(`<div class="tiegroup"><div class="tiegroup-head"><p>These ${grp.length} are tied. Same record, and their head-to-head games don't separate them.</p><button class="btn" type="button" data-breaktie="${grp.map(g => g.id).join(',')}">Break the tie</button></div>${grp.map(g => rowHTML(g, nm, byId)).join('')}</div>`);
+        parts.push(`<div class="tiegroup"><div class="tiegroup-head"><p>These ${grp.length} are tied. ${tieWhy}</p><button class="btn" type="button" data-breaktie="${grp.map(g => g.id).join(',')}">Break the tie</button></div>${grp.map(g => rowHTML(g, nm, byId)).join('')}</div>`);
         i += r.slotSize;
       } else { parts.push(rowHTML(r, nm, byId)); i++; }
     }
@@ -957,29 +1397,42 @@ function renderResults() {
   }
 
   let loopsHTML = '';
-  if (done && S.items.length >= 3) {
-    const L = findLoops();
+  if (hasResults && n >= 3) {
+    const L = findLoops(pairOutcomes());
+    const fullRR = S.format === 'rr' && complete;
     const consistency = L.max ? Math.min(L.count ? 99 : 100, Math.round((1 - L.count / L.max) * 100)) : 100;
     const head = L.count === 0
       ? (complete ? 'No loops. Every pick lines up with every other pick.' : 'No loops so far.')
-      : (complete && S.items.length >= 5 ? `Your picks were ${consistency}% consistent, with ${plural(L.count, 'loop')}.` : `${plural(L.count, 'loop')}${complete ? '' : ' so far'}.`);
+      : (fullRR && n >= 5 ? `Your picks were ${consistency}% consistent, with ${plural(L.count, 'loop')}.` : `${plural(L.count, 'loop')}${complete ? '' : ' so far'}.`);
+    const canRedo = S.format === 'rr';
     loopsHTML = `<details class="loops" ${L.count && L.count <= 5 ? 'open' : ''}><summary>${head}</summary>
-      <p>A loop is like rock, paper, scissors: you picked A over B and B over C, but then C over A. A few loops are normal. They usually mean those entries are close calls. You can redo any loop's three matchups.</p>
-      ${L.count ? `<ul>${L.list.map(([a, b, c]) => `<li>${chip(a, nm, byId)}<span class="gt">beat</span>${chip(b, nm, byId)}<span class="gt">beat</span>${chip(c, nm, byId)}<span class="gt">beat</span>${chip(a, nm, byId)}<button class="btn btn-quiet" type="button" data-redo="${[a, b, c].join(',')}">Redo these 3</button></li>`).join('')}</ul>${L.count > L.list.length ? `<p>Showing the first ${L.list.length}.</p>` : ''}` : ''}
+      <p>A loop is like rock, paper, scissors: you picked A over B and B over C, but then C over A. A few loops are normal. They usually mean those entries are close calls.${canRedo ? " You can redo any loop's three matchups." : ''}</p>
+      ${L.count ? `<ul>${L.list.map(([a, b, c]) => `<li>${chip(a, nm, byId)}<span class="gt">beat</span>${chip(b, nm, byId)}<span class="gt">beat</span>${chip(c, nm, byId)}<span class="gt">beat</span>${chip(a, nm, byId)}${canRedo ? `<button class="btn btn-quiet" type="button" data-redo="${[a, b, c].join(',')}">Redo these 3</button>` : ''}</li>`).join('')}</ul>${L.count > L.list.length ? `<p>Showing the first ${L.list.length}.</p>` : ''}` : ''}
     </details>`;
   }
 
+  let banner = '';
+  if (!complete && total > 0) {
+    banner = `<div class="banner"><p>${elim ? `The bracket isn't finished: ${done} of ${total} matchups played. These results will change as you keep going.` : `You've done ${done} of ${total} matchups. This ranking will change as you keep going.`}</p><button class="btn btn-go" id="keepGoing" type="button">Keep going</button></div>`;
+  } else if (complete && S.format === 'swiss') {
+    const more = Math.floor(n / 2), left = totalPairs() - doneCount();
+    banner = `<div class="banner"><p>Want it more exact? ${S.rounds.length < n - 1 ? `Another round adds ${plural(more, 'matchup')}. ` : ''}Finishing as a full round robin adds ${plural(left, 'matchup')}, and every pick so far counts.</p>
+      ${S.rounds.length < n - 1 ? '<button class="btn" id="swissMore" type="button">Play another round</button>' : ''}
+      ${left ? '<button class="btn btn-go" id="toRR" type="button">Finish as round robin</button>' : ''}</div>`;
+  }
+
+  const fmtLine = S.format === 'rr' ? '' : `<p class="fmt-line">${FORMAT_NAMES[S.format]}${S.format === 'swiss' ? `, ${plural(S.rounds.length, 'round')}` : ''}</p>`;
   main.innerHTML = `
     <section class="results">
-      ${!complete && total > 0 ? `<div class="banner"><p>You've done ${done} of ${total} matchups. This ranking will change as you keep going.</p><button class="btn btn-go" id="keepGoing" type="button">Keep going</button></div>` : ''}
+      ${banner}
       <div class="res-head">
-        <h2>${complete ? 'Final ranking' : 'Standings so far'}</h2>
+        <div class="res-title"><h2>${complete ? (elim ? 'Final results' : 'Final ranking') : 'Standings so far'}</h2>${fmtLine}</div>
         <div class="tabs" role="tablist">
-          ${[['list', 'List'], ['tiers', 'Tiers'], ['table', 'Table']].map(([k, l]) => `<button role="tab" type="button" data-tab="${k}" aria-selected="${tab === k}">${l}</button>`).join('')}
+          ${tabs.map(([k, l]) => `<button role="tab" type="button" data-tab="${k}" aria-selected="${tab === k}">${l}</button>`).join('')}
         </div>
         <div class="exports">
-          <button class="btn" id="copyTxt" type="button" ${done ? '' : 'disabled'}>Copy as text</button>
-          <button class="btn" id="saveImg" type="button" ${done ? '' : 'disabled'}>Save as image</button>
+          <button class="btn" id="copyTxt" type="button" ${hasResults ? '' : 'disabled'}>Copy as text</button>
+          <button class="btn" id="saveImg" type="button" ${hasResults ? '' : 'disabled'}>Save as image</button>
         </div>
       </div>
       ${body}
@@ -987,7 +1440,7 @@ function renderResults() {
       <div class="res-foot">
         <button class="btn" id="toSetup" type="button">Edit entries</button>
         ${S.history.length ? `<button class="btn" id="undoBtn" type="button">Undo last pick</button>` : ''}
-        <button class="btn" id="rerun" type="button" ${done ? '' : 'disabled'}>Restart</button>
+        <button class="btn" id="rerun" type="button" ${anyPicks() ? '' : 'disabled'}>Restart</button>
       </div>
     </section>`;
 }
@@ -999,12 +1452,42 @@ function rowHTML(r, nm, byId) {
     <summary>
       <div class="rank">${r.rank}</div>
       ${thumb(it, n)}
-      <div class="who"><div class="name ${n.unnamed && it.img ? 'unnamed' : ''}">${esc(n.text)}</div><div class="rec">${recText(r)}</div></div>
+      <div class="who"><div class="name ${n.unnamed && it.img ? 'unnamed' : ''}">${esc(n.text)}</div><div class="rec">${r.stage ? `<span class="stage">${esc(r.stage)}.</span> ` : ''}${recText(r)}</div></div>
       <div class="bar"><span style="width:${pct}%"></span></div>
       <div class="pct">${pct}%</div>
     </summary>
     <div class="detail">${list('Beat', r.beat)}${list('Lost to', r.lost)}${list('Tied', r.drew)}${r.n ? '' : '<div>No matchups yet.</div>'}</div>
   </details>`;
+}
+// The bracket picture: one column per round. Matches with a bye are left out.
+function bracketHTML(R, nm, byId) {
+  if (!R) return '';
+  const k = R.B.k, single = R.B.kind === 'single';
+  const person = (id, m) => {
+    if (id === undefined) return '<div class="bm-row tbd">Waiting</div>';
+    if (id === null) return '<div class="bm-row tbd">Bye</div>';
+    const it = byId.get(id), n = nm.get(id);
+    const cls = m.status === 'done' ? (m.winner === id ? 'win' : 'lose') : '';
+    return `<div class="bm-row ${cls}"><span class="bm-th">${it.img ? `<img src="${imgURL(it)}" alt="">` : esc((n.text.trim()[0] || '?').toUpperCase())}</span><span class="bm-n">${esc(n.text)}</span></div>`;
+  };
+  const box = m => `<div class="bm ${m.status}">${m.sec === 'B' ? '<div class="bm-tag">3rd-place match</div>' : ''}${person(m.a, m)}${person(m.b, m)}</div>`;
+  const shown = m => !['void', 'auto', 'skip'].includes(m.status);
+  const cols = (sec, rounds, head) => rounds.map(r => {
+    const ms = R.B.matches.filter(m => (m.sec === sec || (single && sec === 'W' && r === k && m.sec === 'B')) && m.r === r).map(m => R.out.get(m.id)).filter(shown);
+    ms.sort((x, y) => (x.sec === 'B') - (y.sec === 'B'));
+    return ms.length ? `<div class="bcol"><div class="bcol-h">${head(r)}</div><div class="bcol-ms">${ms.map(box).join('')}</div></div>` : '';
+  }).join('');
+  const range = (a, b) => Array.from({ length: Math.max(0, b - a + 1) }, (_, i) => a + i);
+  const champ = R.champion ? `<div class="champ-line"><span>Champion</span>${chip(R.champion, nm, byId)}</div>` : '';
+  const sec = (title, inner) => inner ? `<div class="bsec">${title ? `<h3>${title}</h3>` : ''}<p class="swipe-hint">Swipe sideways to see every round.</p><div class="bscroll"><div class="bcols">${inner}</div></div></div>` : '';
+  if (single) return `<div class="bracket">${champ}${sec('', cols('W', range(1, k), r => roundName(r, k, true)))}</div>`;
+  const wHead = r => (r === k ? (k === 1 ? 'Opening match' : 'Winners final') : `Winners round ${r}`);
+  const lHead = j => (j === 2 * k - 2 ? 'Losers final' : `Losers round ${j}`);
+  return `<div class="bracket">${champ}
+    ${sec('Winners bracket', cols('W', range(1, k), wHead))}
+    ${sec('Losers bracket', cols('L', range(1, 2 * k - 2), lHead))}
+    ${sec('Finals', cols('F', [1, 2], r => (r === 1 ? 'Grand final' : 'Rematch')))}
+  </div>`;
 }
 
 /* ---------- yes/no popup (the app's own, instead of the browser's "this page says" box) ---------- */
@@ -1086,11 +1569,13 @@ async function copyText(t) {
     ta.remove(); return ok;
   }
 }
+function formatLabel() {
+  return FORMAT_NAMES[S.format] + (S.format === 'swiss' ? `, ${plural(S.rounds.length, 'round')}` : '');
+}
 function rankingText() {
-  const nm = names(), { rows } = standings();
-  const total = totalPairs(), done = doneCount();
-  const lines = [`Round Robin ranking, ${today()}${done < total ? ` (standings after ${done} of ${total} matchups)` : ''}`, ''];
-  for (const r of rows) lines.push(`${r.rank}. ${nm.get(r.id).text}${r.slotSize > 1 ? ' (tied)' : ''}  [${recText(r).toLowerCase()}]`);
+  const nm = names(), { rows } = ranking(), P = progress();
+  const lines = [`${isElim() ? 'Results' : 'Ranking'} from Round Robin (${formatLabel()}), ${today()}${P.complete ? '' : ` (standings after ${P.done} of ${P.total} matchups)`}`, ''];
+  for (const r of rows) lines.push(`${r.rank}. ${nm.get(r.id).text}${r.slotSize > 1 ? ' (tied)' : ''}  [${r.stage ? r.stage.toLowerCase() + ', ' : ''}${recText(r).toLowerCase()}]`);
   return lines.join('\n');
 }
 const LIGHT = { egg: '#D6ECE8', deep: '#B5D7D0', shell: '#F8FCFB', ink: '#14253A', twig: '#586A72', yolk: '#F2B705', tie: '#8FA3A8' };
@@ -1129,12 +1614,12 @@ function drawCover(ctx, im, x, y, w, h, r) {
 async function exportImage() {
   try { await document.fonts.load(`800 40px "Big Shoulders Display"`); await document.fonts.load(`700 16px "Schibsted Grotesk"`); await document.fonts.load(`400 16px "Schibsted Grotesk"`); } catch (e) { /* fallback fonts */ }
   const nm = names(), byId = new Map(S.items.map(i => [i.id, i]));
-  const { rows } = standings();
+  const { rows } = ranking();
   const imgs = new Map();
   for (const it of S.items) if (it.img) { try { imgs.set(it.id, await loadImg(imgURL(it))); } catch (e) { /* skip */ } }
-  const total = totalPairs(), done = doneCount();
-  const sub = `${plural(S.items.length, 'entry', 'entries')}, ${done < total ? `${done} of ${total} matchups so far` : plural(total, 'matchup')}, ${today()}`;
-  const tab = S.tab || 'list';
+  const PR = progress(), done = PR.done, total = PR.total;
+  const sub = `${plural(S.items.length, 'entry', 'entries')}, ${S.format === 'rr' ? '' : formatLabel() + ', '}${PR.complete ? plural(done, 'matchup') : `${done} of ${total} matchups so far`}, ${today()}`;
+  const tab = S.tab === 'bracket' ? 'list' : (S.tab || 'list');
   const P = 40, scale = 2;
   let W, H, draw;
   if (tab === 'tiers') {
@@ -1213,7 +1698,7 @@ async function exportImage() {
         ctx.textAlign = 'left'; ctx.fillStyle = n.unnamed && it.img ? LIGHT.twig : LIGHT.ink; ctx.font = `700 21px ${BODY}`;
         ctx.fillText(fitText(ctx, n.text, nw), nx, y + 24);
         ctx.fillStyle = LIGHT.twig; ctx.font = `400 14px ${BODY}`;
-        ctx.fillText(recText(r), nx, y + 48);
+        ctx.fillText(fitText(ctx, (r.stage ? r.stage + '. ' : '') + recText(r), nw), nx, y + 48);
         const bx = W - P - barW - 70, by = y + (rowH - 8) / 2 - 5;
         ctx.fillStyle = LIGHT.egg; rr(ctx, bx, by, barW, 10, 5); ctx.fill();
         if (r.pct > 0) { ctx.fillStyle = LIGHT.ink; rr(ctx, bx, by, Math.max(10, barW * r.pct), 10, 5); ctx.fill(); }
@@ -1227,7 +1712,7 @@ async function exportImage() {
   const ctx = c.getContext('2d'); ctx.scale(scale, scale);
   ctx.fillStyle = LIGHT.egg; ctx.fillRect(0, 0, W, H);
   ctx.fillStyle = LIGHT.ink; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-  ctx.font = `800 54px ${DISP}`; ctx.fillText(done < total ? 'Standings so far' : 'Final ranking', P, 82);
+  ctx.font = `800 54px ${DISP}`; ctx.fillText(!PR.complete ? 'Standings so far' : isElim() ? 'Final results' : 'Final ranking', P, 82);
   ctx.fillStyle = LIGHT.twig; ctx.font = `400 16px ${BODY}`; ctx.fillText(sub, P, 108);
   draw(ctx);
   c.toBlob(async b => {
@@ -1251,11 +1736,23 @@ async function importJSON(file) {
   const ids = new Set(items.map(i => i.id));
   const results = {};
   for (const [k, v] of Object.entries(obj.results || {})) { const [a, b] = k.split('|'); if (ids.has(a) && ids.has(b) && a !== b && (v === 'tie' || v === a || v === b)) results[pk(a, b)] = v; }
-  const history = (Array.isArray(obj.history) ? obj.history : []).filter(h => h && ids.has(h.a) && ids.has(h.b) && pk(h.a, h.b) in results);
+  const format = ['rr', 'swiss', 'single', 'double'].includes(obj.format) ? obj.format : 'rr';
+  const rounds = (Array.isArray(obj.rounds) ? obj.rounds : []).filter(r => r && Array.isArray(r.pairs)).map(r => ({
+    pairs: r.pairs.filter(p => Array.isArray(p) && p.length === 2 && p[0] !== p[1] && ids.has(p[0]) && ids.has(p[1])),
+    byes: (Array.isArray(r.byes) ? r.byes : []).filter(id => ids.has(id)),
+  }));
+  let bracket = null;
+  const ob = obj.bracket;
+  if (isElimFmt(format) && ob && Array.isArray(ob.seeds) && ob.seeds.length === items.length && new Set(ob.seeds).size === items.length && ob.seeds.every(id => ids.has(id))) {
+    bracket = { seeds: ob.seeds.slice(), results: {} };
+    for (const [m, w] of Object.entries(ob.results || {})) if (/^(W\d+-\d+|L\d+-\d+|B|F1|F2)$/.test(m) && ids.has(w)) bracket.results[m] = w;
+  }
+  const history = (Array.isArray(obj.history) ? obj.history : []).filter(h => h && (h.m ? !!(bracket && h.m in bracket.results) : ids.has(h.a) && ids.has(h.b) && pk(h.a, h.b) in results));
   const maxId = items.reduce((m, i) => Math.max(m, parseInt(i.id.slice(1), 10) || 0), 0);
   for (const id of [...urlCache.keys()]) dropURL(id);
-  S = { ...blank(), items, results, history, tieBreaks: Array.isArray(obj.tieBreaks) ? obj.tieBreaks.filter(t => Array.isArray(t) && t.every(x => ids.has(x))) : [], nextId: Math.max(Number(obj.nextId) || 1, maxId + 1) };
-  S.view = items.length > 1 && doneCount() === totalPairs() ? 'results' : 'setup';
+  S = { ...blank(), items, results, history, format, rounds, bracket, swissRounds: Math.max(0, Math.floor(Number(obj.swissRounds) || 0)),
+    tieBreaks: Array.isArray(obj.tieBreaks) ? obj.tieBreaks.filter(t => Array.isArray(t) && t.every(x => ids.has(x))) : [], nextId: Math.max(Number(obj.nextId) || 1, maxId + 1) };
+  S.view = items.length > 1 && progress().complete ? 'results' : 'setup';
   if (Store.ok) { try { await Store.clear(); for (const it of items) await saveImg(it); } catch (e) { setSaveOK(false); } }
   render(); save();
   toast(`Opened ${file.name}.`);
@@ -1273,13 +1770,34 @@ function addLines() {
   const ta = $('#lines'); if (!ta) return;
   const lines = ta.value.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
   if (!lines.length) { ta.focus(); return; }
+  ta.value = '';
   lines.forEach(l => addItem(l, null));
   render(); save();
   const t2 = $('#lines'); if (t2) t2.focus();
 }
+function chooseFormat(card) {
+  if (card.getAttribute('aria-disabled') === 'true') { toast(card.dataset.why); return; }
+  const f = card.dataset.format;
+  if (f === S.format) return;
+  if (f === 'swiss') S.rounds = [];
+  S.bracket = null;
+  S.format = f;
+  render(); save();
+}
+function changeRounds(d) {
+  const n = S.items.length, min = S.format === 'swiss' ? Math.max(1, S.rounds.length) : 1;
+  S.swissRounds = Math.max(min, Math.min(Math.max(1, n - 1), swissTarget() + d));
+  render(); save();
+}
 document.addEventListener('click', e => {
+  const step = e.target.closest('[data-rounds]');
+  if (step) { if (!step.disabled) changeRounds(Number(step.dataset.rounds)); return; }
+  const card = e.target.closest('[data-format]');
+  if (card) { chooseFormat(card); return; }
   const t = e.target.closest('button, [data-tab]');
   if (!t) return;
+  if (t.id === 'swissMore') { S.swissRounds = Math.min(S.items.length - 1, S.rounds.length + 1); go('battle'); return; }
+  if (t.id === 'toRR') { S.format = 'rr'; S.queue = []; go('battle'); toast('Finishing as a full round robin. Every pick so far counts.'); return; }
   if (t.id === 'dropBtn') return $('#imgIn').click();
   if (t.id === 'addLines') return addLines();
   if (t.dataset.remove) return removeItem(t.dataset.remove);
@@ -1305,7 +1823,7 @@ document.addEventListener('click', e => {
   if (t.id === 'rerun') {
     ask('Restart? This clears every pick and starts the matchups over. Your entries stay.', 'Restart').then(ok => {
       if (!ok) return;
-      S.results = {}; S.history = []; S.queue = []; S.tieBreaks = [];
+      S.results = {}; S.history = []; S.queue = []; S.tieBreaks = []; S.rounds = []; S.bracket = null;
       go(S.view === 'setup' ? 'setup' : 'battle'); toast('Restarted. Your entries are still here.');
     });
     return;
@@ -1340,6 +1858,7 @@ document.addEventListener('input', e => {
 });
 document.addEventListener('keydown', e => {
   if (e.target.id === 'lines' && e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); addLines(); return; }
+  if (e.target.matches && e.target.matches('[data-format]') && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); chooseFormat(e.target); return; }
   if (e.target.closest('input, textarea, select, [contenteditable]')) return;
   if ($('dialog[open]')) return;
   if (S.view !== 'battle') return;
@@ -1377,6 +1896,15 @@ window.__rrBack = () => {
   if (d) { d.close(); return true; }
   if (S.view !== 'setup') { go('setup'); return true; }
   return false;
+};
+
+window.__rr = {
+  state: () => JSON.parse(JSON.stringify(S)),
+  current: () => currentMatch(),
+  progress: () => progress(),
+  ranking: () => ranking().rows.map(r => ({ id: r.id, rank: r.rank, slotSize: r.slotSize, w: r.w, l: r.l, t: r.t, n: r.n, stage: r.stage || '' })),
+  pick: side => pick(side, true),
+  bracket: () => { const R = resolveBracket(); return R && { champion: R.champion, complete: R.complete, k: R.B.k, matches: [...R.out.values()].map(m => ({ id: m.id, a: m.a, b: m.b, status: m.status, winner: m.winner })) }; },
 };
 
 load().then(() => {

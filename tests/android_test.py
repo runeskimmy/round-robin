@@ -343,6 +343,29 @@ def steps(run):
     run.check(not spurious, 'popup never closes by itself (4 rounds of open, Cancel, reopen)', len(spurious))
     run.check(cdp.js("document.querySelectorAll('.tile').length") == 8, 'Cancel on New tournament keeps everything')
 
+    # Brackets on the phone: pick a format with a real tap, then a quick double elimination.
+    cdp.js("document.querySelector('#newT').click()")
+    cdp.wait("document.querySelector('#askDlg').open", 5)
+    cdp.js("document.querySelector('#askOk').click()")
+    cdp.wait("!!document.querySelector('#lines')", 5)
+    cdp.js("document.querySelector('#lines').value = 'Alpha\\nBravo\\nCharlie\\nDelta\\nEcho\\nFoxtrot'; document.querySelector('#addLines').click()")
+    cdp.js("document.querySelector('[data-format=\\'double\\']').scrollIntoView({ block: 'center' })")
+    time.sleep(1)
+    tap_element(cdp, '[data-format="double"]')
+    run.check(cdp.wait("document.querySelector('[data-format=\\'double\\']').getAttribute('aria-checked') === 'true'", 5), 'tapping a format card picks it')
+    screenshot(run, 'format-picker')
+    cdp.js("document.querySelector('#dockGo').click()")
+    run.check(cdp.wait("!!document.querySelector('.fighter') && !document.querySelector('#tieBtn')"), 'bracket matchups start, with no Tie button')
+    screenshot(run, 'double-matchup')
+    picks = cdp.js("""(() => { const L = id => window.__rr.state().items.find(i => i.id === id).label; let n = 0;
+      while (window.__rr.current() && n < 30) { const m = window.__rr.current(); window.__rr.pick(L(m.a) < L(m.b) ? 'a' : 'b'); n++; }
+      return n; })()""")
+    run.check(picks == 10, 'double elimination with 6 entries: 10 matches', picks)
+    cdp.js("document.querySelector('[data-tab=\\'bracket\\']').click()")
+    run.check(cdp.wait("!!document.querySelector('.champ-line') && document.querySelectorAll('.bm').length >= 10"), 'the bracket picture shows on the phone')
+    run.check('Alpha' in cdp.js("document.querySelector('.champ-line').innerText"), 'the best entry is champion')
+    screenshot(run, 'double-bracket')
+
     cdp.close()
 
 
