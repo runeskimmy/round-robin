@@ -46,6 +46,15 @@ From thousands of simulated tournaments with 16 entries, played by a chooser who
 
 With perfectly consistent picks, Round robin, Round robin+, Sort, and Top N get everything they rank exactly right.
 
+### Rank by hand
+
+Next to "Other bracket styles" is **Rank by hand**, for when you'd rather just arrange things yourself. It uses the same entries but never changes a tournament.
+
+- **Tier list:** drag entries from "not ranked yet" into S, A, B, C, and D. Tap a tier's name to rename it.
+- **Ordered list:** one numbered list. Drag the handle or use the arrows.
+- On a phone, you can also tap an entry and then tap a tier, or hold an entry for a moment to drag it. On a computer, arrow keys move the selected tile.
+- Both can be copied as text or saved as an image.
+
 ### In the results
 
 - **List, Tiers, and Table** views, plus a bracket picture for the elimination styles.
@@ -65,7 +74,7 @@ With perfectly consistent picks, Round robin, Round robin+, Sort, and Top N get 
 
 Every push runs these checks on GitHub's machines (see `.github/workflows/test.yml`):
 
-- **Web:** plays full tournaments in Chrome in every style, with a planted loop, a planted tie, and a second look answered differently on purpose. It checks the rankings, every results view, the guide, the close-call markers, saving, copying, tie-breaking, reopening, and restarting.
+- **Web:** plays full tournaments in Chrome in every style, with a planted loop, a planted tie, and a second look answered differently on purpose. It checks the rankings, every results view, the guide, the close-call markers, saving, copying, tie-breaking, reopening, and restarting. It also ranks by hand with real mouse drags, taps, and arrow keys, and checks that everything survives a reload.
 - **Stress test:** hundreds of simulated tournaments in every style except plain round robin (2 to 40 entries, random and consistent picks, with undo), checking each style's rules and that consistent picks get exact answers in the predicted number of matchups.
 - **Windows:** installs with the real installer, drives the real app window through the same tournaments, closes and reopens it to check your data stays, then uninstalls.
 - **Android:** installs the APK on an emulator, adds photos through the real photo picker, plays every matchup, uses real taps on the style cards and the guide, saves files, and tests the back button, reopening, and the restart popup.

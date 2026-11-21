@@ -36,6 +36,10 @@ def body(run):
         flow.check_persisted(page, run, rows)
         flow.check_restart(page, run)
         flow.check_formats(page, run)
+        hand = flow.check_hand(page, run, save)
+        page.reload()
+        page.wait_for_selector('.hand')
+        flow.check_hand_after_reopen(page, run, hand)
 
         phone = browser.new_context(viewport={'width': 390, 'height': 844}, is_mobile=True, has_touch=True, device_scale_factor=2)
         mp = phone.new_page()

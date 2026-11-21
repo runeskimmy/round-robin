@@ -154,6 +154,15 @@ def body(run):
         desktop_shot(run, 'desktop-reopened')
         flow.check_restart(page, run)
         flow.check_formats(page, run)
+        hand = flow.check_hand(page, run, save)
+        browser.close()
+    close_app(proc, run)
+
+    proc = launch(run, PORT + 2)
+    with sync_playwright() as p:
+        browser, page = connect(p, run, PORT + 2)
+        page.wait_for_selector('.hand', timeout=15000)
+        flow.check_hand_after_reopen(page, run, hand)
         browser.close()
     close_app(proc, run)
 
