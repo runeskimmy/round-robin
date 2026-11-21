@@ -541,12 +541,22 @@ async function addFiles(files) {
   const imgs = [...files].filter(f => f && (f.type.startsWith('image/') || /\.(png|jpe?g|gif|webp|bmp|svg|avif)$/i.test(f.name || '')));
   if (!imgs.length) { if (files.length) toast("Those files aren't images."); return; }
   let added = 0; const failed = [];
-  for (const f of imgs) {
+  // Read every file's bytes right away, all at once. On Android, access to picked photos
+  // can lapse while earlier ones are still being processed.
+  const loaded = await Promise.all(imgs.map(f => f.arrayBuffer().then(
+    buf => ({ f, blob: new Blob([buf], { type: f.type }) }),
+    err => ({ f, err }))));
+  window.__rrAddErrors = [];
+  for (const { f, blob, err } of loaded) {
     try {
-      const img = await fileToDataURL(f);
+      if (err) throw err;
+      const img = await fileToDataURL(blob);
       addItem(labelFromFile(f.name), img);
       added++;
-    } catch (e) { failed.push(f.name || 'image'); }
+    } catch (e) {
+      failed.push(f.name || 'image');
+      window.__rrAddErrors.push({ name: f.name, type: f.type, size: f.size, error: String((e && (e.name + ': ' + e.message)) || e) });
+    }
   }
   render(); save();
   if (failed.length) {

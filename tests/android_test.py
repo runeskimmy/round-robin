@@ -227,8 +227,9 @@ def steps(run):
     tap(*center(add))
     time.sleep(2)
     screenshot(run, 'after-add')
-    run.check(cdp.wait("document.querySelectorAll('.tile').length === 8", 20), 'three photos come back into the app',
-              cdp.js("document.querySelectorAll('.tile').length"))
+    came_back = cdp.wait("document.querySelectorAll('.tile').length === 8", 20)
+    run.log('photo read errors:', cdp.js("JSON.stringify(window.__rrAddErrors || [])"))
+    run.check(came_back, 'three photos come back into the app', cdp.js("document.querySelectorAll('.tile').length"))
     run.check(cdp.js("[...document.querySelectorAll('.tile-face img')].every(i => i.naturalWidth > 0)"), 'the photos display')
     run.log('photo names:', cdp.js("[...document.querySelectorAll('.tile-name')].map(e => e.value)"))
     screenshot(run, 'entries')
