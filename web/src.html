@@ -1010,6 +1010,7 @@ function rowHTML(r, nm, byId) {
 /* ---------- yes/no popup (the app's own, instead of the browser's "this page says" box) ---------- */
 let askResolve = null;
 function ask(message, okLabel) {
+  if (window.__rrAskLog) askLog('open');
   $('#askMsg').textContent = message;
   $('#askOk').textContent = okLabel || 'OK';
   $('#askDlg').showModal();
@@ -1017,6 +1018,7 @@ function ask(message, okLabel) {
   return new Promise(res => { askResolve = res; });
 }
 function answer(yes) {
+  if (window.__rrAskLog) askLog('answer', { yes, pending: !!askResolve });
   const r = askResolve; askResolve = null;
   if ($('#askDlg').open) $('#askDlg').close();
   if (r) r(yes);
@@ -1024,6 +1026,16 @@ function answer(yes) {
 $('#askOk').addEventListener('click', () => answer(true));
 $('#askCancel').addEventListener('click', () => answer(false));
 $('#askDlg').addEventListener('close', () => answer(false));
+// Diagnostics: a short history of popup events, readable by the tests.
+window.__rrAskLog = [];
+const askLog = (ev, extra) => {
+  const a = document.activeElement;
+  window.__rrAskLog.push({ t: Math.round(performance.now()), ev, open: $('#askDlg').open, active: a ? (a.id || a.tagName) : '', ...(extra || {}) });
+  if (window.__rrAskLog.length > 40) window.__rrAskLog.shift();
+};
+$('#askDlg').addEventListener('cancel', e => askLog('cancel (close request)'));
+$('#askDlg').addEventListener('close', () => askLog('close'));
+document.addEventListener('keydown', e => askLog('keydown', { key: e.key }), true);
 
 /* ---------- tie-break dialog ---------- */
 let tieIds = [], tieOrder = [];

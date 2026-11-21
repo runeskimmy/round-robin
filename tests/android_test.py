@@ -306,11 +306,13 @@ def steps(run):
     cdp.js("document.querySelector('#rerun').click()")
     cdp.wait("document.querySelector('#askDlg').open")
     time.sleep(1)
+    run.log('popup open 1s after reopening:', cdp.js("document.querySelector('#askDlg').open"))
     tap_element(cdp, '#askOk')
     cleared = "/28 matchups<\\/b> for 8 entries/.test(document.querySelector('.dock p').innerHTML)"
     if not cdp.wait(cleared, 6):
         screenshot(run, 'restart-tap-missed')
         run.log('first tap on Restart did not register; dialog open:', cdp.js("document.querySelector('#askDlg').open"))
+        run.log('popup event history:', cdp.js("JSON.stringify(window.__rrAskLog)"))
         if not cdp.js("document.querySelector('#askDlg').open"):
             cdp.js("document.querySelector('#rerun').click()")
             cdp.wait("document.querySelector('#askDlg').open")
