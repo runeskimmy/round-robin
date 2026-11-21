@@ -59,6 +59,7 @@ def tap(x, y):
 class CDP:
     def __init__(self, run):
         self.ws = None
+        self.reconnect = None
         deadline = time.time() + 60
         last = None
         while time.time() < deadline:
@@ -84,7 +85,13 @@ class CDP:
                 return msg.get('result', {})
 
     def js(self, expr):
-        r = self.send('Runtime.evaluate', expression=expr, returnByValue=True, awaitPromise=True)
+        try:
+            r = self.send('Runtime.evaluate', expression=expr, returnByValue=True, awaitPromise=True)
+        except websocket.WebSocketConnectionClosedException:
+            if not self.reconnect:
+                raise
+            self.reconnect()
+            r = self.send('Runtime.evaluate', expression=expr, returnByValue=True, awaitPromise=True)
         if 'exceptionDetails' in r:
             raise RuntimeError(r['exceptionDetails'])
         return r.get('result', {}).get('value')
@@ -104,6 +111,18 @@ class CDP:
             pass
 
 
+def forward_to_app(run):
+    pid = None
+    for _ in range(60):
+        pid = adb('shell', 'pidof', PKG, check=False).strip()
+        if pid and f'webview_devtools_remote_{pid}' in adb('shell', 'cat', '/proc/net/unix', check=False):
+            break
+        time.sleep(1)
+    adb('forward', '--remove-all', check=False)
+    adb('forward', f'tcp:{PORT}', f'localabstract:webview_devtools_remote_{pid}')
+    return pid
+
+
 def start_app(run):
     adb('shell', 'am', 'start', '-W', '-n', f'{PKG}/.MainActivity')
     pid = None
@@ -118,6 +137,16 @@ def start_app(run):
     adb('forward', f'tcp:{PORT}', f'localabstract:webview_devtools_remote_{pid}')
     cdp = CDP(run)
     run.check(cdp.wait("!!document.querySelector('header .brand')", 30), 'app page loads from inside the APK')
+
+    def reconnect():
+        old = pid
+        run.log('!! lost the connection to the app page; app process before:', old,
+                'now:', adb('shell', 'pidof', PKG, check=False).strip() or 'not running')
+        new = forward_to_app(run)
+        run.log('!! reconnecting to process', new, '(same process)' if new == old else '(APP RESTARTED)')
+        fresh = CDP(run)
+        cdp.ws = fresh.ws
+    cdp.reconnect = reconnect
     return cdp
 
 
@@ -135,6 +164,21 @@ def toast(cdp):
 
 
 def body(run):
+    adb('logcat', '-c', check=False)
+    try:
+        steps(run)
+    finally:
+        try:
+            screenshot(run, 'last-screen')
+            log = adb('logcat', '-d', '-v', 'time', check=False)
+            keep = [l for l in log.splitlines() if re.search(
+                r'roundrobin|AndroidRuntime|FATAL|chromium|cr_|WebView|ActivityManager|ActivityTaskManager|lowmemory|PhotoPicker|ContentResolver', l)]
+            (run.dir / 'logcat.txt').write_text('\n'.join(keep[-4000:]), encoding='utf-8')
+        except Exception as e:  # noqa: BLE001
+            run.log('could not save logcat:', e)
+
+
+def steps(run):
     apk = sys.argv[1]
     images = make_test_images(run.dir / 'images')
     run.log(adb('shell', 'getprop', 'ro.build.version.release').strip(), '(Android version)')
@@ -181,6 +225,8 @@ def body(run):
     add = next((n for n in nodes if re.match(r'^(Add|Done|Select)', n.get('text', '')) and n.get('enabled') == 'true'), None)
     run.check(add is not None, 'picker shows an Add button after selecting', [n.get('text') for n in nodes if n.get('text')][:20])
     tap(*center(add))
+    time.sleep(2)
+    screenshot(run, 'after-add')
     run.check(cdp.wait("document.querySelectorAll('.tile').length === 8", 20), 'three photos come back into the app',
               cdp.js("document.querySelectorAll('.tile').length"))
     run.check(cdp.js("[...document.querySelectorAll('.tile-face img')].every(i => i.naturalWidth > 0)"), 'the photos display')
