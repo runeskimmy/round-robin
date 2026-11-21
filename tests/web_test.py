@@ -35,6 +35,7 @@ def body(run):
         page.reload()
         flow.check_persisted(page, run, rows)
         flow.check_restart(page, run)
+        flow.check_formats(page, run)
 
         phone = browser.new_context(viewport={'width': 390, 'height': 844}, is_mobile=True, has_touch=True, device_scale_factor=2)
         mp = phone.new_page()

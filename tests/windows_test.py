@@ -153,6 +153,7 @@ def body(run):
         flow.check_persisted(page, run, rows)
         desktop_shot(run, 'desktop-reopened')
         flow.check_restart(page, run)
+        flow.check_formats(page, run)
         browser.close()
     close_app(proc, run)
 
