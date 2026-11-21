@@ -1,0 +1,55 @@
+plugins { id 'com.android.application' }
+
+android {
+    namespace 'app.roundrobin'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'app.roundrobin'
+        minSdk 29
+        targetSdk 34
+        versionCode 1
+        versionName '1.0.0'
+    }
+
+    // Release builds are signed only when the key is supplied (it is never stored in the repo):
+    //   RR_KEYSTORE=/path/to/roundrobin.jks RR_KEY_PASS=... ./gradlew assembleRelease
+    signingConfigs {
+        release {
+            if (System.getenv('RR_KEYSTORE')) {
+                storeFile file(System.getenv('RR_KEYSTORE'))
+                storePassword System.getenv('RR_KEY_PASS')
+                keyAlias 'roundrobin'
+                keyPassword System.getenv('RR_KEY_PASS')
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            if (System.getenv('RR_KEYSTORE')) signingConfig signingConfigs.release
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    lint { checkReleaseBuilds false; abortOnError false }
+}
+
+dependencies {
+    implementation 'androidx.webkit:webkit:1.12.1'
+    implementation 'androidx.activity:activity:1.9.3'
+    implementation platform('org.jetbrains.kotlin:kotlin-bom:1.8.22')
+}
+
+// Copy the app (web/round-robin.html) into the APK as assets/index.html before every build.
+def copyWebApp = tasks.register('copyWebApp', Copy) {
+    from(rootProject.file('../web/round-robin.html'))
+    into(layout.projectDirectory.dir('src/main/assets'))
+    rename { 'index.html' }
+}
+preBuild.dependsOn copyWebApp

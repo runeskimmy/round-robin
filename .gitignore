@@ -1,0 +1,15 @@
+# build output
+windows/target/
+windows/installer/*.exe
+windows/installer/*.dll
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/app/src/main/assets/index.html
+# never commit signing keys
+*.jks
+*.keystore
+# test output
+results/
+__pycache__/
