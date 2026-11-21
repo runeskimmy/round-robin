@@ -191,7 +191,8 @@ main { flex: 1; padding: 8px clamp(14px, 3vw, 32px) 32px; width: 100%; max-width
 .g-fmt h4 { font-family: var(--display); font-weight: 800; font-size: 24px; margin: 0 0 8px; line-height: 1; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
 .g-fmt h4 span { font-family: var(--body); font-weight: 400; font-size: 14px; color: var(--twig); }
 .g-fmt .g-nums { background: var(--egg); border-radius: 10px; padding: 8px 12px; font-size: 15px; }
-.fmt-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.fmt-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.list.nopct .bar, .list.nopct .pct { visibility: hidden; }
 .fmt {
   position: relative; display: flex; flex-direction: column; gap: 6px;
   padding: 14px; border: 2px solid var(--egg-deep); border-radius: 12px; background: var(--shell); cursor: pointer;
@@ -341,6 +342,10 @@ main { flex: 1; padding: 8px clamp(14px, 3vw, 32px) 32px; width: 100%; max-width
 .chip.noimg { padding-left: 10px; }
 .chip img { width: 24px; height: 24px; border-radius: 5px; object-fit: contain; background: var(--egg-deep); }
 .chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sure { display: flex; gap: 10px; align-items: baseline; margin: -2px 0; padding: 0 14px 0 22px; font-size: 14px; color: var(--twig); }
+.sure b { color: var(--ink); font-size: 17px; line-height: 1; }
+.sure-against b { color: var(--ink); }
+.sure-sum { margin: 0 0 4px; color: var(--twig); font-size: 15px; }
 .tiegroup { border: 2px dashed var(--twig); border-radius: 12px; padding: 6px; display: flex; flex-direction: column; gap: 6px; }
 .tiegroup-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 2px 8px; font-size: 15px; color: var(--twig); }
 .tiegroup-head p { margin: 0 auto 0 0; }
@@ -417,6 +422,7 @@ body.dragging .dropcover { display: grid; }
 
 @media (max-width: 960px) {
   .fmt-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .fmt-grid .fmt:last-child:nth-child(odd) { grid-column: span 2; }
 }
 @media (max-width: 760px) {
   body { font-size: 16px; }
@@ -519,7 +525,7 @@ const plural = (n, one, many) => n + ' ' + (n === 1 ? one : (many || one + 's'))
 const today = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
 
 const blank = () => ({ v: 2, nextId: 1, items: [], results: {}, history: [], queue: [], tieBreaks: [], view: 'setup', tab: 'list',
-  format: 'rr', swissRounds: 0, rounds: [], bracket: null, topN: 3, checks: {} });
+  format: 'rr', swissRounds: 0, rounds: [], bracket: null, topN: 3, checks: {}, sortSeed: [] });
 let S = blank();
 
 /* ---------- storage (IndexedDB, images kept separately) ---------- */
@@ -755,13 +761,13 @@ function schedule(pairs, priority) {
 }
 
 /* ---------- formats ---------- */
-const FORMATS = ['rr', 'rrplus', 'swiss', 'topn', 'double', 'single'];
-const FORMAT_NAMES = { rr: 'Round robin', rrplus: 'Round robin+', swiss: 'Swiss', topn: 'Top N', single: 'Single elimination', double: 'Double elimination' };
+const FORMATS = ['rr', 'rrplus', 'sort', 'swiss', 'topn', 'double', 'single'];
+const FORMAT_NAMES = { rr: 'Round robin', rrplus: 'Round robin+', sort: 'Sort', swiss: 'Swiss', topn: 'Top N', single: 'Single elimination', double: 'Double elimination' };
 const fmtName = f => (f === 'topn' ? `Top ${topTarget()}` : FORMAT_NAMES[f]);
 const isElimFmt = f => f === 'single' || f === 'double';
 const isElim = () => isElimFmt(S.format);
 const isRounds = () => S.format === 'swiss' || S.format === 'topn';   // played in rounds, kept in S.rounds
-const noTies = () => isElim() || S.format === 'topn';
+const noTies = () => isElim() || S.format === 'topn' || S.format === 'sort';
 const freshFmt = f => isElimFmt(f) || f === 'topn';                   // can't pick up from earlier picks
 const elimStarted = () => !!(S.bracket && Object.keys(S.bracket.results).length);
 const anyPicks = () => S.history.length > 0 || Object.keys(S.results).length > 0 || elimStarted();
@@ -788,6 +794,7 @@ function formatCount(fmt, n) {
   const rr = n * (n - 1) / 2;
   if (fmt === 'rrplus') return [rr + n - 1, rr + n - 1, true];
   if (fmt === 'topn') { const L = topLivesFor(topTarget(), n), c = L * (n - L) + L * (L - 1) / 2 + Math.max(0, L - 1); return [c, c, true]; }
+  if (fmt === 'sort') { const c = Math.round(sortCost(n)) + n - 1; return [c, c, true]; }
   return [rr, rr];
 }
 function timeText(m) {
@@ -932,7 +939,7 @@ function majority(list) {
   const best = Math.max(...c.values()), top = [...c.keys()].filter(x => c.get(x) === best);
   return top.length === 1 ? top[0] : 'tie';
 }
-const usesChecks = () => S.format === 'rrplus' || S.format === 'topn';
+const usesChecks = () => S.format === 'rrplus' || S.format === 'topn' || S.format === 'sort';
 // The results the ranking uses: each double-checked pair counts its majority answer.
 function effResults() {
   if (!usesChecks() || !S.checks || !Object.keys(S.checks).length) return S.results;
@@ -964,6 +971,51 @@ function checkStats() {
     if (majority([S.results[k], ...c]) !== S.results[k]) changed++;        // and the final answer flipped
   }
   return { checked, changed, split, asks };
+}
+
+/* Sort: a merge sort that never asks what earlier picks already answer (if A beat B and B beat C, A goes
+   above C), then second looks at each pair of neighbors. Nothing but your answers is stored: the sort is
+   replayed from them each time, so saving, reopening and undo all just work. */
+const sortCostMemo = new Map();
+function sortCost(n) {  // the average number of matchups a merge sort of n needs
+  if (n < 2) return 0;
+  if (sortCostMemo.has(n)) return sortCostMemo.get(n);
+  const a = n >> 1, b = n - a, v = sortCost(a) + sortCost(b) + a + b - a / (b + 1) - b / (a + 1);
+  sortCostMemo.set(n, v);
+  return v;
+}
+function ensureSortSeed() {
+  const ids = S.items.map(i => i.id), have = new Set(ids), old = S.sortSeed || [];
+  const seed = old.filter(id => have.has(id)), inSeed = new Set(seed);
+  const extra = shuffle(ids.filter(id => !inSeed.has(id)));
+  if (extra.length || seed.length !== old.length) S.sortSeed = [...seed, ...extra];
+}
+function sortState() {
+  ensureSortSeed();
+  const res = S.results; let need = null;
+  const before = (a, b) => { const r = res[pk(a, b)]; if (r === undefined) { need = [a, b]; return true; } return r !== b; };
+  const msort = xs => {
+    if (xs.length < 2) return xs;
+    const mid = xs.length >> 1, L = msort(xs.slice(0, mid)); if (need) return xs;
+    const R = msort(xs.slice(mid)); if (need) return xs;
+    const out = []; let i = 0, j = 0;
+    while (i < L.length && j < R.length) { const left = before(L[i], R[j]); if (need) return xs; out.push(left ? L[i++] : R[j++]); }
+    while (i < L.length) out.push(L[i++]);
+    while (j < R.length) out.push(R[j++]);
+    return out;
+  };
+  const sorted = msort(S.sortSeed.slice());
+  if (need) return { phase: 'sort', need, order: null };
+  // second looks: each pair of neighbors, best of 3; when the majority says the lower one is better, they swap
+  const order = sorted.slice(), cap = order.length * order.length; let swaps = 0;
+  for (let i = 0; i + 1 < order.length;) {
+    const a = order[i], b = order[i + 1], k = pk(a, b);
+    if (res[k] === undefined) return { phase: 'check', need: [a, b], first: true, order };
+    if (!settled(k)) return { phase: 'check', need: [a, b], order };
+    if (swaps < cap && majority(answersFor(k)) === b) { order[i] = b; order[i + 1] = a; swaps++; i = Math.max(0, i - 1); continue; }
+    i++;
+  }
+  return { phase: 'done', need: null, order };
 }
 
 /* Elimination brackets. Any entry count works: byes go to the top seeds, and a match missing a player
@@ -1087,6 +1139,16 @@ function currentMatch() {
       : `Round ${S.rounds.length}, ${topAlive(topInfo()).length} still in`;
     return { a: p[0], b: p[1], label };
   }
+  if (S.format === 'sort') {
+    const st = sortState(); if (!st.need) return null;
+    const [a, b] = st.need, k = pk(a, b);
+    if (st.phase === 'sort' || st.first) {
+      const f = hashBit(k + 's');
+      return { a: f ? b : a, b: f ? a : b, label: st.phase === 'sort' ? '' : 'Checking new neighbors' };
+    }
+    const f = hashBit(k + answersFor(k).length);
+    return { a: f ? b : a, b: f ? a : b, check: true, label: 'Second look at a close call' };
+  }
   if (S.queue[0] || S.format !== 'rrplus') return S.queue[0] || null;
   return checkMatch();
 }
@@ -1121,6 +1183,17 @@ function progress() {
     let left = alive.slice(L).reduce((x, id) => x + L - info.get(id).losses, 0);
     for (let i = 0; i < keep.length; i++) for (let j = i + 1; j < keep.length; j++) if (!(pk(keep[i], keep[j]) in S.results)) left++;
     return { done, total: done + Math.max(1, left) + Math.max(0, Math.min(L, alive.length) - 1), complete: false };
+  }
+  if (S.format === 'sort') {
+    const st = sortState(), done = doneCount() + checkStats().asks;
+    if (st.phase === 'done') return { done, total: done, complete: n >= 2 };
+    if (st.phase === 'sort') return { done, total: Math.max(done + 1, Math.round(sortCost(n)) + n - 1 + checkStats().asks), complete: false };
+    let left = 0;  // each unsettled pair of neighbors needs at least one more look
+    for (let i = 0; i + 1 < st.order.length; i++) {
+      const a = answersFor(pk(st.order[i], st.order[i + 1]));
+      left += !a.length ? 2 : a.length === 1 || (a.length === 2 && a[0] !== a[1]) ? 1 : 0;
+    }
+    return { done, total: done + Math.max(1, left), complete: false };
   }
   if (S.format === 'rrplus') {
     const asks = checkStats().asks, rrDone = doneCount();
@@ -1358,7 +1431,17 @@ function topStandings() {
   });
   return { rows, st: all.st };
 }
-const ranking = () => (isElim() ? elimStandings() : S.format === 'topn' ? topStandings() : standings());
+// Sort ranking: the sorted order itself. Until the sort is done, a rough order by record.
+function sortStandings() {
+  const all = standings(), st = sortState();
+  if (!st.order) return all;
+  const n = st.order.length;
+  const rows = st.order.map((id, i) => ({ ...all.st.get(id), rank: i + 1, slot: i, slotSize: 1, place: n > 1 ? (n - 1 - i) / (n - 1) : 1 }));
+  return { rows, st: all.st };
+}
+const ranking = () => (isElim() ? elimStandings() : S.format === 'topn' ? topStandings() : S.format === 'sort' ? sortStandings() : standings());
+// Tiers come from win rate, except in Sort, where they come from each entry's place in the ranking.
+const tierScore = r => (r.place !== undefined ? r.place : r.pct);
 
 const TIERS = [
   { l: 'S', min: 0.8, c: '#FF7F7F' },
@@ -1392,7 +1475,8 @@ function faceHTML(it, nm, cls) {
 
 const FORMAT_WHAT = {
   rr: 'Everyone faces everyone once. A complete ranking of the whole list.',
-  rrplus: 'Round robin, then a second look at each pair of neighbors in your ranking. The most exact ranking here.',
+  rrplus: 'Round robin, then a second look at each pair of neighbors in your ranking. Every pair faces off, and close calls get checked.',
+  sort: 'Sorts your list like a deck of cards, skipping matchups your earlier picks already answer, then double-checks neighbors. The most exact ranking for the time.',
   swiss: 'Entries face others with a similar record. A rough order of the whole list, much faster.',
   topn: 'Finds your top few and ranks just those exactly, with a second look. The rest get a rough order.',
   double: 'Out after two losses. The most reliable way to find your #1, and usually gets #2 too.',
@@ -1407,8 +1491,11 @@ const GUIDE = {
   rrplus: { good: "The most exact ranking you can get here. After the round robin, it takes a second look at each pair of neighbors in your ranking, so one shaky answer can't decide a place. If you answer differently the second time, a third look settles it.",
     bad: "Saving time. It's the longest format, a bit more than a round robin.",
     nums: '16 entries: about 139 matchups. #1 right 96% of the time. Top 3 in exact order 88%. The whole list exactly right 57%.' },
-  swiss: { good: 'A rough order of a long list in a fraction of the time. When it ends, you can finish it as a full round robin and keep every pick.',
-    bad: 'Exact places past 2nd. Entries in the middle never face most of the field.',
+  sort: { good: "The most exact full ranking for the fewest matchups. It sorts your list the way you'd sort a deck of cards: split it into small piles, rank each pile, then merge the piles by comparing the tops. It never asks what your earlier picks already answer (if you picked A over B and B over C, it puts A above C without asking). Then it takes a second look at each pair of neighbors to catch any slips.",
+    bad: "Seeing how consistent you are. Most pairs never meet, so the Table tab is mostly empty and the loop finder has little to check. It also assumes your tastes don't run in circles.",
+    nums: '16 entries: about 66 matchups. #1 right 98% of the time. Top 3 in exact order 93%. The whole list exactly right 67%.' },
+  swiss: { good: 'A classic chess-style tournament: rounds where entries face others with a similar record. When it ends, you can finish it as a full round robin and keep every pick.',
+    bad: 'Exact places past 2nd. Entries in the middle never face most of the field, and Sort ranks the whole list far better in about the same number of matchups.',
     nums: '16 entries, 6 rounds: 48 matchups. #1 right 89% of the time. Top 3 in exact order 50%. On average, entries land about 1 place from where they belong.' },
   topn: { good: 'Knowing your top few exactly, fast. Everyone is out after one more loss than the number of places you want (Top 3 means out after 4 losses). Play goes on until the survivors have all faced each other, then it takes a second look at the finalists. Your real top 3 can never collect 3 losses, so they stay in even if you slip once.',
     bad: 'The middle and bottom of the list. Entries that go out are only sorted by how long they lasted.',
@@ -1421,14 +1508,15 @@ const GUIDE = {
     nums: '16 entries: 16 matchups. #1 right 90% of the time. #2 right 45%. Top 3 in exact order 24%.' },
 };
 const GUIDE_QUICK = [
-  ['Every place exactly right', 'rrplus'], ['Your top few, fast', 'topn'], ['Just your #1', 'double'],
-  ['A rough order of a long list', 'swiss'], ['Your #1, as fast as possible', 'single'], ['The classic: everyone faces everyone once', 'rr'],
+  ['The most exact ranking for the time', 'sort'], ['Every pair faces off, with close calls double-checked', 'rrplus'],
+  ['Your top few, fast', 'topn'], ['Just your #1', 'double'], ['Your #1, as fast as possible', 'single'],
+  ['A classic chess-style tournament in rounds', 'swiss'], ['The classic: everyone faces everyone once', 'rr'],
 ];
 function openGuide() {
   const n = S.items.length;
   $('#guideBody').innerHTML = `
     <ul class="g-quick">${GUIDE_QUICK.map(([want, f]) => `<li><span>${want}</span><b>${FORMAT_NAMES[f]}</b></li>`).join('')}</ul>
-    <p>The numbers below come from thousands of practice tournaments with 16 entries. The practice chooser is consistent but flips a close call now and then, about 1 time in 11 between neighbors, like a real person. With perfectly consistent picks, Round robin, Round robin+, and Top N get everything they rank exactly right.</p>
+    <p>The numbers below come from thousands of practice tournaments with 16 entries. The practice chooser is consistent but flips a close call now and then, about 1 time in 11 between neighbors, like a real person. With perfectly consistent picks, Round robin, Round robin+, Sort, and Top N get everything they rank exactly right.</p>
     ${FORMATS.map(f => `<section class="g-fmt">
       <h4>${FORMAT_NAMES[f]}${n >= 2 ? `<span>${countText(f, n)} for your ${n} entries</span>` : ''}</h4>
       <p><b>Good for:</b> ${GUIDE[f].good}</p>
@@ -1562,7 +1650,7 @@ function renderBattle() {
   if (!m) { S.view = 'results'; renderResults(); return; }
   const nm = names(), byId = new Map(S.items.map(i => [i.id, i]));
   const P = progress(), elim = isElim(), nt = noTies();
-  const sub = m.label || `${plural(P.total - P.done - 1, 'matchup')} after this`;
+  const sub = m.label || `${S.format === 'sort' ? 'About ' : ''}${plural(P.total - P.done - 1, 'matchup')} after this`;
   dock.innerHTML = '';
   main.innerHTML = `
     <section class="battle">
@@ -1585,7 +1673,7 @@ function renderBattle() {
       </div>
       <div class="battle-bottom">
         ${nt ? '' : '<button class="btn" id="tieBtn" type="button">Tie</button>'}
-        <p class="keys">${nt ? `Keys: left arrow picks left, right arrow picks right, Z undoes. ${elim ? 'No ties in a bracket.' : 'No ties in Top N.'}` : 'Keys: left arrow picks left, right arrow picks right, down arrow is a tie, Z undoes.'}</p>
+        <p class="keys">${nt ? `Keys: left arrow picks left, right arrow picks right, Z undoes. ${elim ? 'No ties in a bracket.' : `No ties in ${S.format === 'sort' ? 'Sort' : 'Top N'}.`}` : 'Keys: left arrow picks left, right arrow picks right, down arrow is a tie, Z undoes.'}</p>
       </div>
     </section>`;
   if (!elim) drawTri($('#tri'), m);
@@ -1615,13 +1703,13 @@ function renderResults() {
     body = bracketHTML(R, nm, byId);
   } else if (tab === 'tiers') {
     body = `<div class="tiers">${TIERS.map(t => {
-      const its = rows.filter(r => tierOf(r.pct) === t);
+      const its = rows.filter(r => tierOf(tierScore(r)) === t);
       return `<div class="tier" style="--c:${t.c}"><div class="tier-label">${t.l}</div><div class="tier-items">${its.map(r => {
         const it = byId.get(r.id), n2 = nm.get(r.id);
         return `<div class="tt" title="${esc(n2.text)}"><div class="tt-box">${it.img ? `<img src="${imgURL(it)}" alt="">` : `<span class="txt">${esc(n2.text)}</span>`}</div><div class="tt-cap"><b>${r.rank}</b>${it.img ? `<span>${esc(n2.text)}</span>` : ''}</div></div>`;
       }).join('')}</div></div>`;
     }).join('')}</div>
-    <p class="note">Tiers come from win rate. S is 80% and up, A is 60% and up, B is 40% and up, C is 20% and up, and D is below 20%. The small number on each tile is its rank.</p>`;
+    <p class="note">${S.format === 'sort' ? 'Tiers come from place in the ranking: the top fifth is S, then A, B, C, and D.' : 'Tiers come from win rate. S is 80% and up, A is 60% and up, B is 40% and up, C is 20% and up, and D is below 20%.'} The small number on each tile is its rank.</p>`;
   } else if (tab === 'table') {
     const order = rows.map(r => r.id), rankOf = new Map(rows.map(r => [r.id, r.rank])), RES = effResults();
     body = `<div class="xt-wrap"><table class="xt">
@@ -1630,15 +1718,15 @@ function renderResults() {
         if (rid === cid) return `<td class="self"></td>`;
         const r = RES[pk(rid, cid)];
         const a = nm.get(rid).text, b = nm.get(cid).text;
-        if (r === undefined) return `<td class="u" title="${esc(a)} vs ${esc(b)}: not played${isRounds() ? '' : ' yet'}"></td>`;
+        if (r === undefined) return `<td class="u" title="${esc(a)} vs ${esc(b)}: not played${isRounds() || S.format === 'sort' ? '' : ' yet'}"></td>`;
         if (r === 'tie') return `<td class="t" title="${esc(a)} tied ${esc(b)}"></td>`;
         const up = rankOf.get(rid) > rankOf.get(cid);
         if (r === rid) return `<td class="w${up ? ' up' : ''}" title="${esc(a)} beat ${esc(b)}${up ? ' (upset)' : ''}"></td>`;
         return `<td class="l" title="${esc(a)} lost to ${esc(b)}"></td>`;
       }).join('')}</tr>`).join('')}</tbody></table></div>
-      <p class="note">Each row is one entry. Dark squares are its wins, pale squares are its losses, and grey squares are ties. Squares with a yellow ring are upsets, where a lower-ranked entry beat a higher-ranked one.${isRounds() ? ` Dashed squares are pairs that never met: ${S.format === 'swiss' ? 'Swiss' : 'Top N'} only plays some of the pairs.` : ''}${usesChecks() && checkStats().checked ? ' Double-checked pairs show the answer you gave most often.' : ''} Hover a square to see the matchup.</p>`;
+      <p class="note">Each row is one entry. Dark squares are its wins, pale squares are its losses, and grey squares are ties. Squares with a yellow ring are upsets, where a lower-ranked entry beat a higher-ranked one.${isRounds() || S.format === 'sort' ? ` Dashed squares are pairs that never met: ${S.format === 'swiss' ? 'Swiss' : S.format === 'sort' ? 'Sort' : 'Top N'} only asks about some of the pairs.` : ''}${usesChecks() && checkStats().checked ? ' Double-checked pairs show the answer you gave most often.' : ''} Hover a square to see the matchup.</p>`;
   } else {
-    const parts = []; let i = 0;
+    const parts = [], marks = sureNotes(rows, nm); let i = 0;
     const tieWhy = elim ? "They went out at the same stage, so the bracket can't separate them." : "Same record, and their head-to-head games don't separate them.";
     while (i < rows.length) {
       const r = rows[i];
@@ -1647,8 +1735,10 @@ function renderResults() {
         parts.push(`<div class="tiegroup"><div class="tiegroup-head"><p>These ${grp.length} are tied. ${tieWhy}</p><button class="btn" type="button" data-breaktie="${grp.map(g => g.id).join(',')}">Break the tie</button></div>${grp.map(g => rowHTML(g, nm, byId)).join('')}</div>`);
         i += r.slotSize;
       } else { parts.push(rowHTML(r, nm, byId)); i++; }
+      if (marks.has(i - 1)) parts.push(sureHTML(marks.get(i - 1)));
     }
-    body = `<div class="list">${parts.join('')}</div>`;
+    parts.unshift(sureSummary(marks, complete));
+    body = `<div class="list${S.format === 'sort' ? ' nopct' : ''}">${parts.join('')}</div>${S.format === 'sort' ? '<p class="note">Sort only asks about the pairs it needs, so the win and loss counts here cover just those matchups. The order comes from the sort itself.</p>' : ''}`;
   }
 
   let loopsHTML = '';
@@ -1674,9 +1764,9 @@ function renderResults() {
     banner = `<div class="banner"><p>Want it more exact? ${S.rounds.length < n - 1 ? `Another round adds ${plural(more, 'matchup')}. ` : ''}Finishing as a full round robin adds ${plural(left, 'matchup')}, and every pick so far counts.</p>
       ${S.rounds.length < n - 1 ? '<button class="btn" id="swissMore" type="button">Play another round</button>' : ''}
       ${left ? '<button class="btn btn-go" id="toRR" type="button">Finish as round robin</button>' : ''}</div>`;
-  } else if (complete && S.format === 'topn') {
+  } else if (complete && (S.format === 'topn' || S.format === 'sort')) {
     const left = totalPairs() - doneCount();
-    if (left) banner = `<div class="banner"><p>Want everyone ranked exactly, not just the top? Finishing as a full round robin adds ${plural(left, 'matchup')}, and every pick so far counts.</p>
+    if (left) banner = `<div class="banner"><p>${S.format === 'topn' ? 'Want everyone ranked exactly, not just the top?' : 'Want to see every pair face off?'} Finishing as a full round robin adds ${plural(left, 'matchup')}, and every pick so far counts.</p>
       <button class="btn btn-go" id="toRR" type="button">Finish as round robin</button></div>`;
   }
 
@@ -1712,6 +1802,37 @@ function renderResults() {
         <button class="btn" id="rerun" type="button" ${anyPicks() ? '' : 'disabled'}>Restart</button>
       </div>
     </section>`;
+}
+// "How sure" markers: for each pair of neighboring places, what your own picks between those two say.
+function sureNotes(rows, nm) {
+  const out = new Map(), fmt = S.format;
+  if (isElim()) return out;
+  for (let i = 0; i + 1 < rows.length; i++) {
+    const up = rows[i], lo = rows[i + 1];
+    if (up.rank === lo.rank) continue;  // already shown as a tie
+    if (fmt === 'topn' && !(up.stage === 'Finalist' && lo.stage === 'Finalist')) continue;
+    const ans = answersFor(pk(up.id, lo.id));
+    if (!ans.length) continue;
+    const U = nm.get(up.id).text, L = nm.get(lo.id).text;
+    const forUp = ans.filter(x => x === up.id).length, forLo = ans.filter(x => x === lo.id).length;
+    if (ans.length >= 2) {
+      if (forUp === ans.length) continue;  // the same pick every time: solid
+      if (forUp > forLo) out.set(i, { kind: 'close', text: `Close call: you picked ${U} over ${L} ${forUp} of ${ans.length} times.` });
+      else out.set(i, { kind: 'against', text: `${L} won your picks between these two ${forLo} of ${ans.length} times, but ${U} has the better record overall.` });
+    } else if (ans[0] === lo.id) {
+      out.set(i, { kind: 'against', text: `You picked ${L} over ${U} head to head, but ${U} has the better record overall.` });
+    } else if ((fmt === 'rr' || fmt === 'swiss') && up.pts === lo.pts) {
+      out.set(i, { kind: 'close', text: ans[0] === 'tie' ? `Same record, and you called them a tie head to head.` : `Same record. Your one pick of ${U} over ${L} decided it.` });
+    }
+  }
+  return out;
+}
+const sureHTML = m => `<div class="sure sure-${m.kind}"><b aria-hidden="true">${m.kind === 'close' ? '≈' : '⇅'}</b><span>${esc(m.text)}</span></div>`;
+function sureSummary(marks, complete) {
+  const syms = [...new Set([...marks.values()].map(m => (m.kind === 'close' ? '≈' : '⇅')))].join(' or ');
+  if (marks.size) return `<p class="sure-sum">${marks.size === 1 ? "One spot is a close call. It's" : `${marks.size} spots are close calls. They're`} marked below with ${syms}.</p>`;
+  if (complete && usesChecks() && checkStats().checked) return `<p class="sure-sum">Every pair of neighbors${S.format === 'topn' ? ' among the finalists' : ''} got the same answer each time you saw them, so this order is solid.</p>`;
+  return '';
 }
 function rowHTML(r, nm, byId) {
   const it = byId.get(r.id), n = nm.get(r.id);
@@ -1842,12 +1963,17 @@ function formatLabel() {
   if (S.format === 'swiss') return `Swiss, ${plural(S.rounds.length, 'round')}`;
   if (S.format === 'topn') { const c = checkStats(); return `Top ${topTarget()}, out after ${plural(topLives(), 'loss', 'losses')}${c.checked ? `, ${plural(c.checked, 'finalist matchup')} double-checked` : ''}`; }
   if (S.format === 'rrplus') { const c = checkStats(); return c.checked ? `Round robin+, ${plural(c.checked, 'close call')} double-checked` : 'Round robin+'; }
+  if (S.format === 'sort') { const c = checkStats(); return c.checked ? `Sort, ${plural(c.checked, 'pair')} of neighbors double-checked` : 'Sort'; }
   return FORMAT_NAMES[S.format];
 }
 function rankingText() {
   const nm = names(), { rows } = ranking(), P = progress();
   const lines = [`${isElim() ? 'Results' : 'Ranking'} from Round Robin (${formatLabel()}), ${today()}${P.complete ? '' : ` (standings after ${P.done} of ${P.total} matchups)`}`, ''];
-  for (const r of rows) lines.push(`${r.rank}. ${nm.get(r.id).text}${r.slotSize > 1 ? ' (tied)' : ''}  [${r.stage ? r.stage.toLowerCase() + ', ' : ''}${recText(r).toLowerCase()}]`);
+  const marks = sureNotes(rows, nm);
+  rows.forEach((r, i) => {
+    lines.push(`${r.rank}. ${nm.get(r.id).text}${r.slotSize > 1 ? ' (tied)' : ''}  [${r.stage ? r.stage.toLowerCase() + ', ' : ''}${recText(r).toLowerCase()}]`);
+    if (marks.has(i)) lines.push(`   ${marks.get(i).kind === 'close' ? '≈' : '⇅'} ${marks.get(i).text}`);
+  });
   return lines.join('\n');
 }
 const LIGHT = { egg: '#D6ECE8', deep: '#B5D7D0', shell: '#F8FCFB', ink: '#14253A', twig: '#586A72', yolk: '#F2B705', tie: '#8FA3A8' };
@@ -1897,7 +2023,7 @@ async function exportImage() {
   if (tab === 'tiers') {
     const tile = 100, capH = 22, tileH = tile + capH, gap = 6, labelW = 100; W = 1080;
     const perRow = Math.floor((W - 2 * P - labelW - gap) / (tile + gap));
-    const groups = TIERS.map(t => rows.filter(r => tierOf(r.pct) === t));
+    const groups = TIERS.map(t => rows.filter(r => tierOf(tierScore(r)) === t));
     const heights = groups.map(g => Math.max(1, Math.ceil(g.length / perRow)) * (tileH + gap) + gap);
     H = 130 + heights.reduce((a, b) => a + b + 6, 0) + P - 6;
     draw = ctx => {
@@ -2029,7 +2155,8 @@ async function importJSON(file) {
   const history = (Array.isArray(obj.history) ? obj.history : []).filter(h => h && (h.m ? !!(bracket && h.m in bracket.results) : ids.has(h.a) && ids.has(h.b) && pk(h.a, h.b) in results && (!h.c || pk(h.a, h.b) in checks)));
   const maxId = items.reduce((m, i) => Math.max(m, parseInt(i.id.slice(1), 10) || 0), 0);
   for (const id of [...urlCache.keys()]) dropURL(id);
-  S = { ...blank(), items, results, history, format, rounds, bracket, checks, topN: Math.max(1, Math.floor(Number(obj.topN) || 3)), swissRounds: Math.max(0, Math.floor(Number(obj.swissRounds) || 0)),
+  const sortSeed = Array.isArray(obj.sortSeed) ? [...new Set(obj.sortSeed.filter(id => ids.has(id)))] : [];
+  S = { ...blank(), items, results, history, format, rounds, bracket, checks, sortSeed, topN: Math.max(1, Math.floor(Number(obj.topN) || 3)), swissRounds: Math.max(0, Math.floor(Number(obj.swissRounds) || 0)),
     tieBreaks: Array.isArray(obj.tieBreaks) ? obj.tieBreaks.filter(t => Array.isArray(t) && t.every(x => ids.has(x))) : [], nextId: Math.max(Number(obj.nextId) || 1, maxId + 1) };
   S.view = items.length > 1 && progress().complete ? 'results' : 'setup';
   if (Store.ok) { try { await Store.clear(); for (const it of items) await saveImg(it); } catch (e) { setSaveOK(false); } }
@@ -2120,7 +2247,7 @@ document.addEventListener('click', e => {
   if (t.id === 'rerun') {
     ask('Restart? This clears every pick and starts the matchups over. Your entries stay.', 'Restart').then(ok => {
       if (!ok) return;
-      S.results = {}; S.history = []; S.queue = []; S.tieBreaks = []; S.rounds = []; S.bracket = null; S.checks = {};
+      S.results = {}; S.history = []; S.queue = []; S.tieBreaks = []; S.rounds = []; S.bracket = null; S.checks = {}; S.sortSeed = [];
       go(S.view === 'setup' ? 'setup' : 'battle'); toast('Restarted. Your entries are still here.');
     });
     return;
