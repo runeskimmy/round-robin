@@ -1,0 +1,139 @@
+name: Test
+
+on:
+  push:
+    branches-ignore: [ci-results]
+  workflow_dispatch:
+
+concurrency:
+  group: test-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHONUTF8: '1'
+  PYTHONIOENCODING: utf-8
+
+jobs:
+  web:
+    name: Web (Chrome)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - run: pip install playwright pillow
+      - name: Check the committed app file is up to date
+        run: python web/build.py && git diff --exit-code web/round-robin.html
+      - name: Run the browser test
+        working-directory: tests
+        run: python web_test.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: web, path: results/web }
+
+  windows:
+    name: Windows app
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - run: pip install playwright pillow
+      - name: Build the app
+        working-directory: windows
+        run: cargo build --release
+      - name: Build the installer
+        shell: pwsh
+        run: |
+          Copy-Item windows/target/release/round-robin.exe windows/installer/RoundRobin.exe
+          $nsis = "${env:ProgramFiles(x86)}\NSIS\makensis.exe"
+          if (-not (Test-Path $nsis)) { choco install nsis -y --no-progress | Out-Null }
+          & $nsis /V2 windows/installer/setup.nsi
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+          Get-Item windows/installer/RoundRobin-Setup.exe | Format-List Name, Length
+      - name: Make sure the WebView2 runtime is installed (it is on normal Windows 10/11)
+        shell: pwsh
+        run: |
+          $keys = 'HKLM:\SOFTWARE\WOW6432Node\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}',
+                  'HKLM:\SOFTWARE\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}'
+          $found = $keys | Where-Object { Test-Path $_ } | ForEach-Object { (Get-ItemProperty $_).pv } | Select-Object -First 1
+          if ($found) { "WebView2 runtime $found already installed" } else {
+            Invoke-WebRequest 'https://go.microsoft.com/fwlink/p/?LinkId=2124703' -OutFile wv2setup.exe
+            Start-Process .\wv2setup.exe -ArgumentList '/silent','/install' -Wait
+            "WebView2 runtime installed"
+          }
+      - name: Run the Windows test
+        working-directory: tests
+        run: python windows_test.py ../windows/installer/RoundRobin-Setup.exe
+      - name: Keep the installer with the results
+        if: always()
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force results/windows | Out-Null
+          if (Test-Path windows/installer/RoundRobin-Setup.exe) { Copy-Item windows/installer/RoundRobin-Setup.exe results/windows/ }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: windows, path: results/windows }
+
+  android:
+    name: Android app
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '17' }
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - run: pip install websocket-client pillow
+      - name: Turn on hardware acceleration for the emulator
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Build the test version of the app
+        working-directory: android
+        run: chmod +x gradlew && ./gradlew assembleDebug --no-daemon
+      - name: Run the Android test on an emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: default
+          arch: x86_64
+          profile: pixel_6
+          ram-size: 4096M
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -no-snapshot-save
+          script: cd tests && python3 android_test.py ../android/app/build/outputs/apk/debug/app-debug.apk
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: android, path: results/android }
+
+  publish:
+    name: Publish results
+    needs: [web, windows, android]
+    if: always()
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with: { path: results }
+      - name: Push results and screenshots to the ci-results branch
+        env:
+          WEB: ${{ needs.web.result }}
+          WIN: ${{ needs.windows.result }}
+          AND: ${{ needs.android.result }}
+          TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p results && cd results
+          printf '# Latest test results\n\nCommit: %s (branch %s)\nRun: %s/%s/actions/runs/%s\n\n- Web: %s\n- Windows: %s\n- Android: %s\n' \
+            "$GITHUB_SHA" "$GITHUB_REF_NAME" "$GITHUB_SERVER_URL" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" "$WEB" "$WIN" "$AND" > README.md
+          git init -q -b ci-results
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -qm "Test results for $GITHUB_SHA"
+          git push -f "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-results
