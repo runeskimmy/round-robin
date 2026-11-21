@@ -8,8 +8,8 @@ android {
         applicationId 'app.roundrobin'
         minSdk 29
         targetSdk 34
-        versionCode 3
-        versionName '1.2.0'
+        versionCode 4
+        versionName '1.3.0'
     }
 
     // Release builds are signed only when the key is supplied (it is never stored in the repo):
