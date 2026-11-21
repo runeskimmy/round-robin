@@ -41,15 +41,24 @@ def find_window():
     return user32.FindWindowW(None, 'Round Robin')
 
 
-def launch(run):
-    env = dict(os.environ, ROUNDROBIN_TEST_DEBUG_PORT=str(PORT))
+def port_open(port):
+    try:
+        urllib.request.urlopen(f'http://127.0.0.1:{port}/json/version', timeout=2)
+        return True
+    except Exception:  # noqa: BLE001
+        return False
+
+
+def launch(run, port):
+    run.check(not port_open(port), f'port {port} is free before launching')
+    env = dict(os.environ, ROUNDROBIN_TEST_DEBUG_PORT=str(port))
     proc = subprocess.Popen([str(INSTALL_DIR / 'RoundRobin.exe')], env=env)
     deadline = time.time() + 90
     while time.time() < deadline:
         if proc.poll() is not None:
             run.check(False, 'app keeps running after launch', f'exited with code {proc.returncode}')
         try:
-            info = json.load(urllib.request.urlopen(f'http://127.0.0.1:{PORT}/json/version', timeout=2))
+            info = json.load(urllib.request.urlopen(f'http://127.0.0.1:{port}/json/version', timeout=2))
             run.log('WebView2:', info.get('Browser'))
             break
         except Exception:  # noqa: BLE001
@@ -65,8 +74,8 @@ def launch(run):
     return proc
 
 
-def connect(p, run):
-    browser = p.chromium.connect_over_cdp(f'http://127.0.0.1:{PORT}')
+def connect(p, run, port):
+    browser = p.chromium.connect_over_cdp(f'http://127.0.0.1:{port}')
     for _ in range(60):
         pages = [pg for c in browser.contexts for pg in c.pages if pg.url.startswith('https://rr.localhost')]
         if pages:
@@ -86,6 +95,12 @@ def close_app(proc, run):
     except subprocess.TimeoutExpired:
         proc.kill()
         run.check(False, 'closing the window quits the app')
+    # Edge's engine shuts down a moment after the window; wait so the next launch starts clean.
+    for _ in range(30):
+        if not subprocess.run('tasklist /FI "IMAGENAME eq msedgewebview2.exe" | find /I "msedgewebview2"',
+                              shell=True, capture_output=True).stdout:
+            break
+        time.sleep(1)
 
 
 def body(run):
@@ -101,11 +116,11 @@ def body(run):
     with winreg.OpenKey(winreg.HKEY_CURRENT_USER, r'Software\Microsoft\Windows\CurrentVersion\Uninstall\RoundRobin') as k:
         run.check(winreg.QueryValueEx(k, 'DisplayName')[0] == 'Round Robin', 'listed in Settings > Apps for uninstalling')
 
-    proc = launch(run)
+    proc = launch(run, PORT)
     time.sleep(2)
     desktop_shot(run, 'desktop-app-open')
     with sync_playwright() as p:
-        browser, page = connect(p, run)
+        browser, page = connect(p, run, PORT)
         run.check(page.url.startswith('https://rr.localhost'), 'page loads from the app, not the internet', page.url)
 
         def save(pg, selector, name):
@@ -129,9 +144,9 @@ def body(run):
     close_app(proc, run)
     run.check(DATA_DIR.exists() and any(DATA_DIR.iterdir()), 'your data is kept in AppData\\Local\\RoundRobin', DATA_DIR)
 
-    proc = launch(run)
+    proc = launch(run, PORT + 1)
     with sync_playwright() as p:
-        browser, page = connect(p, run)
+        browser, page = connect(p, run, PORT + 1)
         flow.check_persisted(page, run, rows)
         desktop_shot(run, 'desktop-reopened')
         flow.check_restart(page, run)

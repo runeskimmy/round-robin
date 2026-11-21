@@ -123,8 +123,8 @@ def start_app(run):
 
 def tap_element(cdp, selector):
     """Real tap on a page element (gives the page a genuine user gesture)."""
-    rect = cdp.js(f"(() => {{ const r = document.querySelector('{selector}').getBoundingClientRect();"
-                  " return [r.left + r.width / 2, r.top + r.height / 2, window.devicePixelRatio]; }})()")
+    rect = cdp.js("(() => { const r = document.querySelector('" + selector + "').getBoundingClientRect();"
+                  " return [r.left + r.width / 2, r.top + r.height / 2, window.devicePixelRatio]; })()")
     web = next(n for n in ui_nodes() if n.get('class') == 'android.webkit.WebView')
     x1, y1 = map(int, re.findall(r'\d+', web.get('bounds'))[:2])
     tap(int(x1 + rect[0] * rect[2]), int(y1 + rect[1] * rect[2]))
@@ -153,7 +153,9 @@ def body(run):
     time.sleep(3)
 
     cdp = start_app(run)
+    time.sleep(3)
     screenshot(run, 'opened')
+    run.log('page size:', cdp.js("[innerWidth, innerHeight, devicePixelRatio, getComputedStyle(document.body).backgroundColor]"))
     cdp.js("document.querySelector('#lines').value = 'Pizza\\nTacos\\nRamen\\nSushi\\nBurgers';"
            "document.querySelector('#addLines').click()")
     run.check(cdp.wait("document.querySelectorAll('.tile').length === 5"), 'typed entries added')
