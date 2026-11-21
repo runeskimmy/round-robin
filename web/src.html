@@ -138,7 +138,38 @@ main { flex: 1; padding: 8px clamp(14px, 3vw, 32px) 32px; width: 100%; max-width
 }
 .typer-row { display: flex; align-items: center; gap: 10px; }
 .typer-row small { color: var(--twig); }
-.typer-row .more-fmts { margin-left: auto; font-size: 15px; }
+.corner-links { margin-left: auto; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 2px 6px; }
+.corner-links .btn { font-size: 15px; }
+.corner-links.solo { margin: 8px 0 0; justify-content: flex-start; }
+.hboard { display: flex; flex-direction: column; gap: 6px; }
+.hrow { display: grid; grid-template-columns: 116px 1fr; background: var(--shell); border-radius: 10px; overflow: hidden; min-height: 96px; }
+.hlabel { background: var(--c); border: 0; border-radius: 0; color: #14253A; font-family: var(--display); font-weight: 800; font-size: 40px; text-align: center; width: 100%; min-width: 0; padding: 6px; }
+.hlabel:focus { outline: 3px solid var(--ink); outline-offset: -3px; }
+.hpool { background: transparent; border: 2px dashed var(--egg-deep); }
+.hlabel-pool { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: var(--twig); font-size: 13px; padding: 6px; line-height: 1.2; }
+.hlabel-pool b { font-family: var(--display); font-size: 34px; color: var(--ink); line-height: 1; }
+.hzone { display: flex; flex-wrap: wrap; gap: 6px; padding: 6px; align-content: flex-start; min-height: 96px; }
+.ht { width: 84px; height: 84px; padding: 0; border: 0; border-radius: 8px; background: var(--egg-deep); position: relative; overflow: hidden; cursor: grab;
+  display: flex; align-items: center; justify-content: center; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+.ht img { width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
+.ht .txt { font-weight: 700; font-size: 13px; line-height: 1.15; padding: 4px; color: var(--ink); overflow-wrap: anywhere; }
+.ht.sm .txt { font-size: 11px; }
+.ht.xs .txt { font-size: 9.5px; }
+.ht-cap { position: absolute; left: 0; right: 0; bottom: 0; background: rgba(20, 37, 58, .82); color: #fff; font-size: 11px; padding: 2px 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ht.sel { outline: 3px solid var(--yolk); outline-offset: 1px; box-shadow: 0 0 0 5px var(--ink); }
+.ht.dragging, .hli.dragging { opacity: .3; }
+.hph { display: block; border: 2px dashed var(--ink); border-radius: 8px; box-sizing: border-box; }
+.hph-tile { width: 84px; }
+.hph-row { list-style: none; }
+.hghost { position: fixed; left: 0; top: 0; z-index: 1000; pointer-events: none; margin: 0; box-shadow: 0 10px 28px rgba(0, 0, 0, .28); opacity: .95; }
+.hlist { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
+.hli { display: grid; grid-template-columns: 46px 64px minmax(0, 1fr) auto 34px; align-items: center; gap: 12px; background: var(--shell); border-radius: 10px; padding: 6px 8px 6px 10px; user-select: none; -webkit-user-select: none; cursor: grab; }
+.hli:first-child .hl-rank { color: var(--ink); }
+.hl-rank { font-family: var(--display); font-weight: 800; font-size: 34px; text-align: right; line-height: 1; }
+.hl-name { font-weight: 700; font-size: 17px; overflow-wrap: anywhere; }
+.hl-name.unnamed { color: var(--twig); font-weight: 400; }
+.hl-move { display: flex; gap: 6px; }
+.hl-grip { cursor: grab; touch-action: none; color: var(--twig); font-size: 20px; letter-spacing: -4px; text-align: center; padding: 14px 6px; }
 .formats-links { display: flex; flex-wrap: wrap; gap: 4px; }
 @media (pointer: coarse) { .typer-row small { display: none; } }
 
@@ -423,6 +454,17 @@ body.dragging .dropcover { display: grid; }
 @media (max-width: 960px) {
   .fmt-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .fmt-grid .fmt:last-child:nth-child(odd) { grid-column: span 2; }
+  .hrow { grid-template-columns: 70px 1fr; min-height: 80px; }
+  .hlabel { font-size: 30px; }
+  .hzone { min-height: 80px; gap: 5px; padding: 5px; }
+  .ht, .hph-tile { width: 68px; }
+  .typer-row { flex-wrap: wrap; }
+  .typer-row .corner-links { width: 100%; margin-left: 0; justify-content: flex-start; gap: 2px 14px; }
+  .typer-row .corner-links .btn { padding-inline: 0; }
+  .ht { height: 68px; }
+  .hli { grid-template-columns: 34px 48px minmax(0, 1fr) auto 28px; gap: 8px; }
+  .hli .th { width: 48px; height: 48px; }
+  .hl-rank { font-size: 28px; }
 }
 @media (max-width: 760px) {
   body { font-size: 16px; }
@@ -525,7 +567,8 @@ const plural = (n, one, many) => n + ' ' + (n === 1 ? one : (many || one + 's'))
 const today = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
 
 const blank = () => ({ v: 2, nextId: 1, items: [], results: {}, history: [], queue: [], tieBreaks: [], view: 'setup', tab: 'list',
-  format: 'rr', swissRounds: 0, rounds: [], bracket: null, topN: 3, checks: {}, sortSeed: [] });
+  format: 'rr', swissRounds: 0, rounds: [], bracket: null, topN: 3, checks: {}, sortSeed: [],
+  hand: { tab: 'tiers', tiers: {}, names: {}, list: [] } });
 let S = blank();
 
 /* ---------- storage (IndexedDB, images kept separately) ---------- */
@@ -1465,6 +1508,7 @@ function render() {
   document.body.dataset.view = v;
   if (v === 'battle') renderBattle();
   else if (v === 'results') renderResults();
+  else if (v === 'hand') renderHand();
   else renderSetup();
   $('#saveFile').disabled = !S.items.length;
 }
@@ -1583,7 +1627,7 @@ function renderSetup() {
     ? '<p>Removing an entry deletes its matchups. New entries join from the next round.</p>'
     : '<p>Removing an entry deletes its matchups. New entries get added to the schedule.</p>';
   main.innerHTML = `
-    ${locked ? `<p class="locked">Entries are locked while the bracket is being played, so the draw stays fair. You can still rename them. Restart to add or remove entries.</p>` : `<section class="intake">
+    ${locked ? `<p class="locked">Entries are locked while the bracket is being played, so the draw stays fair. You can still rename them. Restart to add or remove entries.</p><div class="corner-links solo"><button class="btn btn-quiet" id="toHand" type="button">Rank by hand</button></div>` : `<section class="intake">
       <button class="drop" id="dropBtn" type="button">
         <strong>Drop images here or click to choose them</strong>
         <span>You can paste images too. Each image can have a name.</span>
@@ -1591,7 +1635,7 @@ function renderSetup() {
       <div class="typer">
         <label for="lines">Type entries, one per line</label>
         <textarea id="lines" placeholder="Pizza&#10;Tacos&#10;Ramen"></textarea>
-        <div class="typer-row"><button class="btn" id="addLines" type="button">Add entries</button><small>Ctrl + Enter adds them too.</small>${formatsOpen() ? '' : '<button class="btn btn-quiet more-fmts" id="moreFmts" type="button">Other bracket styles</button>'}</div>
+        <div class="typer-row"><button class="btn" id="addLines" type="button">Add entries</button><small>Ctrl + Enter adds them too.</small><span class="corner-links">${formatsOpen() ? '' : '<button class="btn btn-quiet" id="moreFmts" type="button">Other bracket styles</button>'}<button class="btn btn-quiet" id="toHand" type="button">Rank by hand</button></span></div>
       </div>
     </section>`}
     ${formatsOpen() ? formatsHTML(n) : ''}
@@ -1880,6 +1924,251 @@ function bracketHTML(R, nm, byId) {
   </div>`;
 }
 
+/* ---------- rank by hand: a tier list and an ordered list you arrange yourself ---------- */
+// Separate from the tournaments: same entries, but nothing here changes any matchup or ranking.
+const HAND_TIERS = TIERS.map(t => t.l);
+let handSel = null, handFocus = null;
+function handData() {
+  if (!S.hand) S.hand = { tab: 'tiers', tiers: {}, names: {}, list: [] };
+  const h = S.hand, ids = S.items.map(i => i.id), have = new Set(ids), placed = new Set();
+  h.tiers = h.tiers || {}; h.names = h.names || {};
+  for (const k of HAND_TIERS) {
+    h.tiers[k] = (h.tiers[k] || []).filter(id => { const ok = have.has(id) && !placed.has(id); if (ok) placed.add(id); return ok; });
+  }
+  const pool = ids.filter(id => !placed.has(id)), seen = new Set();
+  h.list = (h.list || []).filter(id => { const ok = have.has(id) && !seen.has(id); if (ok) seen.add(id); return ok; });
+  for (const id of ids) if (!seen.has(id)) h.list.push(id);
+  return { h, pool };
+}
+const tierName = k => ((S.hand && S.hand.names && S.hand.names[k]) || '').trim() || k;
+function handTile(id, nm, byId) {
+  const it = byId.get(id), n = nm.get(id);
+  const longest = Math.max(...n.text.split(/\s+/).map(w => w.length)), fit = longest > 10 ? ' xs' : longest > 7 ? ' sm' : '';
+  return `<button type="button" class="ht${fit}${handSel === id ? ' sel' : ''}" data-ht="${id}" aria-label="${esc(n.text)}${handSel === id ? ', picked up' : ''}">${it.img ? `<img src="${imgURL(it)}" alt="" draggable="false">` : `<span class="txt">${esc(n.text)}</span>`}${it.img && !n.unnamed ? `<span class="ht-cap">${esc(n.text)}</span>` : ''}</button>`;
+}
+function renderHand() {
+  const { h, pool } = handData(), nm = names(), byId = new Map(S.items.map(i => [i.id, i]));
+  if (handSel && !byId.has(handSel)) handSel = null;
+  dock.innerHTML = '';
+  let body = '', hint = '';
+  if (!S.items.length) body = '<p class="empty">Add some entries first, then come back to rank them by hand.</p>';
+  else if (h.tab === 'tiers') {
+    hint = handSel ? `Now tap a tier to move ${esc(nm.get(handSel).text)} there, or tap it again to put it down.` : 'Drag tiles into tiers, or tap a tile and then tap a tier. Tap a tier name to rename it.';
+    body = `<div class="hboard">${HAND_TIERS.map((k, ti) => `<div class="hrow" data-tier="${k}" style="--c:${TIERS[ti].c}">
+        <input class="hlabel" data-tname="${k}" value="${esc(tierName(k))}" aria-label="Name of tier ${ti + 1}" maxlength="24" spellcheck="false">
+        <div class="hzone" data-zone="${k}">${h.tiers[k].map(id => handTile(id, nm, byId)).join('')}</div></div>`).join('')}
+      <div class="hrow hpool" data-tier="pool"><div class="hlabel-pool"><b>${pool.length}</b>not ranked yet</div><div class="hzone" data-zone="pool">${pool.map(id => handTile(id, nm, byId)).join('')}</div></div>
+    </div>`;
+  } else {
+    hint = 'Drag the handle on the right to reorder, or use the arrows.';
+    body = `<ol class="hlist" data-zone="list">${h.list.map((id, i) => {
+      const it = byId.get(id), n = nm.get(id);
+      return `<li class="hli" data-hl="${id}">
+        <span class="hl-rank">${i + 1}</span>
+        ${thumb(it, n)}
+        <span class="hl-name${n.unnamed && it.img ? ' unnamed' : ''}">${esc(n.text)}</span>
+        <span class="hl-move"><button type="button" class="step" data-hmove="-1" data-id="${id}" aria-label="Move ${esc(n.text)} up" ${i === 0 ? 'disabled' : ''}>↑</button><button type="button" class="step" data-hmove="1" data-id="${id}" aria-label="Move ${esc(n.text)} down" ${i === h.list.length - 1 ? 'disabled' : ''}>↓</button></span>
+        <span class="hl-grip" data-grip="${id}" title="Drag to reorder" aria-hidden="true">⋮⋮</span>
+      </li>`;
+    }).join('')}</ol>`;
+  }
+  main.innerHTML = `<section class="hand">
+    <div class="res-head">
+      <div class="res-title"><h2>Rank by hand</h2><p class="fmt-line" id="handHint">${hint}</p></div>
+      <div class="tabs" role="tablist">
+        <button role="tab" type="button" data-htab="tiers" aria-selected="${h.tab === 'tiers'}">Tier list</button>
+        <button role="tab" type="button" data-htab="list" aria-selected="${h.tab === 'list'}">Ordered list</button>
+      </div>
+      <div class="exports">
+        <button class="btn" id="handCopy" type="button" ${S.items.length ? '' : 'disabled'}>Copy as text</button>
+        <button class="btn" id="handImg" type="button" ${S.items.length ? '' : 'disabled'}>Save as image</button>
+      </div>
+    </div>
+    ${body}
+    <div class="res-foot">
+      <button class="btn" id="toSetup" type="button">Back to entries</button>
+      <button class="btn" id="handReset" type="button" ${S.items.length ? '' : 'disabled'}>Start over</button>
+    </div>
+  </section>`;
+  if (handFocus) { const el = $(`[data-ht="${handFocus}"]`) || $(`[data-hmove][data-id="${handFocus}"]:not([disabled])`); if (el) el.focus({ preventScroll: false }); handFocus = null; }
+}
+// Moves one entry. Tier list: to a tier (or back to "not ranked yet"), at an index. Ordered list: to an index.
+function handMove(id, zone, index) {
+  const { h } = handData();
+  if (zone === 'list') {
+    const from = h.list.indexOf(id); if (from < 0) return;
+    h.list.splice(from, 1);
+    h.list.splice(Math.max(0, Math.min(index, h.list.length)), 0, id);
+  } else {
+    for (const k of HAND_TIERS) h.tiers[k] = h.tiers[k].filter(x => x !== id);
+    if (zone !== 'pool') { const t = h.tiers[zone]; t.splice(Math.max(0, Math.min(index === undefined ? t.length : index, t.length)), 0, id); }
+  }
+  render(); save();
+}
+function handZoneOf(id) {
+  const { h } = handData();
+  for (const k of HAND_TIERS) { const i = h.tiers[k].indexOf(id); if (i >= 0) return [k, i]; }
+  return ['pool', -1];
+}
+function handText() {
+  const { h, pool } = handData(), nm = names(), n = id => nm.get(id).text;
+  if (h.tab === 'list') return [`Ranking by hand from Round Robin, ${today()}`, '', ...h.list.map((id, i) => `${i + 1}. ${n(id)}`)].join('\n');
+  const lines = [`Tier list from Round Robin, ${today()}`, ''];
+  for (const k of HAND_TIERS) lines.push(`${tierName(k)}: ${h.tiers[k].length ? h.tiers[k].map(n).join(', ') : '(none)'}`);
+  if (pool.length) lines.push('', `Not ranked yet: ${pool.map(n).join(', ')}`);
+  return lines.join('\n');
+}
+async function exportHandImage() {
+  try { await document.fonts.load(`800 40px "Big Shoulders Display"`); await document.fonts.load(`700 16px "Schibsted Grotesk"`); } catch (e) { /* fallback fonts */ }
+  const { h, pool } = handData(), nm = names(), imgs = new Map();
+  for (const it of S.items) if (it.img) { try { imgs.set(it.id, await loadImg(imgURL(it))); } catch (e) { /* skip */ } }
+  const P = 40, scale = 2; let W, H, draw;
+  if (h.tab === 'tiers') {
+    const tile = 100, capH = 22, tileH = tile + capH, gap = 6, labelW = 130; W = 1080;
+    const perRow = Math.floor((W - 2 * P - labelW - gap) / (tile + gap));
+    const groups = HAND_TIERS.map((k, ti) => ({ label: tierName(k), color: TIERS[ti].c, ids: h.tiers[k] }));
+    if (pool.length) groups.push({ label: 'Not ranked', color: LIGHT.deep, ids: pool });
+    const heights = groups.map(g => Math.max(1, Math.ceil(g.ids.length / perRow)) * (tileH + gap) + gap);
+    H = 130 + heights.reduce((a, b) => a + b + 6, 0) + P - 6;
+    draw = ctx => {
+      let y = 130;
+      groups.forEach((g, gi) => {
+        const hh = heights[gi];
+        ctx.fillStyle = LIGHT.shell; rr(ctx, P, y, W - 2 * P, hh, 10); ctx.fill();
+        ctx.save(); rr(ctx, P, y, W - 2 * P, hh, 10); ctx.clip(); ctx.fillStyle = g.color; ctx.fillRect(P, y, labelW, hh); ctx.restore();
+        ctx.fillStyle = LIGHT.ink; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.font = `800 ${g.label.length <= 2 ? 54 : g.label.length <= 6 ? 32 : 22}px ${DISP}`;
+        const ls = wrapText(ctx, g.label, labelW - 14, 3);
+        ls.forEach((l, li) => ctx.fillText(l, P + labelW / 2, y + hh / 2 + 2 + (li - (ls.length - 1) / 2) * (g.label.length <= 6 ? 34 : 24)));
+        g.ids.forEach((id, k) => {
+          const x = P + labelW + gap + (k % perRow) * (tile + gap), yy = y + gap + Math.floor(k / perRow) * (tileH + gap);
+          const n = nm.get(id), im = imgs.get(id);
+          ctx.save(); rr(ctx, x, yy, tile, tileH, 8); ctx.clip();
+          ctx.fillStyle = LIGHT.deep; ctx.fillRect(x, yy, tile, tile);
+          ctx.fillStyle = LIGHT.ink; ctx.fillRect(x, yy + tile, tile, capH);
+          ctx.restore();
+          if (im) drawContain(ctx, im, x, yy, tile, tile, 0);
+          else {
+            ctx.fillStyle = LIGHT.ink; ctx.font = `700 14px ${BODY}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            const tl = wrapText(ctx, n.text, tile - 12, 4);
+            tl.forEach((l, li) => ctx.fillText(l, x + tile / 2, yy + tile / 2 + (li - (tl.length - 1) / 2) * 17));
+          }
+          ctx.fillStyle = LIGHT.egg; ctx.textAlign = 'left'; ctx.font = `400 12px ${BODY}`;
+          ctx.fillText(fitText(ctx, n.text, tile - 12), x + 6, yy + tile + capH / 2 + 1);
+        });
+        y += hh + 6;
+      });
+    };
+  } else {
+    const rowH = 84; W = 900; H = 130 + h.list.length * rowH + P - 8;
+    draw = ctx => {
+      h.list.forEach((id, i) => {
+        const y = 130 + i * rowH, it = S.items.find(x => x.id === id), n = nm.get(id), im = imgs.get(id);
+        ctx.fillStyle = LIGHT.shell; rr(ctx, P, y, W - 2 * P, rowH - 8, 10); ctx.fill();
+        if (i === 0) { ctx.save(); rr(ctx, P, y, W - 2 * P, rowH - 8, 10); ctx.clip(); ctx.fillStyle = LIGHT.yolk; ctx.fillRect(P, y, 78, rowH - 8); ctx.restore(); }
+        ctx.fillStyle = LIGHT.ink; ctx.font = `800 44px ${DISP}`; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+        ctx.fillText(String(i + 1), P + 66, y + (rowH - 8) / 2 + 2);
+        const tx = P + 90, ty = y + 6, ts = rowH - 20;
+        ctx.fillStyle = LIGHT.deep; rr(ctx, tx, ty, ts, ts, 8); ctx.fill();
+        if (im) drawContain(ctx, im, tx, ty, ts, ts, 8);
+        else { ctx.fillStyle = LIGHT.ink; ctx.font = `800 30px ${DISP}`; ctx.textAlign = 'center'; ctx.fillText((n.text.trim()[0] || '?').toUpperCase(), tx + ts / 2, ty + ts / 2 + 1); }
+        ctx.textAlign = 'left'; ctx.fillStyle = n.unnamed && it.img ? LIGHT.twig : LIGHT.ink; ctx.font = `700 22px ${BODY}`;
+        ctx.fillText(fitText(ctx, n.text, W - P - tx - ts - 40), tx + ts + 16, y + (rowH - 8) / 2 + 1);
+      });
+    };
+  }
+  const c = document.createElement('canvas');
+  c.width = W * scale; c.height = H * scale;
+  const ctx = c.getContext('2d'); ctx.scale(scale, scale);
+  ctx.fillStyle = LIGHT.egg; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = LIGHT.ink; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+  ctx.font = `800 54px ${DISP}`; ctx.fillText(h.tab === 'tiers' ? 'Tier list' : 'My ranking', P, 82);
+  ctx.fillStyle = LIGHT.twig; ctx.font = `400 16px ${BODY}`; ctx.fillText(`${plural(S.items.length, 'entry', 'entries')}, ranked by hand, ${today()}`, P, 108);
+  draw(ctx);
+  c.toBlob(async b => {
+    if (!b) { toast("Couldn't make the image."); return; }
+    const r = await download(b, `round-robin-${h.tab === 'tiers' ? 'tier-list' : 'my-ranking'}-${today()}.png`);
+    toast(r ? savedMsg(r, 'the image') : "Couldn't save the image.");
+  }, 'image/png');
+}
+
+/* Dragging, for mouse and touch. Mouse: press and move. Touch: hold a tile for a moment, or use the list's handle.
+   The dragged entry stays put (faded) while a dashed placeholder shows where it will land. */
+let drag = null, dragSkipClick = false;
+function dragStart() {
+  const d = drag, r = d.el.getBoundingClientRect();
+  d.active = true; d.dx = d.x - r.left; d.dy = d.y - r.top;
+  d.ghost = d.el.cloneNode(true); d.ghost.classList.add('hghost'); d.ghost.classList.remove('sel');
+  d.ghost.style.width = r.width + 'px'; d.ghost.style.height = r.height + 'px';
+  document.body.appendChild(d.ghost);
+  d.ph = document.createElement(d.kind === 'tile' ? 'span' : 'li');
+  d.ph.className = 'hph ' + (d.kind === 'tile' ? 'hph-tile' : 'hph-row'); d.ph.style.height = r.height + 'px';
+  d.el.classList.add('dragging');
+  d.el.parentNode.insertBefore(d.ph, d.el.nextSibling);
+  handSel = null;
+  dragTrack();
+  const tick = () => {
+    if (!drag || !drag.active) return;
+    const m = 70, y = drag.y;
+    if (y < m) window.scrollBy(0, -Math.ceil((m - y) / 5));
+    else if (y > innerHeight - m) window.scrollBy(0, Math.ceil((y - innerHeight + m) / 5));
+    dragTrack();
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+function dragTrack() {
+  const d = drag;
+  d.ghost.style.transform = `translate(${d.x - d.dx}px, ${d.y - d.dy}px) rotate(-2deg)`;
+  const under = document.elementFromPoint(d.x, d.y);
+  const zone = under && (under.closest('[data-zone]') || (d.kind === 'tile' && under.closest('.hrow') && under.closest('.hrow').querySelector('[data-zone]')));
+  if (!zone || (d.kind === 'tile') !== (zone.dataset.zone !== 'list')) return;
+  const kids = [...zone.children].filter(c => c !== d.ph && c !== d.el);
+  let before = null;
+  for (const c of kids) {
+    const r = c.getBoundingClientRect();
+    if (d.kind === 'tile' ? (d.y < r.top || (d.y < r.bottom && d.x < r.left + r.width / 2)) : d.y < r.top + r.height / 2) { before = c; break; }
+  }
+  if (before) { if (d.ph.nextSibling !== before || d.ph.parentNode !== zone) zone.insertBefore(d.ph, before); }
+  else if (d.ph.parentNode !== zone || d.ph.nextSibling) zone.appendChild(d.ph);
+}
+function dragEnd(commit) {
+  const d = drag; drag = null;
+  if (!d) return;
+  clearTimeout(d.timer);
+  if (!d.active) return;
+  dragSkipClick = true; setTimeout(() => { dragSkipClick = false; }, 0);
+  d.ghost.remove(); d.el.classList.remove('dragging');
+  const zone = d.ph.parentNode;
+  if (commit && zone && zone.dataset.zone) {
+    const index = [...zone.children].filter(c => c !== d.el).indexOf(d.ph);
+    d.ph.remove();
+    handMove(d.id, zone.dataset.zone, index);
+  } else { d.ph.remove(); render(); }
+}
+document.addEventListener('pointerdown', e => {
+  if (S.view === 'hand' && handSel && e.target.closest('.hlabel')) e.preventDefault();
+  if (S.view !== 'hand' || e.button > 0 || drag) return;
+  const grip = e.target.closest('.hl-grip');
+  let el = e.target.closest('.ht');
+  if (!el && (grip || (e.pointerType === 'mouse' && !e.target.closest('button, input')))) el = e.target.closest('.hli');
+  if (!el) return;
+  drag = { id: el.dataset.ht || el.dataset.hl, el, kind: el.classList.contains('ht') ? 'tile' : 'row', x: e.clientX, y: e.clientY, x0: e.clientX, y0: e.clientY, mouse: e.pointerType === 'mouse', grip: !!grip, active: false };
+  if (!drag.mouse && !grip) drag.timer = setTimeout(() => { if (drag && !drag.active) { dragStart(); if (navigator.vibrate) try { navigator.vibrate(15); } catch (er) { /* no buzz */ } } }, 280);
+});
+document.addEventListener('pointermove', e => {
+  if (!drag) return;
+  drag.x = e.clientX; drag.y = e.clientY;
+  if (drag.active) { dragTrack(); return; }
+  const moved = Math.hypot(drag.x - drag.x0, drag.y - drag.y0);
+  if ((drag.mouse || drag.grip) && moved > 5) dragStart();
+  else if (!drag.mouse && !drag.grip && moved > 8) { clearTimeout(drag.timer); drag = null; }  // a scroll, not a drag
+});
+document.addEventListener('pointerup', () => dragEnd(true));
+document.addEventListener('pointercancel', () => dragEnd(false));
+document.addEventListener('touchmove', e => { if (drag && (drag.active || drag.grip)) e.preventDefault(); }, { passive: false });
+document.addEventListener('contextmenu', e => { if (S.view === 'hand' && e.target.closest('.ht, .hli')) e.preventDefault(); });
+
 /* ---------- yes/no popup (the app's own, instead of the browser's "this page says" box) ---------- */
 let askResolve = null;
 function ask(message, okLabel) {
@@ -2097,6 +2386,7 @@ async function exportImage() {
         ctx.fillText(fitText(ctx, n.text, nw), nx, y + 24);
         ctx.fillStyle = LIGHT.twig; ctx.font = `400 14px ${BODY}`;
         ctx.fillText(fitText(ctx, (r.stage ? r.stage + '. ' : '') + recText(r), nw), nx, y + 48);
+        if (S.format === 'sort') return;
         const bx = W - P - barW - 70, by = y + (rowH - 8) / 2 - 5;
         ctx.fillStyle = LIGHT.egg; rr(ctx, bx, by, barW, 10, 5); ctx.fill();
         if (r.pct > 0) { ctx.fillStyle = LIGHT.ink; rr(ctx, bx, by, Math.max(10, barW * r.pct), 10, 5); ctx.fill(); }
@@ -2156,9 +2446,15 @@ async function importJSON(file) {
   const maxId = items.reduce((m, i) => Math.max(m, parseInt(i.id.slice(1), 10) || 0), 0);
   for (const id of [...urlCache.keys()]) dropURL(id);
   const sortSeed = Array.isArray(obj.sortSeed) ? [...new Set(obj.sortSeed.filter(id => ids.has(id)))] : [];
-  S = { ...blank(), items, results, history, format, rounds, bracket, checks, sortSeed, topN: Math.max(1, Math.floor(Number(obj.topN) || 3)), swissRounds: Math.max(0, Math.floor(Number(obj.swissRounds) || 0)),
+  const oh = obj.hand && typeof obj.hand === 'object' ? obj.hand : {}, hand = { tab: oh.tab === 'list' ? 'list' : 'tiers', tiers: {}, names: {}, list: [] };
+  for (const k of HAND_TIERS) {
+    if (oh.tiers && Array.isArray(oh.tiers[k])) hand.tiers[k] = oh.tiers[k].filter(id => ids.has(id));
+    if (oh.names && typeof oh.names[k] === 'string') hand.names[k] = oh.names[k].slice(0, 24);
+  }
+  if (Array.isArray(oh.list)) hand.list = oh.list.filter(id => ids.has(id));
+  S = { ...blank(), items, results, history, format, rounds, bracket, checks, sortSeed, hand, topN: Math.max(1, Math.floor(Number(obj.topN) || 3)), swissRounds: Math.max(0, Math.floor(Number(obj.swissRounds) || 0)),
     tieBreaks: Array.isArray(obj.tieBreaks) ? obj.tieBreaks.filter(t => Array.isArray(t) && t.every(x => ids.has(x))) : [], nextId: Math.max(Number(obj.nextId) || 1, maxId + 1) };
-  S.view = items.length > 1 && progress().complete ? 'results' : 'setup';
+  S.view = obj.view === 'hand' ? 'hand' : items.length > 1 && progress().complete ? 'results' : 'setup';
   if (Store.ok) { try { await Store.clear(); for (const it of items) await saveImg(it); } catch (e) { setSaveOK(false); } }
   render(); save();
   toast(`Opened ${file.name}.`);
@@ -2203,6 +2499,13 @@ function changeTop(d) {
   render(); save();
 }
 document.addEventListener('click', e => {
+  if (S.view === 'hand' && e.target.closest('.hboard')) {
+    if (dragSkipClick) return;
+    const tile = e.target.closest('.ht'), row = e.target.closest('.hrow');
+    if (tile) { handSel = handSel === tile.dataset.ht ? null : tile.dataset.ht; handFocus = tile.dataset.ht; render(); return; }
+    if (row && handSel) { const id = handSel; handSel = null; handFocus = id; handMove(id, row.dataset.tier); return; }
+    return;
+  }
   const step = e.target.closest('[data-rounds]');
   if (step) { if (!step.disabled) changeRounds(Number(step.dataset.rounds)); return; }
   const tstep = e.target.closest('[data-topn]');
@@ -2221,6 +2524,22 @@ document.addEventListener('click', e => {
   }
   if (t.id === 'hideFmts') { showFormats = false; render(); const m = $('#moreFmts'); if (m) m.focus({ preventScroll: true }); return; }
   if (t.id === 'guideBtn') return openGuide();
+  if (t.id === 'toHand') { handSel = null; go('hand'); return; }
+  if (t.dataset.htab) { S.hand.tab = t.dataset.htab; handSel = null; render(); save(); return; }
+  if (t.dataset.hmove) {
+    const { h } = handData(), i = h.list.indexOf(t.dataset.id);
+    handFocus = t.dataset.id; handMove(t.dataset.id, 'list', i + Number(t.dataset.hmove)); return;
+  }
+  if (t.id === 'handCopy') { copyText(handText()).then(ok => toast(ok ? 'Copied.' : "Couldn't copy here.")); return; }
+  if (t.id === 'handImg') { exportHandImage(); return; }
+  if (t.id === 'handReset') {
+    ask('Start over? Every entry goes back to "not ranked yet," and the ordered list goes back to the order you added them. Your tournaments stay as they are.', 'Start over').then(ok => {
+      if (!ok) return;
+      S.hand = { tab: S.hand.tab, tiers: {}, names: S.hand.names || {}, list: [] }; handSel = null;
+      render(); save(); toast('Started over.');
+    });
+    return;
+  }
   if (t.id === 'guideClose') return $('#guideDlg').close();
   if (t.id === 'dropBtn') return $('#imgIn').click();
   if (t.id === 'addLines') return addLines();
@@ -2270,6 +2589,7 @@ document.addEventListener('click', e => {
   }
 });
 document.addEventListener('input', e => {
+  if (e.target.dataset && e.target.dataset.tname) { handData(); S.hand.names[e.target.dataset.tname] = e.target.value.slice(0, 24); save(); return; }
   const inp = e.target.closest('.tile-name');
   if (!inp) return;
   const id = inp.closest('.tile').dataset.id;
@@ -2283,6 +2603,19 @@ document.addEventListener('input', e => {
 document.addEventListener('keydown', e => {
   if (e.target.id === 'lines' && e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); addLines(); return; }
   if (e.target.matches && e.target.matches('[data-format]') && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); chooseFormat(e.target); return; }
+  if (e.target.matches && e.target.matches('.hlabel') && e.key === 'Enter') { e.target.blur(); return; }
+  if (S.view === 'hand' && e.target.matches && e.target.matches('.ht') && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+    e.preventDefault();
+    const id = e.target.dataset.ht, [zone, i] = handZoneOf(id), order = [...HAND_TIERS, 'pool'], zi = order.indexOf(zone);
+    handFocus = id;
+    if (e.key === 'ArrowUp' && zi > 0) handMove(id, order[zi - 1]);
+    else if (e.key === 'ArrowDown' && zi < order.length - 1) handMove(id, order[zi + 1]);
+    else if (zone !== 'pool' && e.key === 'ArrowLeft' && i > 0) handMove(id, zone, i - 1);
+    else if (zone !== 'pool' && e.key === 'ArrowRight') handMove(id, zone, i + 1);
+    else handFocus = null;
+    return;
+  }
+  if (S.view === 'hand' && e.key === 'Escape' && handSel) { handSel = null; render(); return; }
   if (e.target.closest('input, textarea, select, [contenteditable]')) return;
   if ($('dialog[open]')) return;
   if (S.view !== 'battle') return;

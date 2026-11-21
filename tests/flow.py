@@ -386,3 +386,91 @@ def check_formats(page, run):
     run.check(page.get_attribute('[data-format="rr"]', 'aria-checked') == 'true', 'back to round robin')
     page.click('#hideFmts')
     run.check(not page.query_selector('.fmt-grid') and page.is_visible('#moreFmts'), 'Hide tucks the other styles away again')
+
+
+HAND_JS = """() => { const st = window.__rr.state(), L = id => st.items.find(i => i.id === id).label, h = st.hand || {}, o = {};
+  for (const k of ['S', 'A', 'B', 'C', 'D']) o[k] = ((h.tiers || {})[k] || []).map(L);
+  o.list = (h.list || []).map(L); o.names = h.names || {}; o.tab = h.tab; o.view = st.view; o.results = Object.keys(st.results).length; return o; }"""
+
+
+def _mouse_drag(page, src, dst, steps=15, at=0.5):
+    """Drags like a person on a small screen: if the target is out of view, hold near the edge until the page scrolls to it."""
+    page.locator(src).first.scroll_into_view_if_needed()
+    a = page.locator(src).first.bounding_box()
+    page.mouse.move(a['x'] + a['width'] / 2, a['y'] + a['height'] / 2)
+    page.mouse.down()
+    page.mouse.move(a['x'] + a['width'] / 2 + 12, a['y'] + a['height'] / 2 + 6, steps=3)
+    height = page.evaluate('innerHeight')
+    for _ in range(80):
+        b = page.locator(dst).first.bounding_box()
+        y = b['y'] + b['height'] * at
+        if 20 < y < height - 20:
+            page.mouse.move(b['x'] + 12, y, steps=steps)
+            break
+        page.mouse.move(b['x'] + 12, 8 if y <= 20 else height - 8, steps=4)
+        page.wait_for_timeout(120)
+    page.mouse.up()
+    page.wait_for_timeout(150)
+
+
+def check_hand(page, run, save):
+    """Rank by hand: a tier list and an ordered list, separate from the tournaments."""
+    if page.query_selector('#toSetup') and not page.query_selector('#toHand'):
+        page.click('#toSetup')
+    before = page.evaluate(HAND_JS)['results']
+    page.click('#toHand')
+    page.wait_for_selector('.hboard')
+    run.check(len(page.query_selector_all('[data-zone="pool"] .ht')) == 8 and len(page.query_selector_all('.hrow')) == 6,
+              'Rank by hand opens a tier list with every entry waiting in "not ranked yet"')
+    _mouse_drag(page, '.ht:has-text("Alpha")', '[data-zone="S"]')
+    run.check(page.evaluate(HAND_JS)['S'] == ['Alpha'], 'dragging a tile with the mouse puts it in a tier', page.evaluate(HAND_JS)['S'])
+    page.click('.ht:has-text("Bravo")')
+    run.check('Now tap a tier' in page.inner_text('#handHint'), 'tapping a tile picks it up', page.inner_text('#handHint'))
+    page.click('[data-tier="A"] .hzone')
+    run.check(page.evaluate(HAND_JS)['A'] == ['Bravo'], 'then tapping a tier puts it there')
+    page.focus('.ht:has-text("Charlie")')
+    page.keyboard.press('ArrowUp')
+    page.keyboard.press('ArrowUp')
+    run.check(page.evaluate(HAND_JS)['C'] == ['Charlie'], 'arrow keys move a tile between tiers')
+    _mouse_drag(page, '.ht:has-text("Delta")', '.ht:has-text("Alpha")')
+    run.check(page.evaluate(HAND_JS)['S'] == ['Delta', 'Alpha'], 'dropping onto a tile puts it in front of that tile', page.evaluate(HAND_JS)['S'])
+    page.fill('[data-tname="S"]', 'GOAT')
+    run.check(page.evaluate(HAND_JS)['names'].get('S') == 'GOAT', 'tier names can be renamed')
+    page.screenshot(path=run.shot('hand-tiers'), full_page=True)
+    p = save(page, '#handImg', 'hand-tiers.png')
+    run.check(p and open(p, 'rb').read(8) == b'\x89PNG\r\n\x1a\n', 'Save as image (tier list) makes a PNG', p)
+    page.click('#handCopy')
+    try:
+        page.wait_for_function("() => /Copied|copy here/.test(document.querySelector('#toast').textContent)", timeout=5000)
+    except Exception:  # noqa: BLE001 - the check below reports what was on screen
+        pass
+    run.check('Copied' in page.inner_text('#toast'), 'Copy as text (tier list)', page.inner_text('#toast'))
+
+    page.click('[data-htab="list"]')
+    page.wait_for_selector('.hlist')
+    run.check(page.evaluate(HAND_JS)['list'] == NATO, 'the ordered list starts in the order the entries were added')
+    page.click('[aria-label="Move Alpha down"]')
+    run.check(page.evaluate(HAND_JS)['list'][:2] == ['Bravo', 'Alpha'], 'the arrows move an entry')
+    _mouse_drag(page, '.hli:has-text("Hotel") .hl-grip', '.hli:has-text("Bravo")', steps=25, at=0.2)
+    run.check(page.evaluate(HAND_JS)['list'][:3] == ['Hotel', 'Bravo', 'Alpha'], 'dragging the handle moves an entry', page.evaluate(HAND_JS)['list'])
+    page.screenshot(path=run.shot('hand-list'), full_page=True)
+    p = save(page, '#handImg', 'hand-list.png')
+    run.check(p and open(p, 'rb').read(8) == b'\x89PNG\r\n\x1a\n', 'Save as image (ordered list) makes a PNG', p)
+    run.check(page.evaluate(HAND_JS)['results'] == before, 'ranking by hand leaves the tournament alone')
+    return page.evaluate(HAND_JS)
+
+
+def check_hand_after_reopen(page, run, want):
+    got = page.evaluate(HAND_JS)
+    run.check(got['view'] == 'hand' and got['list'] == want['list'] and got['S'] == want['S'] and got['names'] == want['names'],
+              'the tier list, the ordered list, and tier names are still there after reopening', (got['view'], got['list'][:3], got['S']))
+    page.wait_for_selector('#handReset')
+    page.click('#handReset')
+    page.wait_for_selector('#askDlg[open]', timeout=5000)
+    page.click('#askOk')
+    page.wait_for_timeout(200)
+    got = page.evaluate(HAND_JS)
+    run.check(got['list'] == NATO and all(not got[k] for k in 'SABCD') and got['names'].get('S') == 'GOAT',
+              'Start over puts everything back and keeps tier names')
+    page.click('#toSetup')
+    page.wait_for_selector('#toHand')

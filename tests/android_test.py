@@ -425,6 +425,29 @@ def steps(run):
     run.check(order == 'Alpha,Bravo,Charlie,Delta,Echo,Foxtrot looks=5', 'Sort ranks all 6 exactly, with a second look at each pair of neighbors', order)
     screenshot(run, 'sort-results')
 
+    # Rank by hand, with real taps: tap a tile, tap a tier; then the list arrows
+    cdp.js("document.querySelector('#toSetup').click()")
+    cdp.wait("!!document.querySelector('#toHand')", 5)
+    cdp.js("document.activeElement && document.activeElement.blur()")
+    time.sleep(0.5)
+    tap_element(cdp, '#toHand')
+    run.check(cdp.wait("!!document.querySelector('.hboard')", 5), 'tapping "Rank by hand" opens the tier list')
+    alpha = cdp.js("[...document.querySelectorAll('.ht')].find(t => t.innerText.trim() === 'Alpha').dataset.ht")
+    tap_element(cdp, f'[data-ht="{alpha}"]')
+    cdp.wait("/Now tap a tier/.test(document.querySelector('#handHint').textContent)", 5)
+    tap_element(cdp, '[data-tier="S"] .hlabel')
+    time.sleep(0.5)
+    in_s = cdp.js("(window.__rr.state().hand.tiers.S || []).map(id => window.__rr.state().items.find(i => i.id === id).label).join(',')")
+    run.check(in_s == 'Alpha', 'tapping a tile, then a tier, moves it there', in_s)
+    screenshot(run, 'hand-tiers')
+    tap_element(cdp, '[data-htab="list"]')
+    cdp.wait("!!document.querySelector('.hlist')", 5)
+    tap_element(cdp, '[aria-label="Move Alpha down"]')
+    time.sleep(0.5)
+    top2 = cdp.js("window.__rr.state().hand.list.slice(0, 2).map(id => window.__rr.state().items.find(i => i.id === id).label).join(',')")
+    run.check(top2 == 'Bravo,Alpha', 'tapping the down arrow moves an entry down the list', top2)
+    screenshot(run, 'hand-list')
+
     cdp.close()
 
 
