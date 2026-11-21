@@ -141,8 +141,10 @@ def body(run):
 
     adb('install', '-r', apk)
     run.check(PKG in adb('shell', 'pm', 'list', 'packages', PKG), 'APK installs')
+    adb('shell', 'mkdir', '-p', '/sdcard/Pictures')
     for img in images:
-        adb('push', img, '/sdcard/Pictures/')
+        name = img.replace('\\', '/').split('/')[-1]
+        adb('push', img, f'/sdcard/Pictures/{name}')
     adb('shell', 'content', 'call', '--uri', 'content://media', '--method', 'scan_volume', '--arg', 'external_primary', check=False)
     for img in images:
         name = img.replace('\\', '/').split('/')[-1]

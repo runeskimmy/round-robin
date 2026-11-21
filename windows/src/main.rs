@@ -48,7 +48,14 @@ fn main() {
     };
 
     let mut context = WebContext::new(data_dir());
-    let built = WebViewBuilder::new_with_web_context(&mut context)
+    let mut builder = WebViewBuilder::new_with_web_context(&mut context);
+    // Test hook, off unless this variable is set: lets automated tests drive the page.
+    if let Some(port) = std::env::var("ROUNDROBIN_TEST_DEBUG_PORT").ok().and_then(|p| p.parse::<u16>().ok()) {
+        builder = builder.with_additional_browser_args(format!(
+            "--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection --remote-debugging-port={port}"
+        ));
+    }
+    let built = builder
         .with_https_scheme(true)
         .with_custom_protocol("rr".into(), |_id, _request| {
             Response::builder()

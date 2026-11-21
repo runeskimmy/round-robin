@@ -1,6 +1,6 @@
 """Windows test: install with the real installer, then drive the real app window.
 
-The app is started with WebView2's remote-debugging port switched on, so Playwright can
+The app is started with its test hook (ROUNDROBIN_TEST_DEBUG_PORT) switched on, so Playwright can
 operate the page inside the app's own window (not a separate browser).
 
 Usage: python tests/windows_test.py path\\to\\RoundRobin-Setup.exe
@@ -42,7 +42,7 @@ def find_window():
 
 
 def launch(run):
-    env = dict(os.environ, WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS=f'--remote-debugging-port={PORT}')
+    env = dict(os.environ, ROUNDROBIN_TEST_DEBUG_PORT=str(PORT))
     proc = subprocess.Popen([str(INSTALL_DIR / 'RoundRobin.exe')], env=env)
     deadline = time.time() + 90
     while time.time() < deadline:
