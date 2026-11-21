@@ -289,16 +289,20 @@ def steps(run):
     dock = cdp.js("document.querySelector('.dock p') ? document.querySelector('.dock p').innerText : ''")
     run.check('28 of 28' in dock, 'all 28 picks are still there after reopening', dock)
 
-    # Restart uses a confirm() popup, which Android shows as its own dialog: tap OK like a person.
-    cdp.js("setTimeout(() => document.querySelector('#rerun').click(), 50); true")
-    time.sleep(2)
-    screenshot(run, 'restart-confirm')
-    nodes = ui_nodes(run, 'ui-confirm.xml')
-    ok = next((n for n in nodes if n.get('resource-id') == 'android:id/button1' or n.get('text') in ('OK', 'Ok')), None)
-    run.check(ok is not None, 'Restart shows a confirm popup', [n.get('text') for n in nodes if n.get('text')][:10])
-    tap(*center(ok))
-    run.check(cdp.wait("document.body.dataset.view === 'battle' && document.querySelector('.progress-txt b').textContent === '1 of 28'", 10),
-              'tapping OK restarts the matchups')
+    # Restart asks first in the app's own popup. Cancel should do nothing; Restart should clear the picks
+    # (from the entries screen it stays on the entries screen).
+    cdp.js("document.querySelector('#rerun').click()")
+    run.check(cdp.wait("document.querySelector('#askDlg').open"), "Restart asks first, in the app's own popup")
+    screenshot(run, 'restart-popup')
+    tap_element(cdp, '#askCancel')
+    run.check(cdp.wait("!document.querySelector('#askDlg').open && /28 of 28/.test(document.querySelector('.dock p').innerText)", 10),
+              'tapping Cancel keeps every pick')
+    cdp.js("document.querySelector('#rerun').click()")
+    cdp.wait("document.querySelector('#askDlg').open")
+    tap_element(cdp, '#askOk')
+    run.check(cdp.wait("/28 matchups<\\/b> for 8 entries/.test(document.querySelector('.dock p').innerHTML)", 10),
+              'tapping Restart clears the picks and keeps the entries',
+              cdp.js("document.querySelector('.dock p').innerText"))
     screenshot(run, 'restarted')
     cdp.close()
 

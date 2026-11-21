@@ -323,6 +323,8 @@ dialog p { margin: 0 0 14px; color: var(--twig); }
 .tie-pick button.done { border-color: var(--yolk); }
 .tie-pick .ord { position: absolute; top: 6px; left: 6px; z-index: 2; background: var(--yolk); color: var(--on-yolk); font-family: var(--display); font-weight: 800; font-size: 22px; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; }
 .dlg-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+#askDlg { max-width: min(460px, 92vw); }
+#askMsg { color: var(--ink); font-size: 18px; margin: 0; }
 
 .toast {
   position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%);
@@ -396,6 +398,13 @@ body.dragging .dropcover { display: grid; }
 <input type="file" id="imgIn" accept="image/*" multiple hidden>
 <div class="dropcover" aria-hidden="true">Drop to add</div>
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+<dialog id="askDlg" aria-labelledby="askMsg">
+  <p id="askMsg"></p>
+  <div class="dlg-actions">
+    <button class="btn" id="askCancel" type="button">Cancel</button>
+    <button class="btn btn-go" id="askOk" type="button">OK</button>
+  </div>
+</dialog>
 <dialog id="tieDlg">
   <h3>Break the tie</h3>
   <p>Click them in order, best first.</p>
@@ -998,6 +1007,24 @@ function rowHTML(r, nm, byId) {
   </details>`;
 }
 
+/* ---------- yes/no popup (the app's own, instead of the browser's "this page says" box) ---------- */
+let askResolve = null;
+function ask(message, okLabel) {
+  $('#askMsg').textContent = message;
+  $('#askOk').textContent = okLabel || 'OK';
+  $('#askDlg').showModal();
+  $('#askOk').focus();
+  return new Promise(res => { askResolve = res; });
+}
+function answer(yes) {
+  const r = askResolve; askResolve = null;
+  if ($('#askDlg').open) $('#askDlg').close();
+  if (r) r(yes);
+}
+$('#askOk').addEventListener('click', () => answer(true));
+$('#askCancel').addEventListener('click', () => answer(false));
+$('#askDlg').addEventListener('close', () => answer(false));
+
 /* ---------- tie-break dialog ---------- */
 let tieIds = [], tieOrder = [];
 function openTie(ids) {
@@ -1217,7 +1244,7 @@ async function importJSON(file) {
   let obj;
   try { obj = JSON.parse(await file.text()); } catch (e) { toast("That file isn't a Round Robin save."); return; }
   if (!obj || !Array.isArray(obj.items)) { toast("That file isn't a Round Robin save."); return; }
-  if (S.items.length && !confirm('Opening this file replaces your current tournament. Continue?')) return;
+  if (S.items.length && !(await ask('Opening this file replaces your current tournament.', 'Open it'))) return;
   const items = obj.items.filter(i => i && typeof i.id === 'string' && !i.id.includes('|')).map(i => ({ id: i.id, label: String(i.label || ''), img: typeof i.img === 'string' && i.img.startsWith('data:image/') ? i.img : null }));
   const ids = new Set(items.map(i => i.id));
   const results = {};
@@ -1274,20 +1301,28 @@ document.addEventListener('click', e => {
     return;
   }
   if (t.id === 'rerun') {
-    if (!confirm('Restart? This clears every pick and starts the matchups over. Your entries stay.')) return;
-    S.results = {}; S.history = []; S.queue = []; S.tieBreaks = [];
-    go(S.view === 'setup' ? 'setup' : 'battle'); toast('Restarted. Your entries are still here.'); return;
+    ask('Restart? This clears every pick and starts the matchups over. Your entries stay.', 'Restart').then(ok => {
+      if (!ok) return;
+      S.results = {}; S.history = []; S.queue = []; S.tieBreaks = [];
+      go(S.view === 'setup' ? 'setup' : 'battle'); toast('Restarted. Your entries are still here.');
+    });
+    return;
   }
   if (t.id === 'copyTxt') { copyText(rankingText()).then(ok => toast(ok ? 'Copied the ranking.' : "Couldn't copy here.")); return; }
   if (t.id === 'saveImg') { exportImage(); return; }
   if (t.id === 'saveFile') { exportJSON(); return; }
   if (t.id === 'openFile') { $('#jsonIn').click(); return; }
   if (t.id === 'newT') {
-    if (S.items.length && !confirm('Start a new tournament? This deletes every entry and pick. Use Save file first if you want to keep them.')) return;
-    for (const id of [...urlCache.keys()]) dropURL(id);
-    S = blank();
-    if (Store.ok) Store.clear().catch(() => {});
-    render(); save();
+    const wipe = () => {
+      for (const id of [...urlCache.keys()]) dropURL(id);
+      S = blank();
+      if (Store.ok) Store.clear().catch(() => {});
+      render(); save();
+    };
+    if (!S.items.length) { wipe(); return; }
+    ask('Start a new tournament? This deletes every entry and pick. Use Save file first if you want to keep them.', 'Delete everything')
+      .then(ok => { if (ok) wipe(); });
+    return;
   }
 });
 document.addEventListener('input', e => {

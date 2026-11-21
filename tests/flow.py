@@ -139,7 +139,11 @@ def check_persisted(page, run, expected_rows):
 
 
 def check_restart(page, run):
-    page.click('#rerun')  # confirm() is accepted by the caller's dialog handler
+    page.click('#rerun')
+    page.wait_for_selector('#askDlg[open]', timeout=5000)
+    run.check(page.inner_text('#askOk') == 'Restart', "Restart asks first, in the app's own popup", page.inner_text('#askMsg'))
+    page.screenshot(path=run.shot('restart-popup'))
+    page.click('#askOk')
     page.wait_for_selector('.fighter', timeout=10000)
     run.check(page.inner_text('.progress-txt b') == '1 of 28', 'Restart clears the picks', page.inner_text('.progress-txt b'))
     page.click('#toSetup')
