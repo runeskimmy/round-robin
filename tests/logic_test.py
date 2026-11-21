@@ -67,7 +67,7 @@ def setup(page, n, fmt, rounds=None, top=None):
 def body(run):
     url = (ROOT / 'web' / 'round-robin.html').as_uri()
     rng = random.Random(7)
-    counts = {'single': 0, 'double': 0, 'swiss': 0, 'rrplus': 0, 'topn': 0}
+    counts = {'single': 0, 'double': 0, 'swiss': 0, 'rrplus': 0, 'topn': 0, 'sort': 0}
     fallback_rounds = 0
     with sync_playwright() as p:
         try:
@@ -108,12 +108,18 @@ def body(run):
                 cases.append((f'topn{top}', n, 'prefer', 0))
         for n in [9, 18]:
             cases.append(('topn3', n, 'random', 12))       # with undo
+        for n in range(2, 31):
+            cases.append(('sort', n, 'random', 0))
+        for n in [3, 5, 8, 13, 16, 25, 40]:
+            cases.append(('sort', n, 'prefer', 0))
+        for n, at in [(7, 6), (12, 40), (20, 70)]:
+            cases.append(('sort', n, 'random', at))        # undo while sorting, and during second looks
 
         for fmt, n, mode, undo_at in cases:
             real = 'swiss' if fmt.startswith('swiss') else 'topn' if fmt.startswith('topn') else fmt
             top = int(fmt[4:]) if real == 'topn' else None
             setup(page, n, real, rounds=(n - 1) if fmt == 'swiss-max' else None, top=top)
-            page.evaluate(PLAY_JS, {'mode': mode, 'tieRate': 0 if real == 'topn' else 0.1, 'undoAt': undo_at})
+            page.evaluate(PLAY_JS, {'mode': mode, 'tieRate': 0 if real in ('topn', 'sort') else 0.1, 'undoAt': undo_at})
             st = page.evaluate('window.__rr.state()')
             pr = page.evaluate('window.__rr.progress()')
             rows = page.evaluate('window.__rr.ranking()')
@@ -129,6 +135,9 @@ def body(run):
             if real == 'rrplus':
                 check_rrplus(run, tag, n, mode, st, rows, label)
                 counts['rrplus'] += 1
+            elif real == 'sort':
+                check_sort(run, tag, n, mode, st, rows, label)
+                counts['sort'] += 1
             elif real == 'topn':
                 check_topn(run, tag, n, mode, top, st, rows, label)
                 counts['topn'] += 1
@@ -182,6 +191,7 @@ def body(run):
         run.check(True, f"double elimination: {counts['double']} tournaments (2 to 40 entries) follow every rule")
         run.check(True, f"Swiss: {counts['swiss']} tournaments: no repeat pairings, everyone once per round")
         run.check(True, f"Round robin+: {counts['rrplus']} tournaments: every pair once, every neighbor settled, consistent picks ranked exactly")
+        run.check(True, f"Sort: {counts['sort']} tournaments: every neighbor settled, consistent picks ranked exactly in at most n log n matchups")
         run.check(True, f"Top N: {counts['topn']} tournaments: no repeats, nobody plays after going out, consistent picks get the exact top N")
         run.log(f'Swiss rounds where a full repeat-free pairing was impossible: {fallback_rounds}')
         run.check(not errors, 'no script errors', errors[:3])
@@ -217,6 +227,28 @@ def check_rrplus(run, tag, n, mode, st, rows, label):
             run.check(False, f'{tag}: consistent picks are ranked exactly', order)
         if asks != n - 1:
             run.check(False, f'{tag}: one second look per neighbor pair', asks)
+
+
+def merge_worst(n):
+    return 0 if n < 2 else merge_worst(n // 2) + merge_worst(n - n // 2) + n - 1
+
+
+def check_sort(run, tag, n, mode, st, rows, label):
+    if sorted(r['rank'] for r in rows) != list(range(1, n + 1)) or any(r['slotSize'] != 1 for r in rows):
+        run.check(False, f'{tag}: every entry gets its own place', [r['rank'] for r in rows])
+    for k, c in st['checks'].items():
+        if not 1 <= len(c) <= 2:
+            run.check(False, f'{tag}: no pair asked more than three times', (k, c))
+    for x, y in zip(rows, rows[1:]):
+        if not is_settled(st, pk(x['id'], y['id'])):
+            run.check(False, f'{tag}: every pair of neighbors is settled', (x['id'], y['id']))
+    if mode == 'prefer':
+        order = [label[r['id']] for r in rows]
+        asks = sum(len(c) for c in st['checks'].values())
+        if order != sorted(label.values()):
+            run.check(False, f'{tag}: consistent picks are ranked exactly', order)
+        if asks != n - 1 or len(st['results']) > merge_worst(n):
+            run.check(False, f'{tag}: one second look per neighbor pair, sorting in at most {merge_worst(n)}', (asks, len(st['results'])))
 
 
 def check_topn(run, tag, n, mode, top, st, rows, label):

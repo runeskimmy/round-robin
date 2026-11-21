@@ -405,6 +405,26 @@ def steps(run):
     run.check(picks == 17 and top4 == 'Alpha,Bravo,Charlie,Delta', 'Top 3 of 6: 14 matchups plus 3 second looks, finalists ranked exactly', (picks, top4))
     screenshot(run, 'topn-results')
 
+    # Sort on the phone, with a real tap on its card
+    cdp.js("document.querySelector('#rerun').click()")
+    cdp.wait("document.querySelector('#askDlg').open", 5)
+    cdp.js("document.querySelector('#askOk').click()")
+    time.sleep(0.5)
+    cdp.js("document.querySelector('#toSetup').click()")
+    cdp.wait("!!document.querySelector('[data-format=\\'sort\\']')", 5)
+    cdp.js("document.activeElement && document.activeElement.blur()")
+    time.sleep(0.5)
+    tap_element(cdp, '[data-format="sort"]')
+    run.check(cdp.wait("document.querySelector('[data-format=\\'sort\\']').getAttribute('aria-checked') === 'true'", 5), 'tapping the Sort card picks it')
+    cdp.js("document.querySelector('#dockGo').click()")
+    cdp.wait("!!document.querySelector('.fighter')", 10)
+    order = cdp.js("""(() => { const L = id => window.__rr.state().items.find(i => i.id === id).label; let n = 0;
+      while (window.__rr.current() && n < 60) { const m = window.__rr.current(); window.__rr.pick(L(m.a) < L(m.b) ? 'a' : 'b'); n++; }
+      const st = window.__rr.state(); const looks = Object.values(st.checks).reduce((x, c) => x + c.length, 0);
+      return window.__rr.ranking().map(r => L(r.id)).join(',') + ' looks=' + looks; })()""")
+    run.check(order == 'Alpha,Bravo,Charlie,Delta,Echo,Foxtrot looks=5', 'Sort ranks all 6 exactly, with a second look at each pair of neighbors', order)
+    screenshot(run, 'sort-results')
+
     cdp.close()
 
 

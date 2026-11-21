@@ -209,8 +209,8 @@ def check_formats(page, run):
     page.screenshot(path=run.shot('simple-start'), full_page=True)
     page.click('#moreFmts')
     page.wait_for_selector('.fmt-grid')
-    counts = {f: page.inner_text(f'[data-format="{f}"] .fmt-count') for f in ('rr', 'rrplus', 'swiss', 'topn', 'single', 'double')}
-    run.check('28 matchups' in counts['rr'] and 'about 35 matchups' in counts['rrplus'] and '20 matchups' in counts['swiss']
+    counts = {f: page.inner_text(f'[data-format="{f}"] .fmt-count') for f in ('rr', 'rrplus', 'sort', 'swiss', 'topn', 'single', 'double')}
+    run.check('28 matchups' in counts['rr'] and 'about 35 matchups' in counts['rrplus'] and 'about 23 matchups' in counts['sort'] and '20 matchups' in counts['swiss']
               and 'about 25 matchups' in counts['topn'] and '8 matchups' in counts['single']
               and '14 or 15 matchups' in counts['double'], 'each format shows its matchup count and time', counts)
 
@@ -291,8 +291,8 @@ def check_formats(page, run):
     page.click('#guideBtn')
     page.wait_for_selector('#guideDlg[open]')
     txt = page.inner_text('#guideBody')
-    run.check(txt.count('Good for:') == 6 and txt.count('Not so good for:') == 6 and 'about 35 matchups for your 8 entries' in txt,
-              'the guide says what all six formats are good and bad at')
+    run.check(txt.count('Good for:') == 7 and txt.count('Not so good for:') == 7 and 'about 35 matchups for your 8 entries' in txt,
+              'the guide says what all seven styles are good and bad at')
     page.screenshot(path=run.shot('guide'))
     page.click('#guideClose')
     run.check(not page.query_selector('#guideDlg[open]'), 'the guide closes')
@@ -325,7 +325,40 @@ def check_formats(page, run):
     line = page.inner_text('.fmt-line')
     run.check('7 close calls double-checked' in line and 'third look backed your first answer' in line,
               'the results say one answer changed and the third look settled it', line)
+    marks = page.query_selector_all('.sure')
+    run.check(len(marks) == 1 and 'Close call: you picked Alpha over Bravo 2 of 3 times.' in marks[0].inner_text()
+              and 'One spot is a close call' in page.inner_text('.sure-sum'),
+              'a how-sure marker flags the pair you went back and forth on', [m.inner_text() for m in marks])
     page.screenshot(path=run.shot('rrplus-results'), full_page=True)
+
+    # Sort: consistent picks give an exact ranking, and every pair of neighbors gets a second look
+    _restart(page)
+    page.click('#toSetup')
+    _pick_format(page, 'sort')
+    page.click('#dockGo')
+    page.wait_for_selector('.fighter')
+    run.check(not page.query_selector('#tieBtn') and page.inner_text('.progress-txt span').startswith('About '),
+              'Sort: no Tie button, and the count is marked as an estimate', page.inner_text('.progress-txt span'))
+    page.screenshot(path=run.shot('sort-matchup'))
+    played, looks = 0, 0
+    while page.query_selector('.fighter') and played < 80:
+        if page.inner_text('.progress-txt span') == 'Second look at a close call':
+            looks += 1
+        a = page.get_attribute('.fighter[data-side="a"]', 'aria-label')[5:]
+        b = page.get_attribute('.fighter[data-side="b"]', 'aria-label')[5:]
+        before = page.inner_text('.progress-txt b')
+        page.keyboard.press('ArrowLeft' if NATO.index(a) < NATO.index(b) else 'ArrowRight')
+        _wait_progress_change(page, before)
+        played += 1
+    rows = ranking(page)
+    run.check(rows == [[str(i + 1), x] for i, x in enumerate(NATO)] and looks == 7 and 7 + 11 <= played <= 7 + 17,
+              'Sort ranks all 8 exactly, with 7 second looks and far fewer than 28 matchups', (played, looks, rows[:3]))
+    run.check('Sort, 7 pairs of neighbors double-checked' in page.inner_text('.fmt-line') and 'this order is solid' in page.inner_text('.sure-sum')
+              and not page.query_selector('.sure'), 'Sort results say every neighbor was confirmed, with no close calls', page.inner_text('.fmt-line'))
+    page.click('[data-tab="tiers"]')
+    run.check(page.inner_text('.tier >> nth=0').count('Alpha') == 1 and 'place in the ranking' in page.inner_text('.note'), 'Sort tiers come from place in the ranking')
+    page.click('[data-tab="list"]')
+    page.screenshot(path=run.shot('sort-results'), full_page=True)
 
     # Top N
     _restart(page)
