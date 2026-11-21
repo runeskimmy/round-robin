@@ -323,6 +323,27 @@ def steps(run):
               cdp.js("document.querySelector('.dock p').innerText"))
     screenshot(run, 'restarted')
 
+    # Stress the popup: open it, tap Cancel for real, reopen, and make sure it stays open. 8 rounds.
+    cdp.js("document.querySelector('#lines').value = ''")
+    spurious = []
+    for i in range(8):
+        cdp.js("setTimeout(() => document.querySelector('#newT').click(), 0); true")
+        if not cdp.wait("document.querySelector('#askDlg').open", 5):
+            spurious.append((i, 'did not open'))
+            continue
+        time.sleep(1.5)
+        if not cdp.js("document.querySelector('#askDlg').open"):
+            spurious.append((i, cdp.js("JSON.stringify(window.__rrAskLog.slice(-8))")))
+            screenshot(run, f'popup-closed-itself-{i}')
+            continue
+        tap_element(cdp, '#askCancel')
+        cdp.wait("!document.querySelector('#askDlg').open", 5)
+        time.sleep(0.3)
+    for s_ in spurious:
+        run.log('popup closed by itself:', s_)
+    run.check(not spurious, 'popup never closes by itself (8 rounds of open, Cancel, reopen)', len(spurious))
+    run.check(cdp.js("document.querySelectorAll('.tile').length") == 8, 'Cancel on New tournament keeps everything')
+
     cdp.close()
 
 
