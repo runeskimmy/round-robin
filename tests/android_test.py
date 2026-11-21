@@ -156,7 +156,9 @@ def tap_element(cdp, selector):
                   " return [r.left + r.width / 2, r.top + r.height / 2, window.devicePixelRatio]; })()")
     web = next(n for n in ui_nodes() if n.get('class') == 'android.webkit.WebView')
     x1, y1 = map(int, re.findall(r'\d+', web.get('bounds'))[:2])
-    tap(int(x1 + rect[0] * rect[2]), int(y1 + rect[1] * rect[2]))
+    x, y = int(x1 + rect[0] * rect[2]), int(y1 + rect[1] * rect[2])
+    print(f'tap {selector} at {x},{y}', flush=True)
+    tap(x, y)
 
 
 def toast(cdp):
@@ -272,6 +274,8 @@ def steps(run):
     cdp.js("document.querySelector('#copyTxt').click()")
     cdp.wait("/Copied|copy here/.test(document.querySelector('#toast').textContent)", 10)
     run.check('Copied' in toast(cdp), 'Copy as text', toast(cdp))
+    time.sleep(10)  # Android's "copied" bubble sits on top of everything for a few seconds and swallows taps
+
 
     # Back button: first press goes to the entries screen, second press closes the app.
     adb('shell', 'input', 'keyevent', 'KEYCODE_BACK')
@@ -285,6 +289,7 @@ def steps(run):
 
     # Reopen: everything should still be there.
     cdp = start_app(run)
+    time.sleep(4)  # let the emulator finish drawing the reopened app before tapping
     run.check(cdp.wait("document.querySelectorAll('.tile').length === 8", 15), 'entries are still there after reopening')
     dock = cdp.js("document.querySelector('.dock p') ? document.querySelector('.dock p').innerText : ''")
     run.check('28 of 28' in dock, 'all 28 picks are still there after reopening', dock)
@@ -293,17 +298,29 @@ def steps(run):
     # (from the entries screen it stays on the entries screen).
     cdp.js("document.querySelector('#rerun').click()")
     run.check(cdp.wait("document.querySelector('#askDlg').open"), "Restart asks first, in the app's own popup")
+    time.sleep(1)
     screenshot(run, 'restart-popup')
     tap_element(cdp, '#askCancel')
     run.check(cdp.wait("!document.querySelector('#askDlg').open && /28 of 28/.test(document.querySelector('.dock p').innerText)", 10),
               'tapping Cancel keeps every pick')
     cdp.js("document.querySelector('#rerun').click()")
     cdp.wait("document.querySelector('#askDlg').open")
+    time.sleep(1)
     tap_element(cdp, '#askOk')
+    cleared = "/28 matchups<\\/b> for 8 entries/.test(document.querySelector('.dock p').innerHTML)"
+    if not cdp.wait(cleared, 6):
+        screenshot(run, 'restart-tap-missed')
+        run.log('first tap on Restart did not register; dialog open:', cdp.js("document.querySelector('#askDlg').open"))
+        if not cdp.js("document.querySelector('#askDlg').open"):
+            cdp.js("document.querySelector('#rerun').click()")
+            cdp.wait("document.querySelector('#askDlg').open")
+            time.sleep(1)
+        tap_element(cdp, '#askOk')
     run.check(cdp.wait("/28 matchups<\\/b> for 8 entries/.test(document.querySelector('.dock p').innerHTML)", 10),
               'tapping Restart clears the picks and keeps the entries',
               cdp.js("document.querySelector('.dock p').innerText"))
     screenshot(run, 'restarted')
+
     cdp.close()
 
 
