@@ -152,8 +152,15 @@ def start_app(run):
 
 def tap_element(cdp, selector):
     """Real tap on a page element (gives the page a genuine user gesture)."""
-    rect = cdp.js("(() => { const r = document.querySelector('" + selector + "').getBoundingClientRect();"
-                  " return [r.left + r.width / 2, r.top + r.height / 2, window.devicePixelRatio]; })()")
+    find = "document.querySelector('" + selector + "')"
+    for _ in range(3):
+        rect = cdp.js("(() => { const r = " + find + ".getBoundingClientRect();"
+                      " return [r.left + r.width / 2, r.top + Math.min(r.height / 2, 60), window.devicePixelRatio, window.innerHeight]; })()")
+        if 0 < rect[1] < rect[3] - 20:
+            break
+        print(f'{selector} is off screen (y={rect[1]:.0f} of {rect[3]}), scrolling to it', flush=True)
+        cdp.js("document.activeElement && document.activeElement.blur(); " + find + ".scrollIntoView({ block: 'center', behavior: 'instant' })")
+        time.sleep(1)
     web = next(n for n in ui_nodes() if n.get('class') == 'android.webkit.WebView')
     x1, y1 = map(int, re.findall(r'\d+', web.get('bounds'))[:2])
     x, y = int(x1 + rect[0] * rect[2]), int(y1 + rect[1] * rect[2])
@@ -349,7 +356,7 @@ def steps(run):
     cdp.js("document.querySelector('#askOk').click()")
     cdp.wait("!!document.querySelector('#lines')", 5)
     cdp.js("document.querySelector('#lines').value = 'Alpha\\nBravo\\nCharlie\\nDelta\\nEcho\\nFoxtrot'; document.querySelector('#addLines').click()")
-    cdp.js("document.querySelector('[data-format=\\'double\\']').scrollIntoView({ block: 'center' })")
+    cdp.js("document.activeElement && document.activeElement.blur()")
     time.sleep(1)
     tap_element(cdp, '[data-format="double"]')
     run.check(cdp.wait("document.querySelector('[data-format=\\'double\\']').getAttribute('aria-checked') === 'true'", 5), 'tapping a format card picks it')

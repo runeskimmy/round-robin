@@ -1770,10 +1770,13 @@ function addLines() {
   const ta = $('#lines'); if (!ta) return;
   const lines = ta.value.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
   if (!lines.length) { ta.focus(); return; }
+  // Put the cursor back for more typing, except after a tap on a touch screen,
+  // where it would pop the keyboard back up over the screen.
+  const keepTyping = document.activeElement === ta || !matchMedia('(pointer: coarse)').matches;
   ta.value = '';
   lines.forEach(l => addItem(l, null));
   render(); save();
-  const t2 = $('#lines'); if (t2) t2.focus();
+  const t2 = $('#lines'); if (t2 && keepTyping) t2.focus();
 }
 function chooseFormat(card) {
   if (card.getAttribute('aria-disabled') === 'true') { toast(card.dataset.why); return; }
