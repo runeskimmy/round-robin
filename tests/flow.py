@@ -139,6 +139,19 @@ def check_persisted(page, run, expected_rows):
 
 
 def check_restart(page, run):
+    # A popup reopened the instant after Cancel must stay open (the browser's late "closed" notice
+    # from the first popup used to shut the new one).
+    page.evaluate("() => { const q = s => document.querySelector(s);"
+                  " q('#rerun').click(); q('#askCancel').click(); q('#rerun').click(); }")
+    page.wait_for_timeout(300)
+    run.check(page.evaluate("document.querySelector('#askDlg').open"), 'a popup reopened right after Cancel stays open')
+    page.click('#askCancel')
+    page.wait_for_selector('#askDlg[open]', state='detached', timeout=5000)
+    page.click('#rerun')
+    page.wait_for_selector('#askDlg[open]', timeout=5000)
+    page.keyboard.press('Escape')
+    page.wait_for_selector('#askDlg[open]', state='detached', timeout=5000)
+    run.check(page.inner_text('.res-head h2') == 'Final ranking', 'Escape closes the popup and keeps every pick')
     page.click('#rerun')
     page.wait_for_selector('#askDlg[open]', timeout=5000)
     run.check(page.inner_text('#askOk') == 'Restart', "Restart asks first, in the app's own popup", page.inner_text('#askMsg'))
