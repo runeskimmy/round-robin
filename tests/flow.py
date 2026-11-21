@@ -394,11 +394,21 @@ HAND_JS = """() => { const st = window.__rr.state(), L = id => st.items.find(i =
 
 
 def _mouse_drag(page, src, dst, steps=15, at=0.5):
-    a, b = page.locator(src).first.bounding_box(), page.locator(dst).first.bounding_box()
+    """Drags like a person on a small screen: if the target is out of view, hold near the edge until the page scrolls to it."""
+    page.locator(src).first.scroll_into_view_if_needed()
+    a = page.locator(src).first.bounding_box()
     page.mouse.move(a['x'] + a['width'] / 2, a['y'] + a['height'] / 2)
     page.mouse.down()
     page.mouse.move(a['x'] + a['width'] / 2 + 12, a['y'] + a['height'] / 2 + 6, steps=3)
-    page.mouse.move(b['x'] + 12, b['y'] + b['height'] * at, steps=steps)
+    height = page.evaluate('innerHeight')
+    for _ in range(80):
+        b = page.locator(dst).first.bounding_box()
+        y = b['y'] + b['height'] * at
+        if 20 < y < height - 20:
+            page.mouse.move(b['x'] + 12, y, steps=steps)
+            break
+        page.mouse.move(b['x'] + 12, 8 if y <= 20 else height - 8, steps=4)
+        page.wait_for_timeout(120)
     page.mouse.up()
     page.wait_for_timeout(150)
 
