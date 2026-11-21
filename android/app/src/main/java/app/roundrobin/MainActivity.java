@@ -6,6 +6,11 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.ImageDecoder;
+import android.provider.OpenableColumns;
+import android.webkit.MimeTypeMap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -25,9 +30,15 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.core.content.FileProvider;
 import androidx.webkit.WebViewAssetLoader;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -49,10 +60,10 @@ public class MainActivity extends ComponentActivity {
 
         pickImages = registerForActivityResult(
                 new ActivityResultContracts.PickMultipleVisualMedia(),
-                (List<Uri> uris) -> deliver(uris == null || uris.isEmpty() ? null : uris.toArray(new Uri[0])));
+                (List<Uri> uris) -> deliverCopies(uris));
         openDocument = registerForActivityResult(
                 new ActivityResultContracts.OpenDocument(),
-                (Uri uri) -> deliver(uri == null ? null : new Uri[]{uri}));
+                (Uri uri) -> deliverCopies(uri == null ? null : Collections.singletonList(uri)));
 
         final WebViewAssetLoader assets = new WebViewAssetLoader.Builder()
                 .addPathHandler("/assets/", new WebViewAssetLoader.AssetsPathHandler(this))
@@ -133,6 +144,71 @@ public class MainActivity extends ComponentActivity {
 
         if (savedInstanceState != null) web.restoreState(savedInstanceState);
         else web.loadUrl(HOME);
+    }
+
+    /**
+     * Copies picked files into the app's own storage and hands the page those copies.
+     * The photo picker strips location data on the fly, so a photo's real size can differ from the size
+     * it reports, and the WebView then refuses to read it ("NotReadableError"). Copies are always consistent.
+     * HEIC/HEIF photos are converted to JPG on the way, since the WebView can't display them.
+     */
+    private void deliverCopies(List<Uri> picked) {
+        if (picked == null || picked.isEmpty()) { deliver(null); return; }
+        new Thread(() -> {
+            File dir = new File(getCacheDir(), "picked");
+            deleteTree(dir);
+            List<Uri> copies = new ArrayList<>();
+            for (int i = 0; i < picked.size(); i++) {
+                try { copies.add(copyIn(picked.get(i), new File(dir, String.valueOf(i)))); }
+                catch (Exception ignored) { /* the page reports how many files it couldn't read */ }
+            }
+            Uri[] result = copies.isEmpty() ? null : copies.toArray(new Uri[0]);
+            runOnUiThread(() -> deliver(result));
+        }).start();
+    }
+
+    private Uri copyIn(Uri src, File folder) throws Exception {
+        ContentResolver cr = getContentResolver();
+        String mime = cr.getType(src);
+        String name = displayName(src);
+        if (name == null || name.isEmpty()) name = "file";
+        if (!name.contains(".") && mime != null) {
+            String ext = MimeTypeMap.getSingleton().getExtensionFromMimeType(mime);
+            if (ext != null) name = name + "." + ext;
+        }
+        folder.mkdirs();
+        boolean heic = (mime != null && (mime.contains("heic") || mime.contains("heif")))
+                || name.toLowerCase().matches(".*\\.hei[cf]$");
+        File dest;
+        if (heic) {
+            dest = new File(folder, name.replaceAll("\\.[^.]*$", "") + ".jpg");
+            Bitmap bmp = ImageDecoder.decodeBitmap(ImageDecoder.createSource(cr, src));
+            try (OutputStream os = new FileOutputStream(dest)) { bmp.compress(Bitmap.CompressFormat.JPEG, 90, os); }
+            bmp.recycle();
+        } else {
+            dest = new File(folder, name);
+            try (InputStream in = cr.openInputStream(src); OutputStream os = new FileOutputStream(dest)) {
+                if (in == null) throw new Exception("no data");
+                byte[] buf = new byte[64 * 1024];
+                int n;
+                while ((n = in.read(buf)) > 0) os.write(buf, 0, n);
+            }
+        }
+        return FileProvider.getUriForFile(this, getPackageName() + ".files", dest);
+    }
+
+    private String displayName(Uri uri) {
+        try (Cursor c = getContentResolver().query(uri, new String[]{OpenableColumns.DISPLAY_NAME}, null, null, null)) {
+            if (c != null && c.moveToFirst()) return c.getString(0);
+        } catch (Exception ignored) { }
+        String last = uri.getLastPathSegment();
+        return last == null ? null : last.replaceAll("[/\\\\]", "_");
+    }
+
+    private static void deleteTree(File f) {
+        File[] kids = f.listFiles();
+        if (kids != null) for (File k : kids) deleteTree(k);
+        f.delete();
     }
 
     private void deliver(Uri[] uris) {
