@@ -3,19 +3,28 @@
 
 use std::borrow::Cow;
 use std::path::PathBuf;
+use std::rc::Rc;
+use std::cell::Cell;
+use std::time::{Duration, Instant};
 use tao::{
     dpi::LogicalSize,
-    event::{Event, WindowEvent},
+    event::{Event, StartCause, WindowEvent},
     event_loop::{ControlFlow, EventLoop},
     window::{Icon, WindowBuilder},
 };
 use wry::{
     http::{header::CONTENT_TYPE, Response},
-    WebContext, WebViewBuilder, WebViewBuilderExtWindows,
+    PageLoadEvent, WebContext, WebViewBuilder, WebViewBuilderExtWindows,
 };
 
 const HTML: &[u8] = include_bytes!("../../web/round-robin.html");
 const ICON_RGBA: &[u8] = include_bytes!("../icon-64.rgba");
+// Where Windows serves the built-in page (wry maps rr://localhost/ to this address).
+const APP_URL: &str = "https://rr.localhost/";
+// If the page hasn't finished loading by then, ask for it again (Edge's engine occasionally drops
+// the very first request on a cold start, which leaves an empty white window).
+const LOAD_CHECK: Duration = Duration::from_secs(4);
+const MAX_RETRIES: u32 = 5;
 
 #[link(name = "user32")]
 unsafe extern "system" {
@@ -55,7 +64,14 @@ fn main() {
             "--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection --remote-debugging-port={port}"
         ));
     }
+    let loaded = Rc::new(Cell::new(false));
+    let loaded_flag = loaded.clone();
     let built = builder
+        .with_on_page_load_handler(move |event, url| {
+            if matches!(event, PageLoadEvent::Finished) && (url.starts_with(APP_URL) || url.starts_with("rr://")) {
+                loaded_flag.set(true);
+            }
+        })
         .with_https_scheme(true)
         .with_custom_protocol("rr".into(), |_id, _request| {
             Response::builder()
@@ -78,11 +94,25 @@ fn main() {
         }
     };
 
+    let mut next_check = Instant::now() + LOAD_CHECK;
+    let mut retries = 0;
     event_loop.run(move |event, _, control_flow| {
-        *control_flow = ControlFlow::Wait;
-        let _keep_alive = &webview;
-        if let Event::WindowEvent { event: WindowEvent::CloseRequested, .. } = event {
-            *control_flow = ControlFlow::Exit;
+        match event {
+            Event::NewEvents(StartCause::ResumeTimeReached { .. }) if !loaded.get() => {
+                retries += 1;
+                let _ = webview.load_url(APP_URL);
+                next_check = Instant::now() + LOAD_CHECK;
+            }
+            Event::WindowEvent { event: WindowEvent::CloseRequested, .. } => {
+                *control_flow = ControlFlow::Exit;
+                return;
+            }
+            _ => {}
         }
+        *control_flow = if loaded.get() || retries >= MAX_RETRIES {
+            ControlFlow::Wait
+        } else {
+            ControlFlow::WaitUntil(next_check)
+        };
     });
 }

@@ -122,6 +122,9 @@ def body(run):
     with sync_playwright() as p:
         browser, page = connect(p, run, PORT)
         run.check(page.url.startswith('https://rr.localhost'), 'page loads from the app, not the internet', page.url)
+        page.evaluate('window.__rrMarker = 1')
+        time.sleep(12)
+        run.check(page.evaluate('window.__rrMarker === 1'), 'the page stays put once loaded (no surprise reloads)')
 
         def save(pg, selector, name):
             try:
