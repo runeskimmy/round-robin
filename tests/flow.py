@@ -6,6 +6,8 @@ then checks the ranking, every results view, saving, copying, and tie-breaking.
 """
 import json
 
+from common import CARDS_FIT_JS
+
 PREF = ['Ramen', 'robert pattinson haircut', 'Sushi', 'Image 1', 'Tacos', 'Image 2', 'Pizza', 'Burgers']
 LOOP = {frozenset(['Sushi', 'Image 1']): 'Image 1', frozenset(['Image 1', 'Tacos']): 'Tacos'}
 TIE = frozenset(['Pizza', 'Burgers'])
@@ -189,6 +191,20 @@ def _pick_format(page, f):
     page.click(f'[data-format="{f}"]')
 
 
+def widest_ask_fits(page):
+    """Set Ask until sure to Everything (its widest label), check the cards, then go back to Top 3."""
+    for _ in range(8):
+        if page.is_disabled('[data-askgoal="1"]'):
+            break
+        page.click('[data-askgoal="1"]')
+    ok = page.inner_text('[data-format="ask"] .step-val >> nth=0') == 'Everything' and not page.evaluate(CARDS_FIT_JS)
+    for _ in range(8):
+        if page.inner_text('[data-format="ask"] .step-val >> nth=0') == 'Top 3' or page.is_disabled('[data-askgoal="-1"]'):
+            break
+        page.click('[data-askgoal="-1"]')
+    return ok and page.inner_text('[data-format="ask"] .step-val >> nth=0') == 'Top 3'
+
+
 def _restart(page):
     page.click('#rerun')
     page.wait_for_selector('#askDlg[open]', timeout=5000)
@@ -209,6 +225,8 @@ def check_formats(page, run):
     page.screenshot(path=run.shot('simple-start'), full_page=True)
     page.click('#moreFmts')
     page.wait_for_selector('.fmt-grid')
+    run.check(not page.evaluate(CARDS_FIT_JS) and widest_ask_fits(page), 'every bracket style card fits its contents at this window size',
+              page.evaluate(CARDS_FIT_JS))
     counts = {f: page.inner_text(f'[data-format="{f}"] .fmt-count') for f in ('rr', 'rrplus', 'sort', 'swiss', 'topn', 'single', 'double')}
     run.check('28 matchups' in counts['rr'] and 'about 35 matchups' in counts['rrplus'] and 'about 23 matchups' in counts['sort'] and '20 matchups' in counts['swiss']
               and 'about 25 matchups' in counts['topn'] and '8 matchups' in counts['single']

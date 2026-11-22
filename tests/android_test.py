@@ -16,7 +16,7 @@ import xml.etree.ElementTree as ET
 
 import websocket
 
-from common import main, make_test_images
+from common import CARDS_FIT_JS, main, make_test_images
 
 PKG = 'app.roundrobin'
 PORT = 9222
@@ -434,6 +434,19 @@ def steps(run):
     cdp.wait("!!document.querySelector('[data-format=\\'ask\\']')", 5)
     cdp.js("document.activeElement && document.activeElement.blur()")
     time.sleep(0.5)
+    # Every bracket style card fits on the phone, even with Ask until sure set to Everything (its widest label).
+    # The + used to hang off the side of the card here.
+    fit = cdp.js("""(() => { const val = () => document.querySelector('[data-format="ask"] .step-val').textContent.trim();
+      for (let i = 0; i < 8 && !document.querySelector('[data-askgoal="1"]').disabled; i++) document.querySelector('[data-askgoal="1"]').click();
+      const widest = val(), bad = (""" + CARDS_FIT_JS + """)();
+      for (let i = 0; i < 8 && val() !== 'Top 3' && !document.querySelector('[data-askgoal="-1"]').disabled; i++) document.querySelector('[data-askgoal="-1"]').click();
+      return JSON.stringify({ widest, bad, back: val(), width: innerWidth }); })()""")
+    fit = json.loads(fit)
+    run.check(fit['widest'] == 'Everything' and not fit['bad'] and fit['back'] == 'Top 3',
+              'on the phone, every bracket style card fits, even the Ask until sure buttons', fit)
+    cdp.js("document.querySelector('[data-format=\\'ask\\']').scrollIntoView({ block: 'center' })")
+    time.sleep(0.4)
+    screenshot(run, 'ask-card')
     tap_element(cdp, '[data-format="ask"]')
     run.check(cdp.wait("document.querySelector('[data-format=\\'ask\\']').getAttribute('aria-checked') === 'true'", 5), 'tapping the Ask until sure card picks it')
     cdp.wait("!!document.querySelector('#dockGo')", 5)
@@ -446,6 +459,7 @@ def steps(run):
     top3, asked, view = got.split(' | ')
     run.check(top3 == 'Alpha,Bravo,Charlie' and int(asked) >= 5 and view == 'results',
               'Ask until sure finds the exact top 3 on the phone, from real picks', got)
+    time.sleep(1)  # let the results screen finish painting before the screenshot
     screenshot(run, 'ask-results')
 
     # Rank by hand, with real taps: tap a tile, tap a tier; then the list arrows
