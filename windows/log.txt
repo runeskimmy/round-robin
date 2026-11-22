@@ -1,0 +1,109 @@
+PASS  installer puts the app in your user folder   [C:\Users\runneradmin\AppData\Local\Programs\Round Robin]
+PASS  Start menu shortcut
+PASS  desktop shortcut
+PASS  listed in Settings > Apps for uninstalling
+PASS  port 9222 is free before launching
+WebView2: Edg/157.0.4341.46
+PASS  a window titled "Round Robin" is open
+PASS  page loads from the app, not the internet   [https://rr.localhost/]
+PASS  the page stays put once loaded (no surprise reloads)
+PASS  typed and image entries added; camera-style file names left blank   [['Pizza', 'Tacos', 'Ramen', 'Sushi', 'Burgers', '', 'robert pattinson haircut', '']]
+PASS  entry previews show whole images
+PASS  bottom bar shows 28 matchups for 8 entries   [28 matchups for 8 entries. That's about 1 minute at a few seconds each.]
+PASS  keyboard pick, then Z undoes it   [1 of 28]
+PASS  played all 28 matchups   [28]
+PASS  no entry showed up twice in a row   [0]
+PASS  final ranking screen
+PASS  top two match the hidden order   [[['1', 'Ramen'], ['2', 'robert pattinson haircut'], ['3', 'Tacos'], ['3', 'Sushi'], ['3', 'Image 1'], ['6', 'Image 2'], ['7', 'Pizza'], ['7', 'Burgers']]]
+PASS  the planted loop shows up as a 3-way tie for 3rd   [[['3', 'Tacos'], ['3', 'Sushi'], ['3', 'Image 1']]]
+PASS  6th place   [['6', 'Image 2']]
+PASS  the planted tie shows up as a 2-way tie for 7th   [[['7', 'Pizza'], ['7', 'Burgers']]]
+PASS  loop detector finds exactly the planted loop   [Your picks were 95% consistent, with 1 loop.]
+PASS  ranking thumbnails show whole images
+PASS  tiers view has S through D
+PASS  tier tiles show whole images
+PASS  Save as image (tiers) makes a PNG   [D:\a\round-robin\round-robin\results\windows\export-tiers.png]
+PASS  table view has an 8 x 8 grid
+PASS  Save as image (list) makes a PNG   [D:\a\round-robin\round-robin\results\windows\export-list.png]
+PASS  Copy as text   [Copied the ranking.]
+PASS  Save file holds all 8 entries and 28 results
+PASS  Break the tie puts them in the clicked order   [[['3', 'Image 1'], ['4', 'Tacos'], ['5', 'Sushi']]]
+PASS  closing the window quits the app
+PASS  your data is kept in AppData\Local\RoundRobin   [C:\Users\runneradmin\AppData\Local\RoundRobin]
+PASS  port 9223 is free before launching
+WebView2: Edg/157.0.4341.46
+PASS  a window titled "Round Robin" is open
+PASS  everything is still there after reopening, including the broken tie   [[['1', 'Ramen'], ['2', 'robert pattinson haircut'], ['3', 'Image 1'], ['4', 'Tacos'], ['5', 'Sushi'], ['6', 'Image 2'], ['7', 'Pizza'], ['7', 'Burgers']]]
+PASS  a popup reopened right after Cancel stays open
+PASS  Escape closes the popup and keeps every pick
+PASS  Restart asks first, in the app's own popup   [Restart? This clears every pick and starts the matchups over. Your entries stay.]
+PASS  Restart clears the picks   [1 of 28]
+PASS  Restart keeps all 8 entries
+PASS  a new tournament is a plain round robin, with other styles behind a small link
+PASS  every bracket style card fits its contents at this window size   [[]]
+PASS  each format shows its matchup count and time   [{'rr': '28 matchups, about 1 minute', 'rrplus': 'about 35 matchups, about 2 minutes', 'sort': 'about 23 matchups, about 1 minute', 'swiss': '20 matchups, about 1 minute', 'topn': 'about 25 matchups, about 1 minute', 'single': '8 matchups, under a minute', 'double': '14 or 15 matchups, about 1 minute]
+PASS  Swiss with 4 rounds is 16 matchups   [Swiss: 16 matchups for 8 entries. That's about 1 minute at a few seconds each.]
+PASS  Swiss shows the round   [Round 1 of 4]
+PASS  Swiss plays 16 matchups   [16]
+PASS  Swiss puts the best entry first   [[['1', 'Alpha'], ['2', 'Bravo']]]
+PASS  results say it was a 4-round Swiss
+PASS  finishing as a round robin keeps all 16 picks   [17 of 28]
+PASS  the full round robin then ranks all 8 exactly right   [[['1', 'Alpha'], ['2', 'Bravo'], ['3', 'Charlie'], ['4', 'Delta'], ['5', 'Echo'], ['6', 'Foxtrot'], ['7', 'Golf'], ['8', 'Hotel']]]
+PASS  no Tie button in a bracket
+PASS  the tie key explains there are no ties in a bracket   [No ties in a bracket. Pick the one that moves on.]
+PASS  single elimination: 7 matches plus the 3rd-place match   [8]
+PASS  the best entry is champion
+PASS  bracket picture shows all 8 matches and the champion
+PASS  entries lock once a bracket starts
+PASS  double elimination: 14 matches when the favorite never loses   [14]
+PASS  double elimination gets 1st and 2nd exactly right   [[['1', 'Alpha'], ['2', 'Bravo'], ['3', 'Delta']]]
+PASS  bracket picture shows winners, losers, and finals
+PASS  the guide says what all eight styles are good and bad at
+PASS  the guide closes
+PASS  second looks start right after the 28 round robin matchups   [29 of 35]
+PASS  Round robin+: 7 second looks plus one third look, and the ranking is exact   [(36, [['1', 'Alpha'], ['2', 'Bravo'], ['3', 'Charlie']])]
+PASS  the results say one answer changed and the third look settled it   [Round robin+, 7 close calls double-checked. 1 close call got a different answer on the second look. The third look backed your first answer.]
+PASS  a how-sure marker flags the pair you went back and forth on   [['≈\nClose call: you picked Alpha over Bravo 2 of 3 times.']]
+PASS  Sort: no Tie button, and the count is marked as an estimate   [About 22 matchups after this]
+PASS  Sort ranks all 8 exactly, with 7 second looks and far fewer than 28 matchups   [(22, 7, [['1', 'Alpha'], ['2', 'Bravo'], ['3', 'Charlie']])]
+PASS  Sort results say every neighbor was confirmed, with no close calls   [Sort, 7 pairs of neighbors double-checked. You gave the same answer every time.]
+PASS  Sort tiers come from place in the ranking
+PASS  the Ask until sure card shows what to find, how sure, and an estimate   [Ask until sure | Say what you want to know and how sure you want to be. It asks the most useful matchup each time and stops when it's sure. | Find | − | Top 3 | + | Sure | − | 95% | + | about 23 to 35 matchups, about 2 minutes]
+PASS  a sureness meter instead of a countdown, and no ties   [Getting a rough order first]
+PASS  Ask until sure finds the exact top 3 and says how sure it is   [(24, [['1', 'Alpha'], ['2', 'Bravo'], ['3', 'Charlie']], 'Ask until sure, your top 3 at 95%. 96% sure your top 3 is right, in this order.')]
+PASS  how long each pick took is recorded
+PASS  Rank everything keeps going until the whole order is sure   [Ask until sure, the whole order at 95%. 95% sure the whole order is right.]
+PASS  Be 99% sure asks a little more, every pick counting   [(39, 'Ask until sure, the whole order at 99%. 99% sure the whole order is right.')]
+PASS  Top 3 of 8 is about 25 matchups   [Top 3: about 25 matchups for 8 entries. That's about 1 minute at a few seconds each.]
+PASS  Top N: no Tie button, and it shows how many are still in   [Round 1, 8 still in]
+PASS  Top 3: the 4 finalists (top 3 plus a spare) are ranked exactly   [(25, [['1', 'Alpha'], ['2', 'Bravo'], ['3', 'Charlie'], ['4', 'Delta'], ['5', 'Foxtrot']])]
+PASS  finalists and the rest are labeled
+PASS  results name the format and offer to finish as a round robin   [Top 3, out after 4 losses, 3 finalist matchups double-checked. You gave the same answer every time.]
+PASS  back to round robin
+PASS  Hide tucks the other styles away again
+PASS  Rank by hand opens a tier list with every entry waiting in "not ranked yet"
+PASS  dragging a tile with the mouse puts it in a tier   [['Alpha']]
+PASS  tapping a tile picks it up   [Now tap a tier to move Bravo there, or tap it again to put it down.]
+PASS  then tapping a tier puts it there
+PASS  arrow keys move a tile between tiers
+PASS  dropping onto a tile puts it in front of that tile   [['Delta', 'Alpha']]
+PASS  tier names can be renamed
+PASS  Save as image (tier list) makes a PNG   [D:\a\round-robin\round-robin\results\windows\hand-tiers.png]
+PASS  Copy as text (tier list)   [Copied.]
+PASS  the ordered list starts in the order the entries were added
+PASS  the arrows move an entry
+PASS  dragging the handle moves an entry   [['Hotel', 'Bravo', 'Alpha', 'Charlie', 'Delta', 'Echo', 'Foxtrot', 'Golf']]
+PASS  Save as image (ordered list) makes a PNG   [D:\a\round-robin\round-robin\results\windows\hand-list.png]
+PASS  ranking by hand leaves the tournament alone
+PASS  closing the window quits the app
+PASS  port 9224 is free before launching
+WebView2: Edg/157.0.4341.46
+PASS  a window titled "Round Robin" is open
+PASS  the tier list, the ordered list, and tier names are still there after reopening   [('hand', ['Hotel', 'Bravo', 'Alpha'], ['Delta', 'Alpha'])]
+PASS  Start over puts everything back and keeps tier names
+PASS  closing the window quits the app
+PASS  uninstalling removes the app
+PASS  uninstalling removes the shortcuts
+PASS  uninstalling keeps your tournaments
+
+windows: PASSED (104/104 checks passed)

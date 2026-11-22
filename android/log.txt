@@ -1,0 +1,58 @@
+14 (Android version)
+PASS  APK installs
+PASS  app starts   [2407]
+PASS  connected to the app page for testing
+PASS  app page loads from inside the APK
+page size: [412, 818, 2.625, 'rgb(214, 236, 232)']
+PASS  typed entries added
+screen apps: ['com.android.providers.media.module']
+PASS  tapping the drop area opens the photo picker   [['com.android.providers.media.module']]
+photo items found: 3 ['Photo taken on Nov 22, 2026, 6:08:13\u202fAM', 'Photo taken on Nov 22, 2026, 6:08:13\u202fAM', 'Photo taken on Nov 22, 2026, 6:08:13\u202fAM']
+PASS  picker shows an Add button after selecting   [['This app can only access the photos you select', 'Recent', 'Photos', 'Albums', 'View selected', 'Add (3)']]
+photo read errors: []
+PASS  three photos come back into the app   [8]
+PASS  the photos display
+photo names: ['Pizza', 'Tacos', 'Ramen', 'Sushi', 'Burgers', '', '', '']
+PASS  matchups start
+PASS  played all 28 matchups   [28]
+PASS  Save as image says it went to Pictures/Round Robin   [Saved the image to your Pictures/Round Robin folder.]
+PASS  the PNG is really in Pictures/Round Robin
+PASS  Save file says it went to Download/Round Robin   [Saved round-robin-2026-11-22.json to your Download/Round Robin folder.]
+PASS  the save file is really in Download/Round Robin
+PASS  Copy as text   [Copied the ranking.]
+PASS  back button returns to the entries screen
+PASS  back again closes the app   [['      topResumedActivity=ActivityRecord{1d675ca u0 com.android.launcher3/.uioverrides.QuickstepLauncher t7}', '  ResumedActivity: ActivityRecord{1d675ca u0 com.android.launcher3/.uioverrides.QuickstepLauncher t7}']]
+PASS  app starts   [2407]
+PASS  connected to the app page for testing
+PASS  app page loads from inside the APK
+PASS  entries are still there after reopening
+PASS  all 28 picks are still there after reopening   [28 of 28 matchups done. All done.]
+PASS  Restart asks first, in the app's own popup
+PASS  tapping Cancel keeps every pick
+popup open 1s after reopening: True
+PASS  tapping Restart clears the picks and keeps the entries   [28 matchups for 8 entries. That's about 1 minute at a few seconds each.]
+PASS  popup never closes by itself (4 rounds of open, Cancel, reopen)   [0]
+PASS  Cancel on New tournament keeps everything
+PASS  a new tournament is a plain round robin, with other styles behind a small link
+PASS  tapping "Other bracket styles" shows them
+PASS  tapping a format card picks it
+PASS  bracket matchups start, with no Tie button
+PASS  double elimination with 6 entries: 10 matches   [10]
+PASS  the bracket picture shows on the phone
+PASS  the best entry is champion
+PASS  tapping "Which one should I pick?" opens the guide
+PASS  the guide covers all eight styles
+PASS  tapping the Top N card picks it
+PASS  Top N matchups start, with no Tie button
+PASS  Top 3 of 6: 14 matchups plus 3 second looks, finalists ranked exactly   [(17, 'Alpha,Bravo,Charlie,Delta')]
+PASS  tapping the Sort card picks it
+PASS  Sort ranks all 6 exactly, with a second look at each pair of neighbors   [Alpha,Bravo,Charlie,Delta,Echo,Foxtrot looks=5]
+PASS  on the phone, every bracket style card fits, even the Ask until sure buttons   [{'widest': 'Everything', 'bad': [], 'back': 'Top 3', 'width': 412}]
+PASS  tapping the Ask until sure card picks it
+PASS  Ask until sure opens with a sureness meter
+PASS  Ask until sure finds the exact top 3 on the phone, from real picks   [Alpha,Bravo,Charlie | 20 | results]
+PASS  tapping "Rank by hand" opens the tier list
+PASS  tapping a tile, then a tier, moves it there   [Alpha]
+PASS  tapping the down arrow moves an entry down the list   [Bravo,Alpha]
+
+android: PASSED (49/49 checks passed)

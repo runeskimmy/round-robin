@@ -1,0 +1,47 @@
+{
+  "test": "logic",
+  "ok": true,
+  "error": null,
+  "checks": [
+    {
+      "ok": true,
+      "what": "single elimination: 51 tournaments (2 to 40 entries) follow every rule",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "double elimination: 51 tournaments (2 to 40 entries) follow every rule",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "Swiss: 42 tournaments: no repeat pairings, everyone once per round",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "Round robin+: 26 tournaments: every pair once, every neighbor settled, consistent picks ranked exactly",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "Sort: 39 tournaments: every neighbor settled, consistent picks ranked exactly in at most n log n matchups",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "Ask until sure: 58 tournaments: always finishes, no pair asked more than 11 times, consistent picks get the exact answer",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "Top N: 138 tournaments: no repeats, nobody plays after going out, consistent picks get the exact top N",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "no script errors",
+      "detail": "[]"
+    }
+  ]
+}

@@ -1,0 +1,490 @@
+11-22 06:08:12.748 I/ActivityManager(  507): Flag disabled. Ignoring finishAttachApplication from uid: 10101. pid: 1961
+11-22 06:08:12.954 W/Looper  (  507): Slow dispatch took 566ms android.ui h=com.android.server.am.ActivityManagerService$UiHandler c=null m=68
+11-22 06:08:12.954 W/Looper  (  507): Slow delivery took 506ms android.ui h=com.android.server.am.ActivityManagerService$UiHandler c=com.android.server.am.UidObserverController$$ExternalSyntheticLambda0@5dca826 m=0
+11-22 06:08:12.980 I/ActivityTaskManager(  507): Config changes=80000000 {1.0 310mcc260mnc [en_US] ldltr sw411dp w411dp h842dp 420dpi nrml long port finger qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2400) mAppBounds=Rect(0, 0 - 1080, 2274) mMaxBounds=Rect(0, 0 - 1080, 2400) mDisplayRotation=ROTATION_0 mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} as.3 s.58 fontWeightAdjustment=0}
+11-22 06:08:12.983 V/ActivityTaskManager(  507): Sending to IME proc com.android.inputmethod.latin new config {1.0 310mcc260mnc [en_US] ldltr sw411dp w411dp h842dp 420dpi nrml long port finger qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2400) mAppBounds=Rect(0, 0 - 1080, 2274) mMaxBounds=Rect(0, 0 - 1080, 2400) mDisplayRotation=ROTATION_0 mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} as.3 s.81 fontWeightAdjustment=0}
+11-22 06:08:13.098 W/ActivityManager(  507): Slow operation: 165ms so far, now at startProcess: returned from zygote!
+11-22 06:08:13.151 I/ActivityManager(  507): Broadcasting: Intent { act=com.android.emulator.multidisplay.START flg=0x400000 cmp=com.android.emulator.multidisplay/.MultiDisplayServiceReceiver }
+11-22 06:08:13.300 W/ActivityTaskManager(  507): Current config: {1.0 310mcc260mnc [en_US] ldltr sw411dp w411dp h842dp 420dpi nrml long port finger qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2400) mAppBounds=Rect(0, 0 - 1080, 2274) mMaxBounds=Rect(0, 0 - 1080, 2400) mDisplayRotation=ROTATION_0 mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} as.3 s.58 fontWeightAdjustment=0} unchanged for IME proc com.android.inputmethod.latin
+11-22 06:08:13.336 W/ActivityTaskManager(  507): Current config: {1.0 310mcc260mnc [en_US] ldltr sw411dp w411dp h842dp 420dpi nrml long port finger qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2400) mAppBounds=Rect(0, 0 - 1080, 2274) mMaxBounds=Rect(0, 0 - 1080, 2400) mDisplayRotation=ROTATION_0 mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} as.3 s.58 fontWeightAdjustment=0} unchanged for IME proc com.android.inputmethod.latin
+11-22 06:08:13.336 W/system_server(  507): Long monitor contention with owner android.fg (524) at void com.android.server.wm.ActivityTaskManagerService.updateAssetConfiguration(java.util.List, boolean)(ActivityTaskManagerService.java:4606) waiters=0 in android.os.IBinder com.android.server.wm.WindowOrganizerController.startTransition(int, android.os.IBinder, android.window.WindowContainerTransaction) for 236ms
+11-22 06:08:13.356 W/system_server(  507): Long monitor contention with owner android.fg (524) at void com.android.server.am.ActivityManagerService.scheduleApplicationInfoChanged(java.util.List, int)(ActivityManagerService.java:19335) waiters=0 in boolean com.android.server.am.ActivityManagerService.isAppStartModeDisabled(int, java.lang.String) for 324ms
+11-22 06:08:13.361 W/system_server(  507): Long monitor contention with owner android.fg (524) at void com.android.server.am.ActivityManagerService.scheduleApplicationInfoChanged(java.util.List, int)(ActivityManagerService.java:19335) waiters=1 in void com.android.server.am.OomAdjuster.performUpdateOomAdjPendingTargetsLocked(int) for 266ms
+11-22 06:08:13.378 W/system_server(  507): Long monitor contention with owner binder:507_D (1432) at boolean com.android.server.am.ActivityManagerService.unbindService(android.app.IServiceConnection)(ActivityManagerService.java:13426) waiters=4 in void com.android.server.am.ProcessList.lambda$handleProcessStart$1(com.android.server.am.ProcessRecord, java.lang.String, int[], int, int, int, java.lang.String, java.lang.String, java.lang.String, long) for 281ms
+11-22 06:08:13.379 W/ActivityManager(  507): Slow operation: 447ms so far, now at startProcess: done updating battery stats
+11-22 06:08:13.380 W/ActivityManager(  507): Slow operation: 447ms so far, now at startProcess: building log message
+11-22 06:08:13.380 I/ActivityManager(  507): Start proc 2074:com.android.camera2/u0a104 for broadcast {com.android.camera2/com.android.camera.SetActivitiesCameraReceiver}
+11-22 06:08:13.380 W/ActivityManager(  507): Slow operation: 448ms so far, now at startProcess: starting to update pids map
+11-22 06:08:13.380 W/ActivityManager(  507): Slow operation: 448ms so far, now at startProcess: done updating pids map
+11-22 06:08:13.382 W/system_server(  507): Long monitor contention with owner binder:507_D (1432) at boolean com.android.server.am.ActivityManagerService.unbindService(android.app.IServiceConnection)(ActivityManagerService.java:13426) waiters=6 in void com.android.server.am.ActivityManagerService.addPackageDependency(java.lang.String) for 270ms
+11-22 06:08:13.382 W/system_server(  507): Long monitor contention with owner binder:507_D (1432) at boolean com.android.server.am.ActivityManagerService.unbindService(android.app.IServiceConnection)(ActivityManagerService.java:13426) waiters=7 in void com.android.server.am.ActivityManagerService.finishReceiver(android.os.IBinder, int, java.lang.String, android.os.Bundle, boolean, int) for 236ms
+11-22 06:08:13.383 W/system_server(  507): Long monitor contention with owner binder:507_D (1432) at boolean com.android.server.am.ActivityManagerService.unbindService(android.app.IServiceConnection)(ActivityManagerService.java:13426) waiters=9 in int com.android.server.am.ActivityManagerService.broadcastIntentWithFeature(android.app.IApplicationThread, java.lang.String, android.content.Intent, java.lang.String, android.content.IIntentReceiver, int, java.lang.String, android.os.Bundle, java.lang.String[], java.lang.String[], java.lang.String[], int, android.os.Bundle, boolean, boolean, int) for 232ms
+11-22 06:08:13.418 I/ActivityManager(  507): Enqueued broadcast Intent { act=com.android.emulator.multidisplay.START flg=0x400000 cmp=com.android.emulator.multidisplay/.MultiDisplayServiceReceiver }: 0
+11-22 06:08:13.429 I/ActivityTaskManager(  507): Config changes=20000400 {1.0 310mcc260mnc [en_US] ldltr sw411dp w411dp h818dp 420dpi nrml long port finger qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2400) mAppBounds=Rect(0, 128 - 1080, 2274) mMaxBounds=Rect(0, 0 - 1080, 2400) mDisplayRotation=ROTATION_0 mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} as.3 s.93 fontWeightAdjustment=0}
+11-22 06:08:13.433 W/ActivityTaskManager(  507): Current config: {1.0 310mcc260mnc [en_US] ldltr sw411dp w411dp h842dp 420dpi nrml long port finger qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2400) mAppBounds=Rect(0, 0 - 1080, 2274) mMaxBounds=Rect(0, 0 - 1080, 2400) mDisplayRotation=ROTATION_0 mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} as.3 s.93 fontWeightAdjustment=0} unchanged for IME proc com.android.inputmethod.latin
+11-22 06:08:13.444 V/ActivityTaskManager(  507): Sending to IME proc com.android.inputmethod.latin new config {1.0 310mcc260mnc [en_US] ldltr sw411dp w411dp h818dp 420dpi nrml long port finger qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2400) mAppBounds=Rect(0, 128 - 1080, 2274) mMaxBounds=Rect(0, 0 - 1080, 2400) mDisplayRotation=ROTATION_0 mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} as.3 s.127 fontWeightAdjustment=0}
+11-22 06:08:13.489 W/Looper  (  507): Slow dispatch took 104ms android.ui h=com.android.server.am.ActivityManagerService$UiHandler c=null m=68
+11-22 06:08:13.617 W/system_server(  507): Long monitor contention with owner ActivityManager (536) at void com.android.server.am.BroadcastQueueModernImpl.checkPendingColdStartValidity()(BroadcastQueueModernImpl.java:551) waiters=5 in void com.android.server.am.ContentProviderHelper.publishContentProviders(android.app.IApplicationThread, java.util.List) for 101ms
+11-22 06:08:13.622 W/system_server(  507): Long monitor contention with owner ActivityManager (536) at void com.android.server.am.BroadcastQueueModernImpl.checkPendingColdStartValidity()(BroadcastQueueModernImpl.java:551) waiters=4 in void com.android.server.am.ActivityManagerService.finishReceiver(android.os.IBinder, int, java.lang.String, android.os.Bundle, boolean, int) for 111ms
+11-22 06:08:13.623 I/ActivityManager(  507): Flag disabled. Ignoring finishAttachApplication from uid: 10104. pid: 2074
+11-22 06:08:13.734 W/ActivityManager(  507): Slow operation: 81ms so far, now at startProcess: returned from zygote!
+11-22 06:08:13.747 W/ActivityManager(  507): Slow operation: 95ms so far, now at startProcess: done updating battery stats
+11-22 06:08:13.747 W/ActivityManager(  507): Slow operation: 95ms so far, now at startProcess: building log message
+11-22 06:08:13.747 I/ActivityManager(  507): Start proc 2107:com.android.contacts/u0a95 for broadcast {com.android.contacts/com.android.contacts.interactions.OnBootOrUpgradeReceiver}
+11-22 06:08:13.748 W/ActivityManager(  507): Slow operation: 95ms so far, now at startProcess: starting to update pids map
+11-22 06:08:13.748 I/ActivityManager(  507): Broadcast completed: result=0
+11-22 06:08:13.748 W/ActivityManager(  507): Slow operation: 95ms so far, now at startProcess: done updating pids map
+11-22 06:08:13.813 I/Launcher.IconCache( 1057): Database bulk icon loading failed, using fallback bulk icon loading for: ComponentInfo{org.chromium.webview_shell/org.chromium.webview_shell.WebViewBrowserActivity}
+11-22 06:08:13.892 I/ActivityManager(  507): Start proc 2126:com.android.dynsystem/1000 for broadcast {com.android.dynsystem/com.android.dynsystem.BootCompletedReceiver}
+11-22 06:08:14.041 W/JavaBinder(  507): BinderProxy is being destroyed but the application did not call unlinkToDeath to unlink all of its death recipients beforehand.  Releasing leaked death recipient: com.android.server.am.ActivityManagerService$14
+11-22 06:08:14.041 W/JavaBinder(  507): BinderProxy is being destroyed but the application did not call unlinkToDeath to unlink all of its death recipients beforehand.  Releasing leaked death recipient: com.android.server.am.ActivityManagerService$14
+11-22 06:08:14.042 W/JavaBinder(  507): BinderProxy is being destroyed but the application did not call unlinkToDeath to unlink all of its death recipients beforehand.  Releasing leaked death recipient: com.android.server.am.ActivityManagerService$14
+11-22 06:08:14.070 V/BackupManagerService(  507): [UserID:0] restoreAtInstall pkg=app.roundrobin token=1 restoreSet=0
+11-22 06:08:14.092 I/ActivityManager(  507): Flag disabled. Ignoring finishAttachApplication from uid: 10095. pid: 2107
+11-22 06:08:14.212 I/Launcher.IconCache( 1057): Database bulk icon loading failed, using fallback bulk icon loading for: ComponentInfo{org.chromium.webview_shell/org.chromium.webview_shell.WebViewBrowserActivity}
+11-22 06:08:14.310 I/ActivityManager(  507): Start proc 2159:com.android.intentresolver/u0a62 for broadcast {com.android.intentresolver/com.android.intentresolver.ChooserActivityReEnabler}
+11-22 06:08:14.314 I/ActivityManager(  507): Flag disabled. Ignoring finishAttachApplication from uid: 1000. pid: 2126
+11-22 06:08:14.349 I/ActivityManager(  507): Start proc 2170:com.android.dynsystem:dynsystem/1000 for service {com.android.dynsystem/com.android.dynsystem.DynamicSystemInstallationService}
+11-22 06:08:14.520 I/Launcher.IconCache( 1057): Database bulk icon loading failed, using fallback bulk icon loading for: ComponentInfo{org.chromium.webview_shell/org.chromium.webview_shell.WebViewBrowserActivity}
+11-22 06:08:14.523 W/system_server(  507): Long monitor contention with owner ActivityManager (536) at void com.android.server.am.BroadcastQueueModernImpl.checkPendingColdStartValidity()(BroadcastQueueModernImpl.java:559) waiters=0 in int com.android.server.am.ActivityManagerService.broadcastIntentWithFeature(android.app.IApplicationThread, java.lang.String, android.content.Intent, java.lang.String, android.content.IIntentReceiver, int, java.lang.String, android.os.Bundle, java.lang.String[], java.lang.String[], java.lang.String[], int, android.os.Bundle, boolean, boolean, int) for 112ms
+11-22 06:08:14.597 I/Launcher.IconCache( 1057): Database bulk icon loading failed, using fallback bulk icon loading for: ComponentInfo{app.roundrobin/app.roundrobin.MainActivity}
+11-22 06:08:14.754 I/ActivityManager(  507): Start proc 2216:com.android.nfc/1027 for broadcast {com.android.nfc/com.android.nfc.NfcBootCompletedReceiver}
+11-22 06:08:14.780 I/ActivityManager(  507): Flag disabled. Ignoring finishAttachApplication from uid: 1000. pid: 2170
+11-22 06:08:14.793 D/AndroidRuntime( 2206): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-22 06:08:14.798 I/AndroidRuntime( 2206): Using default boot image
+11-22 06:08:14.798 I/AndroidRuntime( 2206): Leaving lock profiling enabled
+11-22 06:08:14.806 I/SdkSandboxManager(  507): No SDKs used. Skipping SDK data reconcilation for CallingInfo{mUid=10141, mPackageName='app.roundrobin, mAppProcessToken='null'}
+11-22 06:08:14.831 I/ActivityManager(  507): Flag disabled. Ignoring finishAttachApplication from uid: 10062. pid: 2159
+11-22 06:08:14.883 I/ActivityManager(  507): Killing 2159:com.android.intentresolver/u0a62 (adj 905): change com.android.intentresolver
+11-22 06:08:14.891 V/ActivityManager(  507): Got obituary of 2159:com.android.intentresolver
+11-22 06:08:14.921 D/nativeloader( 2206): InitDefaultPublicLibraries for_preload=1: libandroid.so:libaaudio.so:libamidi.so:libbinder_ndk.so:libc.so:libcamera2ndk.so:libdl.so:libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libicu.so:libicui18n.so:libicuuc.so:libjnigraphics.so:liblog.so:libmediandk.so:libm.so:libnativehelper.so:libnativewindow.so:libOpenMAXAL.so:libOpenSLES.so:libRS.so:libstdc++.so:libsync.so:libvulkan.so:libwebviewchromium_plat_support.so:libz.so
+11-22 06:08:14.972 D/AndroidRuntime( 2206): Calling main entry com.android.commands.content.Content
+11-22 06:08:14.990 I/ActivityManager(  507): Start proc 2248:com.android.rkpdapp/u0a126 for broadcast {com.android.rkpdapp/com.android.rkpdapp.BootReceiver}
+11-22 06:08:14.998 W/ActivityManager(  507): Slow operation: 56ms so far, now at startProcess: done updating pids map
+11-22 06:08:15.144 I/ActivityManager(  507): Flag disabled. Ignoring finishAttachApplication from uid: 1027. pid: 2216
+11-22 06:08:15.215 W/ActivityManager(  507): Slow operation: 97ms so far, now at attachApplicationLocked: immediately after bindApplication
+11-22 06:08:15.215 W/ActivityManager(  507): Slow operation: 99ms so far, now at attachApplicationLocked: after updateLruProcessLocked
+11-22 06:08:15.275 W/JavaBinder(  507): BinderProxy is being destroyed but the application did not call unlinkToDeath to unlink all of its death recipients beforehand.  Releasing leaked death recipient: com.android.server.am.ActivityManagerService$14
+11-22 06:08:15.276 W/JavaBinder(  507): BinderProxy is being destroyed but the application did not call unlinkToDeath to unlink all of its death recipients beforehand.  Releasing leaked death recipient: com.android.server.am.ActivityManagerService$14
+11-22 06:08:15.277 W/JavaBinder(  507): BinderProxy is being destroyed but the application did not call unlinkToDeath to unlink all of its death recipients beforehand.  Releasing leaked death recipient: com.android.server.am.ActivityManagerService$14
+11-22 06:08:15.312 I/ActivityManager(  507): com.android.shell is exempt from freezer
+11-22 06:08:15.337 I/ActivityManager(  507): Start proc 2269:com.android.shell/2000 for broadcast {com.android.shell/com.android.shell.HeapDumpReceiver}
+11-22 06:08:15.339 I/ActivityManager(  507): Killing 2216:com.android.nfc/1027 (adj 0): change com.android.nfc
+11-22 06:08:15.343 W/ActivityManager(  507): finishReceiver: no app for android.os.BinderProxy@61bbaf2
+11-22 06:08:15.371 I/ActivityManager(  507): Flag disabled. Ignoring finishAttachApplication from uid: 10126. pid: 2248
+11-22 06:08:15.374 V/ActivityManager(  507): Got obituary of 2216:com.android.nfc
+11-22 06:08:15.473 I/ActivityManager(  507): Start proc 2284:com.android.statementservice/u0a58 for broadcast {com.android.statementservice/com.android.statementservice.domain.BootCompletedReceiver}
+11-22 06:08:15.579 I/ActivityManager(  507): com.android.packageinstaller is exempt from freezer
+11-22 06:08:15.590 I/ActivityManager(  507): Start proc 2305:com.android.packageinstaller/u0a66 for broadcast {com.android.packageinstaller/com.android.packageinstaller.PackageInstalledReceiver}
+11-22 06:08:15.608 I/ActivityManager(  507): Flag disabled. Ignoring finishAttachApplication from uid: 2000. pid: 2269
+11-22 06:08:15.681 I/ActivityManager(  507): Flag disabled. Ignoring finishAttachApplication from uid: 10058. pid: 2284
+11-22 06:08:15.791 I/ActivityManager(  507): Flag disabled. Ignoring finishAttachApplication from uid: 10066. pid: 2305
+11-22 06:08:15.796 I/ActivityManager(  507): Finished processing BOOT_COMPLETED for u0
+11-22 06:08:15.884 D/CarrierSvcBindHelper( 1007): onPackageAdded: app.roundrobin
+11-22 06:08:15.911 I/SafetyLabelChangedBroadcastReceiver(  804): received broadcast packageName: app.roundrobin, current user: UserHandle{0}, packageChangeEvent: NEW_INSTALL, intent user: UserHandle{0}
+11-22 06:08:16.059 I/ActivityManager(  507): reportOnUserCompletedEvent(0): stored=10, eligible=111
+11-22 06:08:16.063 D/SystemServerTimingAsync(  507): ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.wm.ActivityTaskManagerService$Lifecycle
+11-22 06:08:16.063 V/SystemServerTimingAsync(  507): ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.wm.ActivityTaskManagerService$Lifecycle took to complete: 0ms
+11-22 06:08:16.063 D/SystemServerTimingAsync(  507): ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.am.ActivityManagerService$Lifecycle
+11-22 06:08:16.063 V/SystemServerTimingAsync(  507): ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.am.ActivityManagerService$Lifecycle took to complete: 0ms
+11-22 06:08:16.063 D/SystemServerTimingAsync(  507): ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.webkit.WebViewUpdateService
+11-22 06:08:16.063 V/SystemServerTimingAsync(  507): ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.webkit.WebViewUpdateService took to complete: 0ms
+11-22 06:08:16.174 D/ImsResolver( 1007): maybeAddedImsService, packageName: app.roundrobin
+11-22 06:08:16.185 D/CarrierSvcBindHelper( 1007): onPackageModified: app.roundrobin
+11-22 06:08:16.200 D/ImsResolver( 1007): maybeAddedImsService, packageName: app.roundrobin
+11-22 06:08:17.224 W/ModernMediaScanner( 1470): 	at android.content.ContentResolver.applyBatch(ContentResolver.java:2246)
+11-22 06:08:17.704 W/ModernMediaScanner( 1470): 	at android.content.ContentResolver.applyBatch(ContentResolver.java:2246)
+11-22 06:08:17.704 W/ModernMediaScanner( 1470): 	at android.content.ContentResolver.applyBatch(ContentResolver.java:2246)
+11-22 06:08:18.740 D/ActivityManager(  507): freezing 1520 com.android.music
+11-22 06:08:18.791 D/ActivityManager(  507): freezing 1414 com.android.carrierconfig
+11-22 06:08:18.859 D/AndroidRuntime( 2206): Shutting down VM
+11-22 06:08:19.146 D/ActivityManager(  507): freezing 1519 com.android.sdksetup
+11-22 06:08:19.706 I/ActivityManager(  507): Broadcasting: Intent { act=android.intent.action.MEDIA_SCANNER_SCAN_FILE dat=file:///... flg=0x400000 }
+11-22 06:08:19.707 I/ActivityManager(  507): Enqueued broadcast Intent { act=android.intent.action.MEDIA_SCANNER_SCAN_FILE dat=file:///... flg=0x400000 }: 0
+11-22 06:08:19.712 I/ActivityManager(  507): Broadcast completed: result=0
+11-22 06:08:19.734 I/ActivityManager(  507): Broadcasting: Intent { act=android.intent.action.MEDIA_SCANNER_SCAN_FILE dat=file:///... flg=0x400000 }
+11-22 06:08:19.734 I/ActivityManager(  507): Enqueued broadcast Intent { act=android.intent.action.MEDIA_SCANNER_SCAN_FILE dat=file:///... flg=0x400000 }: 0
+11-22 06:08:19.737 I/ActivityManager(  507): Broadcast completed: result=0
+11-22 06:08:19.759 I/ActivityManager(  507): Broadcasting: Intent { act=android.intent.action.MEDIA_SCANNER_SCAN_FILE dat=file:///... flg=0x400000 }
+11-22 06:08:19.760 I/ActivityManager(  507): Enqueued broadcast Intent { act=android.intent.action.MEDIA_SCANNER_SCAN_FILE dat=file:///... flg=0x400000 }: 0
+11-22 06:08:19.762 I/ActivityManager(  507): Broadcast completed: result=0
+11-22 06:08:22.786 W/ActivityTaskManager(  507): callingPackage for (uid=2000, pid=2404) has no WPC
+11-22 06:08:22.792 V/SplashScreenExceptionList(  507): SplashScreen checking exception for package app.roundrobin (target sdk:34) -> false
+11-22 06:08:22.795 I/ActivityTaskManager(  507): START u0 {flg=0x10000000 cmp=app.roundrobin/.MainActivity} with LAUNCH_SINGLE_TASK from uid 2000 (BAL_ALLOW_PERMISSION) result code=0
+11-22 06:08:22.798 V/WindowManagerShell(  802): Transition requested: android.os.BinderProxy@933b895 TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=8 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=app.roundrobin/.MainActivity } baseActivity=ComponentInfo{app.roundrobin/app.roundrobin.MainActivity} topActivity=ComponentInfo{app.roundrobin/app.roundrobin.MainActivity} origActivity=null realActivity=ComponentInfo{app.roundrobin/app.roundrobin.MainActivity} numActivities=1 lastActiveTime=41053 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@5812daa} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 128 - 0, 0) topActivityInfo=ActivityInfo{f666d9b app.roundrobin.MainActivity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isSleeping=false topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= false topActivityLetterboxed= false isFromDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 locusId=null displayAreaFeatureId=1 cameraCompatControlState=hidden}, remoteTransition = null, displayChange = null }
+11-22 06:08:22.808 D/ActivityManager(  507): freezing 1276 com.android.cellbroadcastreceiver
+11-22 06:08:22.821 D/CoreBackPreview(  507): Window{c100945 u0 Splash Screen app.roundrobin}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@47f054, mPriority=0, mIsAnimationCallback=false}
+11-22 06:08:22.845 I/ActivityManager(  507): Start proc 2407:app.roundrobin/u0a141 for next-top-activity {app.roundrobin/app.roundrobin.MainActivity}
+11-22 06:08:22.848 I/app.roundrobin( 2407): Late-enabling -Xcheck:jni
+11-22 06:08:22.978 D/ActivityManager(  507): freezing 1903 com.android.carrierdefaultapp
+11-22 06:08:23.023 I/app.roundrobin( 2407): Using CollectorTypeCC GC.
+11-22 06:08:23.024 W/app.roundrobin( 2407): Unexpected CPU variant for x86: x86_64.
+11-22 06:08:23.024 W/app.roundrobin( 2407): Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, tremont, kabylake, default
+11-22 06:08:23.026 V/WindowManager(  507): Sent Transition #8 createdAt=11-22 06:08:22.789 via request=TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=8 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=app.roundrobin/.MainActivity } baseActivity=ComponentInfo{app.roundrobin/app.roundrobin.MainActivity} topActivity=ComponentInfo{app.roundrobin/app.roundrobin.MainActivity} origActivity=null realActivity=ComponentInfo{app.roundrobin/app.roundrobin.MainActivity} numActivities=1 lastActiveTime=41053 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{RemoteToken{b3a7af9 Task{37c40d5 #8 type=standard A=10141:app.roundrobin}}} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 128 - 0, 0) topActivityInfo=ActivityInfo{ef46a3e app.roundrobin.MainActivity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isSleeping=false topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= false topActivityLetterboxed= false isFromDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 locusId=null displayAreaFeatureId=1 cameraCompatControlState=hidden}, remoteTransition = null, displayChange = null }
+11-22 06:08:23.026 V/WindowManager(  507):     info={id=8 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{RemoteToken{b3a7af9 Task{37c40d5 #8 type=standard A=10141:app.roundrobin}}} m=OPEN f=NONE leash=Surface(name=Task=8)/@0x762c343 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0},{WCT{RemoteToken{64509f Task{6390b8f #1 type=home}}} m=TO_BACK f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0xb9d8727 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0}]}
+11-22 06:08:23.100 W/ziparchive( 2407): Unable to open '/data/app/~~dTm6nTNPZwdvtQsq1iEyhw==/app.roundrobin-bAYFPRUq91EFY3-Rvymajw==/base.dm': No such file or directory
+11-22 06:08:23.100 W/ziparchive( 2407): Unable to open '/data/app/~~dTm6nTNPZwdvtQsq1iEyhw==/app.roundrobin-bAYFPRUq91EFY3-Rvymajw==/base.dm': No such file or directory
+11-22 06:08:23.132 D/nativeloader( 2407): Configuring clns-6 for other apk /data/app/~~dTm6nTNPZwdvtQsq1iEyhw==/app.roundrobin-bAYFPRUq91EFY3-Rvymajw==/base.apk. target_sdk_version=34, uses_libraries=, library_path=/data/app/~~dTm6nTNPZwdvtQsq1iEyhw==/app.roundrobin-bAYFPRUq91EFY3-Rvymajw==/lib/x86_64, permitted_path=/data:/mnt/expand:/data/user/0/app.roundrobin
+11-22 06:08:23.162 V/GraphicsEnvironment( 2407): ANGLE GameManagerService for app.roundrobin: false
+11-22 06:08:23.162 V/GraphicsEnvironment( 2407): app.roundrobin is not listed in per-application setting
+11-22 06:08:23.190 I/ActivityManager(  507): Flag disabled. Ignoring finishAttachApplication from uid: 10141. pid: 2407
+11-22 06:08:23.254 I/WebViewFactory( 2407): Loading com.android.webview version 113.0.5672.136 (code 567263606)
+11-22 06:08:23.258 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{a63b21c com.android.cts.priv.ctsshim/10133} BLOCKED
+11-22 06:08:23.258 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{a5f8e25 com.android.uwb.resources/10122} BLOCKED
+11-22 06:08:23.258 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{d9cfbfa com.android.internal.display.cutout.emulation.corner/10035} BLOCKED
+11-22 06:08:23.258 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{df9a5ab com.android.internal.display.cutout.emulation.double/10010} BLOCKED
+11-22 06:08:23.258 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{107d408 com.android.healthconnect.controller/10135} BLOCKED
+11-22 06:08:23.258 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{91fe7a1 com.android.health.connect.backuprestore/10136} BLOCKED
+11-22 06:08:23.258 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{2aeddc6 com.android.internal.systemui.navbar.gestural_wide_back/10045} BLOCKED
+11-22 06:08:23.258 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{92af187 com.android.virtualmachine.res/10137} BLOCKED
+11-22 06:08:23.258 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{24a28b4 com.android.carrierconfig.auto_generated_rro_vendor__/10052} BLOCKED
+11-22 06:08:23.258 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{1325cdd com.android.systemui.emulation.pixel_3_xl/10018} BLOCKED
+11-22 06:08:23.258 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{aab1052 com.android.systemui.emulation.pixel_4_xl/10039} BLOCKED
+11-22 06:08:23.258 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{b3b1f23 com.android.systemui.emulation.pixel_fold/10016} BLOCKED
+11-22 06:08:23.258 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{3bb1c20 com.android.htmlviewer/10090} BLOCKED
+11-22 06:08:23.258 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{9fce9d9 com.android.quicksearchbox/10106} BLOCKED
+11-22 06:08:23.258 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{6c5df9e com.android.federatedcompute.services/10124} BLOCKED
+11-22 06:08:23.258 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{e968a7f com.android.networkstack.tethering.emulator/10031} BLOCKED
+11-22 06:08:23.258 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{185da4c com.android.internal.emulation.pixel_3a_xl/10006} BLOCKED
+11-22 06:08:23.258 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{1494a95 com.android.internal.emulation.pixel_6_pro/10013} BLOCKED
+11-22 06:08:23.259 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{52c57aa com.android.internal.emulation.pixel_7_pro/10040} BLOCKED
+11-22 06:08:23.259 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{e134f9b com.android.internal.emulation.pixel_8_pro/10029} BLOCKED
+11-22 06:08:23.259 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{d5c4f38 com.android.internal.emulation.pixel_3a/10047} BLOCKED
+11-22 06:08:23.259 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{dc0fb11 com.android.internal.emulation.pixel_4a/10000} BLOCKED
+11-22 06:08:23.259 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{7d04476 com.android.internal.emulation.pixel_6a/10044} BLOCKED
+11-22 06:08:23.259 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{1cd4a77 com.android.internal.emulation.pixel_7a/10025} BLOCKED
+11-22 06:08:23.259 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{2326e4 com.android.safetycenter.resources/10138} BLOCKED
+11-22 06:08:23.259 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{d29374d com.android.simappdialog/10077} BLOCKED
+11-22 06:08:23.259 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{bf43202 com.android.connectivity.resources/10127} BLOCKED
+11-22 06:08:23.259 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{dc21713 com.android.internal.display.cutout.emulation.hole/10019} BLOCKED
+11-22 06:08:23.259 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{a5dcd50 com.android.internal.display.cutout.emulation.tall/10038} BLOCKED
+11-22 06:08:23.259 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{a5efb49 com.android.modulemetadata/10097} BLOCKED
+11-22 06:08:23.259 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{e776c4e com.android.internal.systemui.navbar.threebutton/10037} BLOCKED
+11-22 06:08:23.259 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{e2d116f com.android.wifi.dialog/10130} BLOCKED
+11-22 06:08:23.259 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{f5a6e7c com.android.contacts/10095} BLOCKED
+11-22 06:08:23.259 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{7130305 com.android.camera2/10104} BLOCKED
+11-22 06:08:23.259 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{8e1ff5a com.android.launcher3/10112} BLOCKED
+11-22 06:08:23.259 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{da3558b com.android.systemui.auto_generated_rro_vendor__/10056} BLOCKED
+11-22 06:08:23.259 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{71df668 com.android.internal.systemui.navbar.twobutton/10030} BLOCKED
+11-22 06:08:23.259 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{545ca81 com.android.settings.intelligence/10093} BLOCKED
+11-22 06:08:23.259 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{330b726 com.android.calendar/10101} BLOCKED
+11-22 06:08:23.259 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{efbf67 com.android.internal.systemui.navbar.gestural_extra_wide_back/10012} BLOCKED
+11-22 06:08:23.259 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{3101114 com.android.systemui.emulation.pixel_3/10048} BLOCKED
+11-22 06:08:23.259 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{c838dbd com.android.systemui.emulation.pixel_4/10049} BLOCKED
+11-22 06:08:23.259 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{6611fb2 com.android.systemui.emulation.pixel_5/10046} BLOCKED
+11-22 06:08:23.259 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{4aeeb03 com.android.systemui.emulation.pixel_6/10008} BLOCKED
+11-22 06:08:23.259 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{1672a80 com.android.systemui.emulation.pixel_7/10036} BLOCKED
+11-22 06:08:23.259 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{6e048b9 com.android.systemui.emulation.pixel_8/10043} BLOCKED
+11-22 06:08:23.259 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{bbd84fe com.android.printspooler/10078} BLOCKED
+11-22 06:08:23.259 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{8ab345f com.android.dreams.basic/10087} BLOCKED
+11-22 06:08:23.259 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{b546eac com.android.rkpdapp/10126} BLOCKED
+11-22 06:08:23.259 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{1b3b775 com.android.internal.emulation.pixel_3/10011} BLOCKED
+11-22 06:08:23.259 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{4e8f30a com.android.internal.emulation.pixel_4/10022} BLOCKED
+11-22 06:08:23.259 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{4f8b77b com.android.internal.emulation.pixel_5/10009} BLOCKED
+11-22 06:08:23.259 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{9efc998 com.android.internal.emulation.pixel_6/10017} BLOCKED
+11-22 06:08:23.259 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{e1555f1 com.android.internal.emulation.pixel_7/10003} BLOCKED
+11-22 06:08:23.260 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{8ab35d6 com.android.internal.emulation.pixel_8/10001} BLOCKED
+11-22 06:08:23.260 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{4d15057 com.android.musicfx/10075} BLOCKED
+11-22 06:08:23.260 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{de3e744 com.android.providers.settings.auto_generated_rro_vendor__/10051} BLOCKED
+11-22 06:08:23.260 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{d18602d com.android.printservice.recommendation/10081} BLOCKED
+11-22 06:08:23.260 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{7cd962 com.android.dialer/10096} BLOCKED
+11-22 06:08:23.260 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{3309af3 com.android.gallery3d/10107} BLOCKED
+11-22 06:08:23.260 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{5da33b0 com.android.wifi.resources/10129} BLOCKED
+11-22 06:08:23.260 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{3c7d229 com.android.theme.font.notoserifsource/10034} BLOCKED
+11-22 06:08:23.260 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{2d329ae com.android.internal.display.cutout.emulation.waterfall/10042} BLOCKED
+11-22 06:08:23.260 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{52ff34f com.android.nearby.halfsheet/10128} BLOCKED
+11-22 06:08:23.260 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{fa6dadc com.android.inputmethod.latin/10109} BLOCKED
+11-22 06:08:23.260 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{2e267e5 com.android.internal.systemui.navbar.transparent/10033} BLOCKED
+11-22 06:08:23.260 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{62c32ba org.chromium.webview_shell/10099} BLOCKED
+11-22 06:08:23.260 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{e22756b com.android.systemui.emulation.pixel_3a_xl/10028} BLOCKED
+11-22 06:08:23.260 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{34c8c8 com.android.systemui.emulation.pixel_6_pro/10050} BLOCKED
+11-22 06:08:23.260 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{e569d61 com.android.systemui.emulation.pixel_7_pro/10020} BLOCKED
+11-22 06:08:23.260 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{8dac086 com.android.systemui.emulation.pixel_8_pro/10023} BLOCKED
+11-22 06:08:23.261 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{970fd47 com.android.dreams.phototable/10098} BLOCKED
+11-22 06:08:23.261 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{e31a974 com.android.providers.partnerbookmarks/10085} BLOCKED
+11-22 06:08:23.261 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{7eae9d com.android.wallpaper.livepicker/10068} BLOCKED
+11-22 06:08:23.261 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{9925f12 com.android.cellbroadcastreceiver.module/10140} BLOCKED
+11-22 06:08:23.261 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{63626e3 com.android.phone.auto_generated_rro_vendor__/10054} BLOCKED
+11-22 06:08:23.261 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{b79e8e0 com.android.apps.tag/10073} BLOCKED
+11-22 06:08:23.261 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{51c9799 com.android.imsserviceentitlement/10094} BLOCKED
+11-22 06:08:23.261 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{cb35a5e com.android.internal.emulation.pixel_2_xl/10041} BLOCKED
+11-22 06:08:23.261 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{9a4e3f com.android.internal.emulation.pixel_3_xl/10007} BLOCKED
+11-22 06:08:23.261 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{944b30c com.android.internal.emulation.pixel_4_xl/10002} BLOCKED
+11-22 06:08:23.261 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{8161455 com.android.internal.emulation.pixel_fold/10032} BLOCKED
+11-22 06:08:23.261 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{a56be6a com.android.bookmarkprovider/10089} BLOCKED
+11-22 06:08:23.261 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{4ef8f5b com.android.systemui.emulation.pixel_3a/10024} BLOCKED
+11-22 06:08:23.261 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{30ff3f8 com.android.systemui.emulation.pixel_4a/10021} BLOCKED
+11-22 06:08:23.261 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{3f0a0d1 com.android.systemui.emulation.pixel_6a/10027} BLOCKED
+11-22 06:08:23.261 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{11a5736 com.android.systemui.emulation.pixel_7a/10015} BLOCKED
+11-22 06:08:23.261 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{b5c4189 com.android.cts.ctsshim/10134} BLOCKED
+11-22 06:08:23.261 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{88dc637 com.android.connectivity.resources.goldfish.overlay/10055} BLOCKED
+11-22 06:08:23.261 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{c4c57a4 com.android.music/10102} BLOCKED
+11-22 06:08:23.261 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{c0d790d com.android.hotspot2.osulogin/10131} BLOCKED
+11-22 06:08:23.261 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{9acb0c2 com.android.internal.systemui.navbar.gestural/10014} BLOCKED
+11-22 06:08:23.261 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{46e8ed3 com.android.deskclock/10105} BLOCKED
+11-22 06:08:23.261 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{cc94a10 com.android.bluetoothmidiservice/10088} BLOCKED
+11-22 06:08:23.261 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{ea59909 com.android.wallpaperpicker/10100} BLOCKED
+11-22 06:08:23.261 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{719170e com.android.captiveportallogin/10080} BLOCKED
+11-22 06:08:23.261 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{d89452f com.android.internal.systemui.navbar.gestural_narrow_back/10005} BLOCKED
+11-22 06:08:23.261 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{7e0f73c android.auto_generated_rro_vendor__/10053} BLOCKED
+11-22 06:08:23.275 W/app.roundrobin( 2407): Accessing hidden method Landroid/os/Trace;->isTagEnabled(J)Z (unsupported, reflection, allowed)
+11-22 06:08:23.275 W/app.roundrobin( 2407): Accessing hidden method Landroid/os/Trace;->traceBegin(JLjava/lang/String;)V (unsupported, reflection, allowed)
+11-22 06:08:23.275 W/app.roundrobin( 2407): Accessing hidden method Landroid/os/Trace;->traceEnd(J)V (unsupported, reflection, allowed)
+11-22 06:08:23.275 W/app.roundrobin( 2407): Accessing hidden method Landroid/os/Trace;->asyncTraceBegin(JLjava/lang/String;I)V (unsupported, reflection, allowed)
+11-22 06:08:23.275 W/app.roundrobin( 2407): Accessing hidden method Landroid/os/Trace;->asyncTraceEnd(JLjava/lang/String;I)V (unsupported, reflection, allowed)
+11-22 06:08:23.278 I/cr_WVCFactoryProvider( 2407): Loaded version=113.0.5672.136 minSdkVersion=1 isBundle=false multiprocess=true packageId=2
+11-22 06:08:23.295 I/cr_VariationsUtils( 2407): Failed reading seed file "/data/user/0/app.roundrobin/app_webview/variations_seed_new"
+11-22 06:08:23.295 I/cr_VariationsUtils( 2407): Failed reading seed file "/data/user/0/app.roundrobin/app_webview/variations_seed"
+11-22 06:08:23.296 I/cr_VariationsUtils( 2407): Requesting new seed from IVariationsSeedServer
+11-22 06:08:23.308 I/cr_LibraryLoader( 2407): Successfully loaded native library
+11-22 06:08:23.308 I/cr_CachingUmaRecorder( 2407): Flushed 8 samples from 8 histograms.
+11-22 06:08:23.311 I/ActivityManager(  507): Start proc 2435:com.android.webview:webview_service/u0a103 for service {com.android.webview/org.chromium.android_webview.services.VariationsSeedServer}
+11-22 06:08:23.340 I/ActivityManager(  507): Start proc 2442:com.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:0/u0ai9000 for  {app.roundrobin/org.chromium.content.app.SandboxedProcessService0:0}
+11-22 06:08:23.368 W/chromium( 2407): [WARNING:dns_config_service_android.cc(115)] Failed to read DnsConfig.
+11-22 06:08:23.369 I/cr_WebViewApkApp( 2442): Launched version=113.0.5672.136 minSdkVersion=1 isBundle=false processName=com.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:0
+11-22 06:08:23.370 I/ActivityManager(  507): Flag disabled. Ignoring finishAttachApplication from uid: 99000. pid: 2442
+11-22 06:08:23.372 I/cr_WebViewApkApp( 2435): Launched version=113.0.5672.136 minSdkVersion=1 isBundle=false processName=com.android.webview:webview_service
+11-22 06:08:23.373 I/cr_ChildProcessService( 2442): Creating new ChildProcessService pid=2442
+11-22 06:08:23.377 I/ActivityManager(  507): Flag disabled. Ignoring finishAttachApplication from uid: 10103. pid: 2435
+11-22 06:08:23.404 I/ActivityManager(  507): Start proc 2485:com.android.webview:webview_apk/u0a103 for service {com.android.webview/org.chromium.android_webview.nonembedded.AwComponentUpdateService}
+11-22 06:08:23.482 I/cr_LibraryLoader( 2442): Successfully loaded native library
+11-22 06:08:23.482 I/cr_CachingUmaRecorder( 2442): Flushed 2 samples from 2 histograms.
+11-22 06:08:23.484 W/cr_media( 2407): BLUETOOTH_CONNECT permission is missing.
+11-22 06:08:23.486 I/cr_WebViewApkApp( 2485): Launched version=113.0.5672.136 minSdkVersion=1 isBundle=false processName=com.android.webview:webview_apk
+11-22 06:08:23.488 W/cr_media( 2407): registerBluetoothIntentsIfNeeded: Requires BLUETOOTH permission
+11-22 06:08:23.489 I/ActivityManager(  507): Flag disabled. Ignoring finishAttachApplication from uid: 10103. pid: 2485
+11-22 06:08:23.514 I/cr_LibraryLoader( 2485): Successfully loaded native library
+11-22 06:08:23.565 D/CoreBackPreview(  507): Window{1ba7045 u0 app.roundrobin/app.roundrobin.MainActivity}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@565e243, mPriority=0, mIsAnimationCallback=false}
+11-22 06:08:23.625 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{7130305 com.android.camera2/10104} BLOCKED
+11-22 06:08:23.625 I/AppsFilter(  507): interaction: PackageSetting{8889f8f app.roundrobin/10141} -> PackageSetting{b546eac com.android.rkpdapp/10126} BLOCKED
+11-22 06:08:23.730 W/chromium( 2407): [WARNING:display_webview.cc(32)] WebView overlays are enabled!
+11-22 06:08:23.926 W/ziparchive(  507): Unable to open '/data/app/~~dTm6nTNPZwdvtQsq1iEyhw==/app.roundrobin-bAYFPRUq91EFY3-Rvymajw==/base.dm': No such file or directory
+11-22 06:08:23.932 I/ActivityTaskManager(  507): Displayed app.roundrobin/.MainActivity for user 0: +1s138ms
+11-22 06:08:23.975 D/ActivityManager(  507): freezing 1614 com.android.printspooler
+11-22 06:08:23.984 I/cr_VariationsUtils( 2435): Scheduling seed download job
+11-22 06:08:24.125 D/CoreBackPreview(  507): Window{c100945 u0 Splash Screen app.roundrobin}: Setting back callback null
+11-22 06:08:24.126 W/InputManager-JNI(  507): Input channel object 'c100945 Splash Screen app.roundrobin (client)' was disposed without first being removed with the input manager!
+11-22 06:08:24.152 I/ImeTracker(  507): app.roundrobin:9681e833: onRequestHide at ORIGIN_SERVER_HIDE_INPUT reason HIDE_UNSPECIFIED_WINDOW
+11-22 06:08:24.152 I/ImeTracker(  507): app.roundrobin:9681e833: onCancelled at PHASE_SERVER_SHOULD_HIDE
+11-22 06:08:24.156 I/cr_VariationsUtils( 2435): Downloading new seed
+11-22 06:08:24.257 D/ActivityManager(  507): freezing 1759 com.android.quicksearchbox
+11-22 06:08:24.866 I/cr_VariationsSeedFetch( 2435): Fetched first run seed in 710 ms
+11-22 06:08:26.650 D/ActivityManager(  507): freezing 1799 com.android.externalstorage
+11-22 06:08:28.628 D/AndroidRuntime( 2569): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-22 06:08:28.633 I/AndroidRuntime( 2569): Using default boot image
+11-22 06:08:28.634 I/AndroidRuntime( 2569): Leaving lock profiling enabled
+11-22 06:08:28.741 D/nativeloader( 2569): InitDefaultPublicLibraries for_preload=1: libandroid.so:libaaudio.so:libamidi.so:libbinder_ndk.so:libc.so:libcamera2ndk.so:libdl.so:libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libicu.so:libicui18n.so:libicuuc.so:libjnigraphics.so:liblog.so:libmediandk.so:libm.so:libnativehelper.so:libnativewindow.so:libOpenMAXAL.so:libOpenSLES.so:libRS.so:libstdc++.so:libsync.so:libvulkan.so:libwebviewchromium_plat_support.so:libz.so
+11-22 06:08:28.779 D/AndroidRuntime( 2569): Calling main entry com.android.commands.uiautomator.Launcher
+11-22 06:08:29.495 D/ProfileInstaller( 2407): Installing profile for app.roundrobin
+11-22 06:08:29.816 D/AndroidRuntime( 2569): Shutting down VM
+11-22 06:08:30.693 W/app.roundrobin( 2407): Accessing hidden method Landroid/view/MotionEvent;->getEventTimeNano()J (unsupported, reflection, allowed)
+11-22 06:08:30.708 I/ActivityTaskManager(  507): START u0 {act=android.provider.action.PICK_IMAGES typ=image/* cmp=com.android.providers.media.module/com.android.providers.media.photopicker.PhotoPickerActivity (has extras)} with LAUNCH_MULTIPLE from uid 10141 (BAL_ALLOW_VISIBLE_WINDOW) result code=0
+11-22 06:08:30.709 V/WindowManagerShell(  802): Transition requested: android.os.BinderProxy@e8f4e57 TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=8 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=app.roundrobin/.MainActivity } baseActivity=ComponentInfo{app.roundrobin/app.roundrobin.MainActivity} topActivity=ComponentInfo{com.android.providers.media.module/com.android.providers.media.photopicker.PhotoPickerActivity} origActivity=null realActivity=ComponentInfo{app.roundrobin/app.roundrobin.MainActivity} numActivities=2 lastActiveTime=48966 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@b2d0d44} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 128 - 0, 0) topActivityInfo=ActivityInfo{2d18e2d com.android.providers.media.photopicker.PhotoPickerActivity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true isVisible=true isVisibleRequested=true isSleeping=false topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= false topActivityLetterboxed= false isFromDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 locusId=null displayAreaFeatureId=1 cameraCompatControlState=hidden}, remoteTransition = null, displayChange = null }
+11-22 06:08:30.763 W/ActivityManager(  507): Slow operation: 54ms so far, now at startProcess: returned from zygote!
+11-22 06:08:30.764 W/ActivityManager(  507): Slow operation: 54ms so far, now at startProcess: done updating battery stats
+11-22 06:08:30.764 W/ActivityManager(  507): Slow operation: 54ms so far, now at startProcess: building log message
+11-22 06:08:30.764 I/ActivityManager(  507): Start proc 2602:com.android.providers.media.module:PhotoPicker/u0a119 for next-top-activity {com.android.providers.media.module/com.android.providers.media.photopicker.PhotoPickerActivity}
+11-22 06:08:30.764 W/ActivityManager(  507): Slow operation: 54ms so far, now at startProcess: starting to update pids map
+11-22 06:08:30.764 W/ActivityManager(  507): Slow operation: 55ms so far, now at startProcess: done updating pids map
+11-22 06:08:30.785 I/ule:PhotoPicker( 2602): Using CollectorTypeCC GC.
+11-22 06:08:30.786 W/ule:PhotoPicker( 2602): Unexpected CPU variant for x86: x86_64.
+11-22 06:08:30.786 W/ule:PhotoPicker( 2602): Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, tremont, kabylake, default
+11-22 06:08:30.816 E/ule:PhotoPicker( 2602): Not starting debugger since process cannot load the jdwp agent.
+11-22 06:08:30.899 I/ActivityManager(  507): Flag disabled. Ignoring finishAttachApplication from uid: 10119. pid: 2602
+11-22 06:08:31.051 D/CoreBackPreview(  507): Window{a4e19b0 u0 com.android.providers.media.module/com.android.providers.media.photopicker.PhotoPickerActivity}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@ab87fae, mPriority=0, mIsAnimationCallback=false}
+11-22 06:08:31.084 D/PhotoPicker( 2602): Loaded 3 items in Category: {mId: null, mAuthority: null, mDisplayName: null, mCoverUri: null, mItemCount: 0, mIsLocal: false for user 0
+11-22 06:08:31.784 V/WindowManagerShell(  802): onTransitionReady android.os.BinderProxy@e8f4e57: {id=9 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[{null m=OPEN f=TRANSLUCENT|FILLS_TASK leash=Surface(name=ActivityRecord{9d9c68 u0 com.android.providers.media.module/com.android.providers.media.photopicker.PhotoPickerActivity)/@0x596f62 sb=Rect(0, 0 - 0, 0) eb=Rect(0, 0 - 1080, 2400) d=-1->0 r=-1->0:-1}]}
+11-22 06:08:31.785 V/WindowManagerShell(  802): Transition doesn't have explicit remote, search filters for match for {id=9 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[{null m=OPEN f=TRANSLUCENT|FILLS_TASK leash=Surface(name=ActivityRecord{9d9c68 u0 com.android.providers.media.module/com.android.providers.media.photopicker.PhotoPickerActivity)/@0x596f62 sb=Rect(0, 0 - 0, 0) eb=Rect(0, 0 - 1080, 2400) d=-1->0 r=-1->0:-1}]}
+11-22 06:08:31.785 V/WindowManagerShell(  802): start default transition animation, info = {id=9 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[{null m=OPEN f=TRANSLUCENT|FILLS_TASK leash=Surface(name=ActivityRecord{9d9c68 u0 com.android.providers.media.module/com.android.providers.media.photopicker.PhotoPickerActivity)/@0x596f62 sb=Rect(0, 0 - 0, 0) eb=Rect(0, 0 - 1080, 2400) d=-1->0 r=-1->0:-1}]}
+11-22 06:08:31.806 I/ActivityTaskManager(  507): Displayed com.android.providers.media.module/com.android.providers.media.photopicker.PhotoPickerActivity for user 0: +1s64ms
+11-22 06:08:31.806 V/WindowManager(  507): Sent Transition #9 createdAt=11-22 06:08:30.705 via request=TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=8 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=app.roundrobin/.MainActivity } baseActivity=ComponentInfo{app.roundrobin/app.roundrobin.MainActivity} topActivity=ComponentInfo{com.android.providers.media.module/com.android.providers.media.photopicker.PhotoPickerActivity} origActivity=null realActivity=ComponentInfo{app.roundrobin/app.roundrobin.MainActivity} numActivities=2 lastActiveTime=48966 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{RemoteToken{b3a7af9 Task{37c40d5 #8 type=standard A=10141:app.roundrobin}}} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 128 - 0, 0) topActivityInfo=ActivityInfo{4736255 com.android.providers.media.photopicker.PhotoPickerActivity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true isVisible=true isVisibleRequested=true isSleeping=false topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= false topActivityLetterboxed= false isFromDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 locusId=null displayAreaFeatureId=1 cameraCompatControlState=hidden}, remoteTransition = null, displayChange = null }
+11-22 06:08:31.806 V/WindowManager(  507):     info={id=9 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[{null m=OPEN f=TRANSLUCENT|FILLS_TASK leash=Surface(name=ActivityRecord{9d9c68 u0 com.android.providers.media.module/com.android.providers.media.photopicker.PhotoPickerActivity)/@0xfb34ee0 sb=Rect(0, 0 - 0, 0) eb=Rect(0, 0 - 1080, 2400) d=-1->0 r=-1->0:-1}]}
+11-22 06:08:34.250 D/ActivityManager(  507): freezing 2485 com.android.webview:webview_apk
+11-22 06:08:35.018 D/AndroidRuntime( 2636): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-22 06:08:35.021 I/AndroidRuntime( 2636): Using default boot image
+11-22 06:08:35.021 I/AndroidRuntime( 2636): Leaving lock profiling enabled
+11-22 06:08:35.089 D/nativeloader( 2636): InitDefaultPublicLibraries for_preload=1: libandroid.so:libaaudio.so:libamidi.so:libbinder_ndk.so:libc.so:libcamera2ndk.so:libdl.so:libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libicu.so:libicui18n.so:libicuuc.so:libjnigraphics.so:liblog.so:libmediandk.so:libm.so:libnativehelper.so:libnativewindow.so:libOpenMAXAL.so:libOpenSLES.so:libRS.so:libstdc++.so:libsync.so:libvulkan.so:libwebviewchromium_plat_support.so:libz.so
+11-22 06:08:35.120 D/AndroidRuntime( 2636): Calling main entry com.android.commands.uiautomator.Launcher
+11-22 06:08:36.151 D/AndroidRuntime( 2636): Shutting down VM
+11-22 06:08:38.716 D/ActivityManager(  507): freezing 1517 com.android.documentsui
+11-22 06:08:39.823 D/AndroidRuntime( 2678): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-22 06:08:39.827 I/AndroidRuntime( 2678): Using default boot image
+11-22 06:08:39.827 I/AndroidRuntime( 2678): Leaving lock profiling enabled
+11-22 06:08:39.893 D/nativeloader( 2678): InitDefaultPublicLibraries for_preload=1: libandroid.so:libaaudio.so:libamidi.so:libbinder_ndk.so:libc.so:libcamera2ndk.so:libdl.so:libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libicu.so:libicui18n.so:libicuuc.so:libjnigraphics.so:liblog.so:libmediandk.so:libm.so:libnativehelper.so:libnativewindow.so:libOpenMAXAL.so:libOpenSLES.so:libRS.so:libstdc++.so:libsync.so:libvulkan.so:libwebviewchromium_plat_support.so:libz.so
+11-22 06:08:39.925 D/AndroidRuntime( 2678): Calling main entry com.android.commands.uiautomator.Launcher
+11-22 06:08:40.954 D/AndroidRuntime( 2678): Shutting down VM
+11-22 06:08:41.338 D/ActivityManager(  507): freezing 1873 com.android.traceur
+11-22 06:08:41.478 D/ActivityManager(  507): freezing 1237 com.android.cellbroadcastreceiver.module
+11-22 06:08:41.489 D/ActivityManager(  507): freezing 1656 com.android.imsserviceentitlement
+11-22 06:08:41.541 D/ActivityManager(  507): freezing 1734 com.android.messaging
+11-22 06:08:41.680 D/ActivityManager(  507): freezing 1791 com.android.providers.calendar
+11-22 06:08:41.844 E/Binder  (  507): 	at com.android.server.am.ActivityManagerService$LocalService.checkContentProviderUriPermission(ActivityManagerService.java:17361)
+11-22 06:08:41.844 E/Binder  (  507): 	at com.android.server.wm.ActivityTaskManagerService.collectGrants(ActivityTaskManagerService.java:2166)
+11-22 06:08:41.996 V/WindowManagerShell(  802): onTransitionReady android.os.BinderProxy@4d355e5: {id=10 t=CLOSE f=0x0 trk=0 r=[0@Point(0, 0)] c=[{null m=CLOSE f=TRANSLUCENT|FILLS_TASK leash=Surface(name=ActivityRecord{9d9c68 u0 com.android.providers.media.module/com.android.providers.media.photopicker.PhotoPickerActivity)/@0x64588ba sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0}]}
+11-22 06:08:41.997 V/WindowManagerShell(  802): Transition doesn't have explicit remote, search filters for match for {id=10 t=CLOSE f=0x0 trk=0 r=[0@Point(0, 0)] c=[{null m=CLOSE f=TRANSLUCENT|FILLS_TASK leash=Surface(name=ActivityRecord{9d9c68 u0 com.android.providers.media.module/com.android.providers.media.photopicker.PhotoPickerActivity)/@0x64588ba sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0}]}
+11-22 06:08:42.001 V/WindowManager(  507):     info={id=10 t=CLOSE f=0x0 trk=0 r=[0@Point(0, 0)] c=[{null m=CLOSE f=TRANSLUCENT|FILLS_TASK leash=Surface(name=ActivityRecord{9d9c68 u0 com.android.providers.media.module/com.android.providers.media.photopicker.PhotoPickerActivity)/@0xfb34ee0 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0}]}
+11-22 06:08:42.001 V/WindowManagerShell(  802): start default transition animation, info = {id=10 t=CLOSE f=0x0 trk=0 r=[0@Point(0, 0)] c=[{null m=CLOSE f=TRANSLUCENT|FILLS_TASK leash=Surface(name=ActivityRecord{9d9c68 u0 com.android.providers.media.module/com.android.providers.media.photopicker.PhotoPickerActivity)/@0x64588ba sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0}]}
+11-22 06:08:42.118 I/ImeTracker(  507): app.roundrobin:5330cf43: onRequestHide at ORIGIN_SERVER_HIDE_INPUT reason HIDE_UNSPECIFIED_WINDOW
+11-22 06:08:42.118 I/ImeTracker(  507): app.roundrobin:5330cf43: onCancelled at PHASE_SERVER_SHOULD_HIDE
+11-22 06:08:42.289 D/CoreBackPreview(  507): Window{a4e19b0 u0 com.android.providers.media.module/com.android.providers.media.photopicker.PhotoPickerActivity}: Setting back callback null
+11-22 06:08:42.290 W/InputManager-JNI(  507): Input channel object 'a4e19b0 com.android.providers.media.module/com.android.providers.media.photopicker.PhotoPickerActivity (client)' was disposed without first being removed with the input manager!
+11-22 06:08:42.958 D/ActivityManager(  507): freezing 1961 com.android.calendar
+11-22 06:08:43.429 D/ActivityManager(  507): freezing 2074 com.android.camera2
+11-22 06:08:43.876 D/ActivityManager(  507): freezing 2107 com.android.contacts
+11-22 06:08:44.093 D/ActivityManager(  507): freezing 2170 com.android.dynsystem:dynsystem
+11-22 06:08:44.093 D/ActivityManager(  507): freezing 2126 com.android.dynsystem
+11-22 06:08:44.094 D/ActivityManager(  507): freezing 1914 com.android.localtransport
+11-22 06:08:44.094 D/ActivityManager(  507): freezing 1750 com.android.keychain
+11-22 06:08:45.230 D/ActivityManager(  507): freezing 2248 com.android.rkpdapp
+11-22 06:08:45.581 D/ActivityManager(  507): freezing 2284 com.android.statementservice
+11-22 06:08:49.154 D/ActivityManager(  507): freezing 804 com.android.permissioncontroller
+11-22 06:08:49.559 W/MediaProvider( 1470): Ignoring mutation of date_expires from app.roundrobin
+11-22 06:08:51.762 D/ActivityManager(  507): freezing 1010 com.android.settings
+11-22 06:08:52.048 D/ActivityManager(  507): freezing 2602 com.android.providers.media.module:PhotoPicker
+11-22 06:08:52.293 D/ActivityManager(  507): freezing 1618 android.process.acore
+11-22 06:08:52.294 D/ActivityManager(  507): freezing 1684 android.process.media
+11-22 06:08:59.729 V/WindowManagerShell(  802): Transition requested: android.os.BinderProxy@26ef2eb TransitionRequestInfo { type = CLOSE, triggerTask = TaskInfo{userId=0 taskId=8 displayId=0 isRunning=false baseIntent=Intent { flg=0x10000000 cmp=app.roundrobin/.MainActivity } baseActivity=null topActivity=null origActivity=null realActivity=ComponentInfo{app.roundrobin/app.roundrobin.MainActivity} numActivities=0 lastActiveTime=60228 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@4033848} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 128 - 0, 0) topActivityInfo=null launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=true isVisibleRequested=true isSleeping=false topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= false topActivityLetterboxed= false isFromDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 locusId=null displayAreaFeatureId=1 cameraCompatControlState=hidden}, remoteTransition = null, displayChange = null }
+11-22 06:08:59.870 V/WindowManager(  507): Sent Transition #11 createdAt=11-22 06:08:59.728 via request=TransitionRequestInfo { type = CLOSE, triggerTask = TaskInfo{userId=0 taskId=8 displayId=0 isRunning=false baseIntent=Intent { flg=0x10000000 cmp=app.roundrobin/.MainActivity } baseActivity=null topActivity=null origActivity=null realActivity=ComponentInfo{app.roundrobin/app.roundrobin.MainActivity} numActivities=0 lastActiveTime=60228 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{RemoteToken{b3a7af9 Task{37c40d5 #8 type=standard A=10141:app.roundrobin}}} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 128 - 0, 0) topActivityInfo=null launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=true isVisibleRequested=true isSleeping=false topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= false topActivityLetterboxed= false isFromDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 locusId=null displayAreaFeatureId=1 cameraCompatControlState=hidden}, remoteTransition = null, displayChange = null }
+11-22 06:08:59.871 V/WindowManager(  507):     info={id=11 t=CLOSE f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{RemoteToken{64509f Task{6390b8f #1 type=home}}} m=TO_FRONT f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0xb9d8727 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0},{WCT{RemoteToken{b3a7af9 Task{37c40d5 #8 type=standard A=10141:app.roundrobin}}} m=CLOSE f=NONE leash=Surface(name=Task=8)/@0x762c343 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0},{null m=TO_FRONT f=IS_WALLPAPER leash=Surface(name=WallpaperWindowToken{ab64681 token=android.os.Binder@a52e268})/@0xcebfc2e sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0}]}
+11-22 06:09:00.540 W/cr_AwContents( 2407): WebView.destroy() called while WebView is still attached to window.
+11-22 06:09:00.544 D/CoreBackPreview(  507): Window{1ba7045 u0 app.roundrobin/app.roundrobin.MainActivity}: Setting back callback null
+11-22 06:09:00.544 W/InputManager-JNI(  507): Input channel object '1ba7045 app.roundrobin/app.roundrobin.MainActivity (client)' was disposed without first being removed with the input manager!
+11-22 06:09:00.680 I/ActivityManager(  507): Killing 2442:com.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:0/u0a141i0 (adj 0): isolated not needed
+11-22 06:09:01.760 W/ActivityTaskManager(  507): callingPackage for (uid=2000, pid=2752) has no WPC
+11-22 06:09:01.778 V/SplashScreenExceptionList(  507): SplashScreen checking exception for package app.roundrobin (target sdk:34) -> false
+11-22 06:09:01.780 V/WindowManagerShell(  802): Transition requested: android.os.BinderProxy@33aa197 TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=9 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=app.roundrobin/.MainActivity } baseActivity=ComponentInfo{app.roundrobin/app.roundrobin.MainActivity} topActivity=ComponentInfo{app.roundrobin/app.roundrobin.MainActivity} origActivity=null realActivity=ComponentInfo{app.roundrobin/app.roundrobin.MainActivity} numActivities=1 lastActiveTime=80039 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@efcff84} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 128 - 0, 0) topActivityInfo=ActivityInfo{bab336d app.roundrobin.MainActivity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isSleeping=false topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= false topActivityLetterboxed= false isFromDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 locusId=null displayAreaFeatureId=1 cameraCompatControlState=hidden}, remoteTransition = null, displayChange = null }
+11-22 06:09:01.801 I/ActivityTaskManager(  507): START u0 {flg=0x10000000 cmp=app.roundrobin/.MainActivity} with LAUNCH_SINGLE_TASK from uid 2000 (BAL_ALLOW_PERMISSION) result code=0
+11-22 06:09:01.841 D/CoreBackPreview(  507): Window{1eaeff0 u0 Splash Screen app.roundrobin}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@2840c8f, mPriority=0, mIsAnimationCallback=false}
+11-22 06:09:01.975 W/ActivityTaskManager(  507): takeTaskSnapshot: taskId=9 not found or not visible
+11-22 06:09:02.016 I/ActivityManager(  507): Start proc 2758:com.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:1/u0i1 for  {app.roundrobin/org.chromium.content.app.SandboxedProcessService0:1}
+11-22 06:09:02.026 V/WindowManager(  507): Sent Transition #12 createdAt=11-22 06:09:01.765 via request=TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=9 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=app.roundrobin/.MainActivity } baseActivity=ComponentInfo{app.roundrobin/app.roundrobin.MainActivity} topActivity=ComponentInfo{app.roundrobin/app.roundrobin.MainActivity} origActivity=null realActivity=ComponentInfo{app.roundrobin/app.roundrobin.MainActivity} numActivities=1 lastActiveTime=80039 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{RemoteToken{c4c4152 Task{46c136d #9 type=standard A=10141:app.roundrobin}}} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 128 - 0, 0) topActivityInfo=ActivityInfo{fcafc23 app.roundrobin.MainActivity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isSleeping=false topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= false topActivityLetterboxed= false isFromDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 locusId=null displayAreaFeatureId=1 cameraCompatControlState=hidden}, remoteTransition = null, displayChange = null }
+11-22 06:09:02.026 V/WindowManager(  507):     info={id=12 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{RemoteToken{c4c4152 Task{46c136d #9 type=standard A=10141:app.roundrobin}}} m=OPEN f=NONE leash=Surface(name=Task=9)/@0x171b1b4 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0},{WCT{RemoteToken{64509f Task{6390b8f #1 type=home}}} m=TO_BACK f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0xb9d8727 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0}]}
+11-22 06:09:02.026 W/ActivityManager(  507): Slow operation: 51ms so far, now at startProcess: done updating pids map
+11-22 06:09:02.065 D/CoreBackPreview(  507): Window{fc9209e u0 app.roundrobin/app.roundrobin.MainActivity}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@4c3a302, mPriority=0, mIsAnimationCallback=false}
+11-22 06:09:02.149 I/cr_WebViewApkApp( 2758): Launched version=113.0.5672.136 minSdkVersion=1 isBundle=false processName=com.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:1
+11-22 06:09:02.150 I/ActivityManager(  507): Flag disabled. Ignoring finishAttachApplication from uid: 99001. pid: 2758
+11-22 06:09:02.196 I/cr_ChildProcessService( 2758): Creating new ChildProcessService pid=2758
+11-22 06:09:02.221 W/chromium( 2407): [WARNING:display_webview.cc(32)] WebView overlays are enabled!
+11-22 06:09:02.296 I/cr_LibraryLoader( 2758): Successfully loaded native library
+11-22 06:09:02.307 I/cr_CachingUmaRecorder( 2758): Flushed 2 samples from 2 histograms.
+11-22 06:09:02.478 W/ziparchive(  507): Unable to open '/data/app/~~dTm6nTNPZwdvtQsq1iEyhw==/app.roundrobin-bAYFPRUq91EFY3-Rvymajw==/base.dm': No such file or directory
+11-22 06:09:02.500 D/CoreBackPreview(  507): Window{1eaeff0 u0 Splash Screen app.roundrobin EXITING}: Setting back callback null
+11-22 06:09:02.504 I/ImeTracker(  507): app.roundrobin:199a954c: onRequestHide at ORIGIN_SERVER_HIDE_INPUT reason HIDE_UNSPECIFIED_WINDOW
+11-22 06:09:02.505 I/ImeTracker(  507): app.roundrobin:199a954c: onCancelled at PHASE_SERVER_SHOULD_HIDE
+11-22 06:09:02.506 W/InputManager-JNI(  507): Input channel object '1eaeff0 Splash Screen app.roundrobin (client)' was disposed without first being removed with the input manager!
+11-22 06:09:02.512 I/ActivityTaskManager(  507): Displayed app.roundrobin/.MainActivity for user 0: +688ms
+11-22 06:09:02.958 D/ActivityManager(  507): sync unfroze 804 com.android.permissioncontroller for 6
+11-22 06:09:08.046 D/AndroidRuntime( 2790): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-22 06:09:08.050 I/AndroidRuntime( 2790): Using default boot image
+11-22 06:09:08.050 I/AndroidRuntime( 2790): Leaving lock profiling enabled
+11-22 06:09:08.118 D/nativeloader( 2790): InitDefaultPublicLibraries for_preload=1: libandroid.so:libaaudio.so:libamidi.so:libbinder_ndk.so:libc.so:libcamera2ndk.so:libdl.so:libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libicu.so:libicui18n.so:libicuuc.so:libjnigraphics.so:liblog.so:libmediandk.so:libm.so:libnativehelper.so:libnativewindow.so:libOpenMAXAL.so:libOpenSLES.so:libRS.so:libstdc++.so:libsync.so:libvulkan.so:libwebviewchromium_plat_support.so:libz.so
+11-22 06:09:08.151 D/AndroidRuntime( 2790): Calling main entry com.android.commands.uiautomator.Launcher
+11-22 06:09:09.183 D/AndroidRuntime( 2790): Shutting down VM
+11-22 06:09:11.228 D/AndroidRuntime( 2813): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-22 06:09:11.232 I/AndroidRuntime( 2813): Using default boot image
+11-22 06:09:11.232 I/AndroidRuntime( 2813): Leaving lock profiling enabled
+11-22 06:09:11.297 D/nativeloader( 2813): InitDefaultPublicLibraries for_preload=1: libandroid.so:libaaudio.so:libamidi.so:libbinder_ndk.so:libc.so:libcamera2ndk.so:libdl.so:libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libicu.so:libicui18n.so:libicuuc.so:libjnigraphics.so:liblog.so:libmediandk.so:libm.so:libnativehelper.so:libnativewindow.so:libOpenMAXAL.so:libOpenSLES.so:libRS.so:libstdc++.so:libsync.so:libvulkan.so:libwebviewchromium_plat_support.so:libz.so
+11-22 06:09:11.328 D/AndroidRuntime( 2813): Calling main entry com.android.commands.uiautomator.Launcher
+11-22 06:09:12.350 D/AndroidRuntime( 2813): Shutting down VM
+11-22 06:09:15.138 D/AndroidRuntime( 2840): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-22 06:09:15.142 I/AndroidRuntime( 2840): Using default boot image
+11-22 06:09:15.142 I/AndroidRuntime( 2840): Leaving lock profiling enabled
+11-22 06:09:15.210 D/nativeloader( 2840): InitDefaultPublicLibraries for_preload=1: libandroid.so:libaaudio.so:libamidi.so:libbinder_ndk.so:libc.so:libcamera2ndk.so:libdl.so:libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libicu.so:libicui18n.so:libicuuc.so:libjnigraphics.so:liblog.so:libmediandk.so:libm.so:libnativehelper.so:libnativewindow.so:libOpenMAXAL.so:libOpenSLES.so:libRS.so:libstdc++.so:libsync.so:libvulkan.so:libwebviewchromium_plat_support.so:libz.so
+11-22 06:09:15.245 D/AndroidRuntime( 2840): Calling main entry com.android.commands.uiautomator.Launcher
+11-22 06:09:17.202 D/AndroidRuntime( 2840): Shutting down VM
+11-22 06:09:19.979 D/AndroidRuntime( 2863): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-22 06:09:19.983 I/AndroidRuntime( 2863): Using default boot image
+11-22 06:09:19.983 I/AndroidRuntime( 2863): Leaving lock profiling enabled
+11-22 06:09:20.050 D/nativeloader( 2863): InitDefaultPublicLibraries for_preload=1: libandroid.so:libaaudio.so:libamidi.so:libbinder_ndk.so:libc.so:libcamera2ndk.so:libdl.so:libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libicu.so:libicui18n.so:libicuuc.so:libjnigraphics.so:liblog.so:libmediandk.so:libm.so:libnativehelper.so:libnativewindow.so:libOpenMAXAL.so:libOpenSLES.so:libRS.so:libstdc++.so:libsync.so:libvulkan.so:libwebviewchromium_plat_support.so:libz.so
+11-22 06:09:20.082 D/AndroidRuntime( 2863): Calling main entry com.android.commands.uiautomator.Launcher
+11-22 06:09:21.103 D/AndroidRuntime( 2863): Shutting down VM
+11-22 06:09:23.072 D/ActivityManager(  507): freezing 804 com.android.permissioncontroller
+11-22 06:09:23.865 D/AndroidRuntime( 2886): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-22 06:09:23.870 I/AndroidRuntime( 2886): Using default boot image
+11-22 06:09:23.870 I/AndroidRuntime( 2886): Leaving lock profiling enabled
+11-22 06:09:23.936 D/nativeloader( 2886): InitDefaultPublicLibraries for_preload=1: libandroid.so:libaaudio.so:libamidi.so:libbinder_ndk.so:libc.so:libcamera2ndk.so:libdl.so:libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libicu.so:libicui18n.so:libicuuc.so:libjnigraphics.so:liblog.so:libmediandk.so:libm.so:libnativehelper.so:libnativewindow.so:libOpenMAXAL.so:libOpenSLES.so:libRS.so:libstdc++.so:libsync.so:libvulkan.so:libwebviewchromium_plat_support.so:libz.so
+11-22 06:09:23.968 D/AndroidRuntime( 2886): Calling main entry com.android.commands.uiautomator.Launcher
+11-22 06:09:24.996 D/AndroidRuntime( 2886): Shutting down VM
+11-22 06:09:27.762 D/AndroidRuntime( 2909): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-22 06:09:27.765 I/AndroidRuntime( 2909): Using default boot image
+11-22 06:09:27.765 I/AndroidRuntime( 2909): Leaving lock profiling enabled
+11-22 06:09:27.831 D/nativeloader( 2909): InitDefaultPublicLibraries for_preload=1: libandroid.so:libaaudio.so:libamidi.so:libbinder_ndk.so:libc.so:libcamera2ndk.so:libdl.so:libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libicu.so:libicui18n.so:libicuuc.so:libjnigraphics.so:liblog.so:libmediandk.so:libm.so:libnativehelper.so:libnativewindow.so:libOpenMAXAL.so:libOpenSLES.so:libRS.so:libstdc++.so:libsync.so:libvulkan.so:libwebviewchromium_plat_support.so:libz.so
+11-22 06:09:27.863 D/AndroidRuntime( 2909): Calling main entry com.android.commands.uiautomator.Launcher
+11-22 06:09:28.890 D/AndroidRuntime( 2909): Shutting down VM
+11-22 06:09:30.100 I/ImeTracker( 2407): app.roundrobin:e442167d: onRequestShow at ORIGIN_CLIENT_SHOW_SOFT_INPUT reason SHOW_SOFT_INPUT
+11-22 06:09:30.101 D/InputMethodManager( 2407): showSoftInput() view=android.webkit.WebView{f04f601 VFEDHVC.. .F...... 0,0-1080,2146 aid=1073741824} flags=0 reason=SHOW_SOFT_INPUT
+11-22 06:09:30.138 W/cr_AwAutofillManager( 2407): Autofill is disabled: AutofillManager isn't available in given Context.
+11-22 06:09:30.144 I/ImeTracker( 2407): app.roundrobin:794cc6ab: onRequestHide at ORIGIN_CLIENT_HIDE_SOFT_INPUT reason HIDE_SOFT_INPUT
+11-22 06:09:30.265 D/CoreBackPreview(  507): Window{fc9209e u0 app.roundrobin/app.roundrobin.MainActivity}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@7fb574, mPriority=0, mIsAnimationCallback=false}
+11-22 06:09:30.928 I/ImeTracker( 2407): app.roundrobin:e442167d: onCancelled at PHASE_CLIENT_ANIMATION_CANCEL
+11-22 06:09:30.952 D/CoreBackPreview(  507): Window{fc9209e u0 app.roundrobin/app.roundrobin.MainActivity}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@434a2e3, mPriority=0, mIsAnimationCallback=false}
+11-22 06:09:30.980 I/ImeTracker( 2407): app.roundrobin:2f828669: onRequestHide at ORIGIN_CLIENT_HIDE_SOFT_INPUT reason HIDE_SOFT_INPUT_BY_INSETS_API
+11-22 06:09:30.980 I/ImeTracker(  507): app.roundrobin:2f828669: onCancelled at PHASE_SERVER_SHOULD_HIDE
+11-22 06:09:30.981 I/ImeTracker( 2407): app.roundrobin:794cc6ab: onHidden
+11-22 06:09:31.519 D/AndroidRuntime( 2947): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-22 06:09:31.525 I/AndroidRuntime( 2947): Using default boot image
+11-22 06:09:31.525 I/AndroidRuntime( 2947): Leaving lock profiling enabled
+11-22 06:09:31.600 D/nativeloader( 2947): InitDefaultPublicLibraries for_preload=1: libandroid.so:libaaudio.so:libamidi.so:libbinder_ndk.so:libc.so:libcamera2ndk.so:libdl.so:libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libicu.so:libicui18n.so:libicuuc.so:libjnigraphics.so:liblog.so:libmediandk.so:libm.so:libnativehelper.so:libnativewindow.so:libOpenMAXAL.so:libOpenSLES.so:libRS.so:libstdc++.so:libsync.so:libvulkan.so:libwebviewchromium_plat_support.so:libz.so
+11-22 06:09:31.632 D/AndroidRuntime( 2947): Calling main entry com.android.commands.uiautomator.Launcher
+11-22 06:09:32.698 D/AndroidRuntime( 2947): Shutting down VM
+11-22 06:09:35.937 D/AndroidRuntime( 2970): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-22 06:09:35.943 I/AndroidRuntime( 2970): Using default boot image
+11-22 06:09:35.943 I/AndroidRuntime( 2970): Leaving lock profiling enabled
+11-22 06:09:36.020 D/nativeloader( 2970): InitDefaultPublicLibraries for_preload=1: libandroid.so:libaaudio.so:libamidi.so:libbinder_ndk.so:libc.so:libcamera2ndk.so:libdl.so:libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libicu.so:libicui18n.so:libicuuc.so:libjnigraphics.so:liblog.so:libmediandk.so:libm.so:libnativehelper.so:libnativewindow.so:libOpenMAXAL.so:libOpenSLES.so:libRS.so:libstdc++.so:libsync.so:libvulkan.so:libwebviewchromium_plat_support.so:libz.so
+11-22 06:09:36.050 D/AndroidRuntime( 2970): Calling main entry com.android.commands.uiautomator.Launcher
+11-22 06:09:37.154 D/AndroidRuntime( 2970): Shutting down VM
+11-22 06:09:40.707 D/AndroidRuntime( 3005): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-22 06:09:40.711 I/AndroidRuntime( 3005): Using default boot image
+11-22 06:09:40.711 I/AndroidRuntime( 3005): Leaving lock profiling enabled
+11-22 06:09:40.777 D/nativeloader( 3005): InitDefaultPublicLibraries for_preload=1: libandroid.so:libaaudio.so:libamidi.so:libbinder_ndk.so:libc.so:libcamera2ndk.so:libdl.so:libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libicu.so:libicui18n.so:libicuuc.so:libjnigraphics.so:liblog.so:libmediandk.so:libm.so:libnativehelper.so:libnativewindow.so:libOpenMAXAL.so:libOpenSLES.so:libRS.so:libstdc++.so:libsync.so:libvulkan.so:libwebviewchromium_plat_support.so:libz.so
+11-22 06:09:40.808 D/AndroidRuntime( 3005): Calling main entry com.android.commands.uiautomator.Launcher
+11-22 06:09:41.224 E/FrameTracker( 2407): force finish cuj, time out: J<IME_INSETS_ANIMATION::1@0@app.roundrobin>
+11-22 06:09:41.920 D/AndroidRuntime( 3005): Shutting down VM
+11-22 06:09:45.069 D/AndroidRuntime( 3032): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-22 06:09:45.074 I/AndroidRuntime( 3032): Using default boot image
+11-22 06:09:45.074 I/AndroidRuntime( 3032): Leaving lock profiling enabled
+11-22 06:09:45.143 D/nativeloader( 3032): InitDefaultPublicLibraries for_preload=1: libandroid.so:libaaudio.so:libamidi.so:libbinder_ndk.so:libc.so:libcamera2ndk.so:libdl.so:libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libicu.so:libicui18n.so:libicuuc.so:libjnigraphics.so:liblog.so:libmediandk.so:libm.so:libnativehelper.so:libnativewindow.so:libOpenMAXAL.so:libOpenSLES.so:libRS.so:libstdc++.so:libsync.so:libvulkan.so:libwebviewchromium_plat_support.so:libz.so
+11-22 06:09:45.178 D/AndroidRuntime( 3032): Calling main entry com.android.commands.uiautomator.Launcher
+11-22 06:09:46.302 D/AndroidRuntime( 3032): Shutting down VM
+11-22 06:09:50.126 D/AndroidRuntime( 3059): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-22 06:09:50.131 I/AndroidRuntime( 3059): Using default boot image
+11-22 06:09:50.131 I/AndroidRuntime( 3059): Leaving lock profiling enabled
+11-22 06:09:50.202 D/nativeloader( 3059): InitDefaultPublicLibraries for_preload=1: libandroid.so:libaaudio.so:libamidi.so:libbinder_ndk.so:libc.so:libcamera2ndk.so:libdl.so:libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libicu.so:libicui18n.so:libicuuc.so:libjnigraphics.so:liblog.so:libmediandk.so:libm.so:libnativehelper.so:libnativewindow.so:libOpenMAXAL.so:libOpenSLES.so:libRS.so:libstdc++.so:libsync.so:libvulkan.so:libwebviewchromium_plat_support.so:libz.so
+11-22 06:09:50.234 D/AndroidRuntime( 3059): Calling main entry com.android.commands.uiautomator.Launcher
+11-22 06:09:51.769 D/AndroidRuntime( 3059): Shutting down VM
+11-22 06:09:55.116 D/AndroidRuntime( 3091): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-22 06:09:55.119 I/AndroidRuntime( 3091): Using default boot image
+11-22 06:09:55.119 I/AndroidRuntime( 3091): Leaving lock profiling enabled
+11-22 06:09:55.244 D/nativeloader( 3091): InitDefaultPublicLibraries for_preload=1: libandroid.so:libaaudio.so:libamidi.so:libbinder_ndk.so:libc.so:libcamera2ndk.so:libdl.so:libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libicu.so:libicui18n.so:libicuuc.so:libjnigraphics.so:liblog.so:libmediandk.so:libm.so:libnativehelper.so:libnativewindow.so:libOpenMAXAL.so:libOpenSLES.so:libRS.so:libstdc++.so:libsync.so:libvulkan.so:libwebviewchromium_plat_support.so:libz.so
+11-22 06:09:55.378 D/AndroidRuntime( 3091): Calling main entry com.android.commands.uiautomator.Launcher
+11-22 06:09:57.351 D/AndroidRuntime( 3091): Shutting down VM
+11-22 06:10:00.310 D/AndroidRuntime( 3119): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-22 06:10:00.314 I/AndroidRuntime( 3119): Using default boot image
+11-22 06:10:00.314 I/AndroidRuntime( 3119): Leaving lock profiling enabled
+11-22 06:10:00.381 D/nativeloader( 3119): InitDefaultPublicLibraries for_preload=1: libandroid.so:libaaudio.so:libamidi.so:libbinder_ndk.so:libc.so:libcamera2ndk.so:libdl.so:libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libicu.so:libicui18n.so:libicuuc.so:libjnigraphics.so:liblog.so:libmediandk.so:libm.so:libnativehelper.so:libnativewindow.so:libOpenMAXAL.so:libOpenSLES.so:libRS.so:libstdc++.so:libsync.so:libvulkan.so:libwebviewchromium_plat_support.so:libz.so
+11-22 06:10:00.411 D/AndroidRuntime( 3119): Calling main entry com.android.commands.uiautomator.Launcher
+11-22 06:10:01.532 D/AndroidRuntime( 3119): Shutting down VM
+11-22 06:10:02.552 D/AndroidRuntime( 3143): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-22 06:10:02.556 I/AndroidRuntime( 3143): Using default boot image
+11-22 06:10:02.556 I/AndroidRuntime( 3143): Leaving lock profiling enabled
+11-22 06:10:02.626 D/nativeloader( 3143): InitDefaultPublicLibraries for_preload=1: libandroid.so:libaaudio.so:libamidi.so:libbinder_ndk.so:libc.so:libcamera2ndk.so:libdl.so:libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libicu.so:libicui18n.so:libicuuc.so:libjnigraphics.so:liblog.so:libmediandk.so:libm.so:libnativehelper.so:libnativewindow.so:libOpenMAXAL.so:libOpenSLES.so:libRS.so:libstdc++.so:libsync.so:libvulkan.so:libwebviewchromium_plat_support.so:libz.so
+11-22 06:10:02.661 D/AndroidRuntime( 3143): Calling main entry com.android.commands.uiautomator.Launcher
+11-22 06:10:03.739 D/AndroidRuntime( 3143): Shutting down VM
+11-22 06:10:04.729 D/AndroidRuntime( 3166): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-22 06:10:04.734 I/AndroidRuntime( 3166): Using default boot image
+11-22 06:10:04.734 I/AndroidRuntime( 3166): Leaving lock profiling enabled
+11-22 06:10:04.826 D/nativeloader( 3166): InitDefaultPublicLibraries for_preload=1: libandroid.so:libaaudio.so:libamidi.so:libbinder_ndk.so:libc.so:libcamera2ndk.so:libdl.so:libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libicu.so:libicui18n.so:libicuuc.so:libjnigraphics.so:liblog.so:libmediandk.so:libm.so:libnativehelper.so:libnativewindow.so:libOpenMAXAL.so:libOpenSLES.so:libRS.so:libstdc++.so:libsync.so:libvulkan.so:libwebviewchromium_plat_support.so:libz.so
+11-22 06:10:04.859 D/AndroidRuntime( 3166): Calling main entry com.android.commands.uiautomator.Launcher
+11-22 06:10:05.917 D/AndroidRuntime( 3166): Shutting down VM
+11-22 06:10:07.634 D/AndroidRuntime( 3193): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-22 06:10:07.638 I/AndroidRuntime( 3193): Using default boot image
+11-22 06:10:07.638 I/AndroidRuntime( 3193): Leaving lock profiling enabled
+11-22 06:10:07.704 D/nativeloader( 3193): InitDefaultPublicLibraries for_preload=1: libandroid.so:libaaudio.so:libamidi.so:libbinder_ndk.so:libc.so:libcamera2ndk.so:libdl.so:libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libicu.so:libicui18n.so:libicuuc.so:libjnigraphics.so:liblog.so:libmediandk.so:libm.so:libnativehelper.so:libnativewindow.so:libOpenMAXAL.so:libOpenSLES.so:libRS.so:libstdc++.so:libsync.so:libvulkan.so:libwebviewchromium_plat_support.so:libz.so
+11-22 06:10:07.737 D/AndroidRuntime( 3193): Calling main entry com.android.commands.uiautomator.Launcher
+11-22 06:10:08.787 D/AndroidRuntime( 3193): Shutting down VM
+11-22 06:10:09.782 D/AndroidRuntime( 3216): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-22 06:10:09.786 I/AndroidRuntime( 3216): Using default boot image
+11-22 06:10:09.786 I/AndroidRuntime( 3216): Leaving lock profiling enabled
+11-22 06:10:09.854 D/nativeloader( 3216): InitDefaultPublicLibraries for_preload=1: libandroid.so:libaaudio.so:libamidi.so:libbinder_ndk.so:libc.so:libcamera2ndk.so:libdl.so:libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libicu.so:libicui18n.so:libicuuc.so:libjnigraphics.so:liblog.so:libmediandk.so:libm.so:libnativehelper.so:libnativewindow.so:libOpenMAXAL.so:libOpenSLES.so:libRS.so:libstdc++.so:libsync.so:libvulkan.so:libwebviewchromium_plat_support.so:libz.so
+11-22 06:10:09.886 D/AndroidRuntime( 3216): Calling main entry com.android.commands.uiautomator.Launcher
+11-22 06:10:10.965 D/AndroidRuntime( 3216): Shutting down VM

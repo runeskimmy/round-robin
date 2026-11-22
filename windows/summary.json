@@ -1,0 +1,527 @@
+{
+  "test": "windows",
+  "ok": true,
+  "error": null,
+  "checks": [
+    {
+      "ok": true,
+      "what": "installer puts the app in your user folder",
+      "detail": "C:\\Users\\runneradmin\\AppData\\Local\\Programs\\Round Robin"
+    },
+    {
+      "ok": true,
+      "what": "Start menu shortcut",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "desktop shortcut",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "listed in Settings > Apps for uninstalling",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "port 9222 is free before launching",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "a window titled \"Round Robin\" is open",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "page loads from the app, not the internet",
+      "detail": "https://rr.localhost/"
+    },
+    {
+      "ok": true,
+      "what": "the page stays put once loaded (no surprise reloads)",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "typed and image entries added; camera-style file names left blank",
+      "detail": "['Pizza', 'Tacos', 'Ramen', 'Sushi', 'Burgers', '', 'robert pattinson haircut', '']"
+    },
+    {
+      "ok": true,
+      "what": "entry previews show whole images",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "bottom bar shows 28 matchups for 8 entries",
+      "detail": "28 matchups for 8 entries. That's about 1 minute at a few seconds each."
+    },
+    {
+      "ok": true,
+      "what": "keyboard pick, then Z undoes it",
+      "detail": "1 of 28"
+    },
+    {
+      "ok": true,
+      "what": "played all 28 matchups",
+      "detail": "28"
+    },
+    {
+      "ok": true,
+      "what": "no entry showed up twice in a row",
+      "detail": "0"
+    },
+    {
+      "ok": true,
+      "what": "final ranking screen",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "top two match the hidden order",
+      "detail": "[['1', 'Ramen'], ['2', 'robert pattinson haircut'], ['3', 'Tacos'], ['3', 'Sushi'], ['3', 'Image 1'], ['6', 'Image 2'], ['7', 'Pizza'], ['7', 'Burgers']]"
+    },
+    {
+      "ok": true,
+      "what": "the planted loop shows up as a 3-way tie for 3rd",
+      "detail": "[['3', 'Tacos'], ['3', 'Sushi'], ['3', 'Image 1']]"
+    },
+    {
+      "ok": true,
+      "what": "6th place",
+      "detail": "['6', 'Image 2']"
+    },
+    {
+      "ok": true,
+      "what": "the planted tie shows up as a 2-way tie for 7th",
+      "detail": "[['7', 'Pizza'], ['7', 'Burgers']]"
+    },
+    {
+      "ok": true,
+      "what": "loop detector finds exactly the planted loop",
+      "detail": "Your picks were 95% consistent, with 1 loop."
+    },
+    {
+      "ok": true,
+      "what": "ranking thumbnails show whole images",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "tiers view has S through D",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "tier tiles show whole images",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "Save as image (tiers) makes a PNG",
+      "detail": "D:\\a\\round-robin\\round-robin\\results\\windows\\export-tiers.png"
+    },
+    {
+      "ok": true,
+      "what": "table view has an 8 x 8 grid",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "Save as image (list) makes a PNG",
+      "detail": "D:\\a\\round-robin\\round-robin\\results\\windows\\export-list.png"
+    },
+    {
+      "ok": true,
+      "what": "Copy as text",
+      "detail": "Copied the ranking."
+    },
+    {
+      "ok": true,
+      "what": "Save file holds all 8 entries and 28 results",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "Break the tie puts them in the clicked order",
+      "detail": "[['3', 'Image 1'], ['4', 'Tacos'], ['5', 'Sushi']]"
+    },
+    {
+      "ok": true,
+      "what": "closing the window quits the app",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "your data is kept in AppData\\Local\\RoundRobin",
+      "detail": "C:\\Users\\runneradmin\\AppData\\Local\\RoundRobin"
+    },
+    {
+      "ok": true,
+      "what": "port 9223 is free before launching",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "a window titled \"Round Robin\" is open",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "everything is still there after reopening, including the broken tie",
+      "detail": "[['1', 'Ramen'], ['2', 'robert pattinson haircut'], ['3', 'Image 1'], ['4', 'Tacos'], ['5', 'Sushi'], ['6', 'Image 2'], ['7', 'Pizza'], ['7', 'Burgers']]"
+    },
+    {
+      "ok": true,
+      "what": "a popup reopened right after Cancel stays open",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "Escape closes the popup and keeps every pick",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "Restart asks first, in the app's own popup",
+      "detail": "Restart? This clears every pick and starts the matchups over. Your entries stay."
+    },
+    {
+      "ok": true,
+      "what": "Restart clears the picks",
+      "detail": "1 of 28"
+    },
+    {
+      "ok": true,
+      "what": "Restart keeps all 8 entries",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "a new tournament is a plain round robin, with other styles behind a small link",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "every bracket style card fits its contents at this window size",
+      "detail": "[]"
+    },
+    {
+      "ok": true,
+      "what": "each format shows its matchup count and time",
+      "detail": "{'rr': '28 matchups, about 1 minute', 'rrplus': 'about 35 matchups, about 2 minutes', 'sort': 'about 23 matchups, about 1 minute', 'swiss': '20 matchups, about 1 minute', 'topn': 'about 25 matchups, about 1 minute', 'single': '8 matchups, under a minute', 'double': '14 or 15 matchups, about 1 minute'}"
+    },
+    {
+      "ok": true,
+      "what": "Swiss with 4 rounds is 16 matchups",
+      "detail": "Swiss: 16 matchups for 8 entries. That's about 1 minute at a few seconds each."
+    },
+    {
+      "ok": true,
+      "what": "Swiss shows the round",
+      "detail": "Round 1 of 4"
+    },
+    {
+      "ok": true,
+      "what": "Swiss plays 16 matchups",
+      "detail": "16"
+    },
+    {
+      "ok": true,
+      "what": "Swiss puts the best entry first",
+      "detail": "[['1', 'Alpha'], ['2', 'Bravo']]"
+    },
+    {
+      "ok": true,
+      "what": "results say it was a 4-round Swiss",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "finishing as a round robin keeps all 16 picks",
+      "detail": "17 of 28"
+    },
+    {
+      "ok": true,
+      "what": "the full round robin then ranks all 8 exactly right",
+      "detail": "[['1', 'Alpha'], ['2', 'Bravo'], ['3', 'Charlie'], ['4', 'Delta'], ['5', 'Echo'], ['6', 'Foxtrot'], ['7', 'Golf'], ['8', 'Hotel']]"
+    },
+    {
+      "ok": true,
+      "what": "no Tie button in a bracket",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "the tie key explains there are no ties in a bracket",
+      "detail": "No ties in a bracket. Pick the one that moves on."
+    },
+    {
+      "ok": true,
+      "what": "single elimination: 7 matches plus the 3rd-place match",
+      "detail": "8"
+    },
+    {
+      "ok": true,
+      "what": "the best entry is champion",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "bracket picture shows all 8 matches and the champion",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "entries lock once a bracket starts",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "double elimination: 14 matches when the favorite never loses",
+      "detail": "14"
+    },
+    {
+      "ok": true,
+      "what": "double elimination gets 1st and 2nd exactly right",
+      "detail": "[['1', 'Alpha'], ['2', 'Bravo'], ['3', 'Delta']]"
+    },
+    {
+      "ok": true,
+      "what": "bracket picture shows winners, losers, and finals",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "the guide says what all eight styles are good and bad at",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "the guide closes",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "second looks start right after the 28 round robin matchups",
+      "detail": "29 of 35"
+    },
+    {
+      "ok": true,
+      "what": "Round robin+: 7 second looks plus one third look, and the ranking is exact",
+      "detail": "(36, [['1', 'Alpha'], ['2', 'Bravo'], ['3', 'Charlie']])"
+    },
+    {
+      "ok": true,
+      "what": "the results say one answer changed and the third look settled it",
+      "detail": "Round robin+, 7 close calls double-checked. 1 close call got a different answer on the second look. The third look backed your first answer."
+    },
+    {
+      "ok": true,
+      "what": "a how-sure marker flags the pair you went back and forth on",
+      "detail": "['\u2248\\nClose call: you picked Alpha over Bravo 2 of 3 times.']"
+    },
+    {
+      "ok": true,
+      "what": "Sort: no Tie button, and the count is marked as an estimate",
+      "detail": "About 22 matchups after this"
+    },
+    {
+      "ok": true,
+      "what": "Sort ranks all 8 exactly, with 7 second looks and far fewer than 28 matchups",
+      "detail": "(22, 7, [['1', 'Alpha'], ['2', 'Bravo'], ['3', 'Charlie']])"
+    },
+    {
+      "ok": true,
+      "what": "Sort results say every neighbor was confirmed, with no close calls",
+      "detail": "Sort, 7 pairs of neighbors double-checked. You gave the same answer every time."
+    },
+    {
+      "ok": true,
+      "what": "Sort tiers come from place in the ranking",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "the Ask until sure card shows what to find, how sure, and an estimate",
+      "detail": "Ask until sure | Say what you want to know and how sure you want to be. It asks the most useful matchup each time and stops when it's sure. | Find | \u2212 | Top 3 | + | Sure | \u2212 | 95% | + | about 23 to 35 matchups, about 2 minutes"
+    },
+    {
+      "ok": true,
+      "what": "a sureness meter instead of a countdown, and no ties",
+      "detail": "Getting a rough order first"
+    },
+    {
+      "ok": true,
+      "what": "Ask until sure finds the exact top 3 and says how sure it is",
+      "detail": "(24, [['1', 'Alpha'], ['2', 'Bravo'], ['3', 'Charlie']], 'Ask until sure, your top 3 at 95%. 96% sure your top 3 is right, in this order.')"
+    },
+    {
+      "ok": true,
+      "what": "how long each pick took is recorded",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "Rank everything keeps going until the whole order is sure",
+      "detail": "Ask until sure, the whole order at 95%. 95% sure the whole order is right."
+    },
+    {
+      "ok": true,
+      "what": "Be 99% sure asks a little more, every pick counting",
+      "detail": "(39, 'Ask until sure, the whole order at 99%. 99% sure the whole order is right.')"
+    },
+    {
+      "ok": true,
+      "what": "Top 3 of 8 is about 25 matchups",
+      "detail": "Top 3: about 25 matchups for 8 entries. That's about 1 minute at a few seconds each."
+    },
+    {
+      "ok": true,
+      "what": "Top N: no Tie button, and it shows how many are still in",
+      "detail": "Round 1, 8 still in"
+    },
+    {
+      "ok": true,
+      "what": "Top 3: the 4 finalists (top 3 plus a spare) are ranked exactly",
+      "detail": "(25, [['1', 'Alpha'], ['2', 'Bravo'], ['3', 'Charlie'], ['4', 'Delta'], ['5', 'Foxtrot']])"
+    },
+    {
+      "ok": true,
+      "what": "finalists and the rest are labeled",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "results name the format and offer to finish as a round robin",
+      "detail": "Top 3, out after 4 losses, 3 finalist matchups double-checked. You gave the same answer every time."
+    },
+    {
+      "ok": true,
+      "what": "back to round robin",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "Hide tucks the other styles away again",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "Rank by hand opens a tier list with every entry waiting in \"not ranked yet\"",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "dragging a tile with the mouse puts it in a tier",
+      "detail": "['Alpha']"
+    },
+    {
+      "ok": true,
+      "what": "tapping a tile picks it up",
+      "detail": "Now tap a tier to move Bravo there, or tap it again to put it down."
+    },
+    {
+      "ok": true,
+      "what": "then tapping a tier puts it there",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "arrow keys move a tile between tiers",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "dropping onto a tile puts it in front of that tile",
+      "detail": "['Delta', 'Alpha']"
+    },
+    {
+      "ok": true,
+      "what": "tier names can be renamed",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "Save as image (tier list) makes a PNG",
+      "detail": "D:\\a\\round-robin\\round-robin\\results\\windows\\hand-tiers.png"
+    },
+    {
+      "ok": true,
+      "what": "Copy as text (tier list)",
+      "detail": "Copied."
+    },
+    {
+      "ok": true,
+      "what": "the ordered list starts in the order the entries were added",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "the arrows move an entry",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "dragging the handle moves an entry",
+      "detail": "['Hotel', 'Bravo', 'Alpha', 'Charlie', 'Delta', 'Echo', 'Foxtrot', 'Golf']"
+    },
+    {
+      "ok": true,
+      "what": "Save as image (ordered list) makes a PNG",
+      "detail": "D:\\a\\round-robin\\round-robin\\results\\windows\\hand-list.png"
+    },
+    {
+      "ok": true,
+      "what": "ranking by hand leaves the tournament alone",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "closing the window quits the app",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "port 9224 is free before launching",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "a window titled \"Round Robin\" is open",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "the tier list, the ordered list, and tier names are still there after reopening",
+      "detail": "('hand', ['Hotel', 'Bravo', 'Alpha'], ['Delta', 'Alpha'])"
+    },
+    {
+      "ok": true,
+      "what": "Start over puts everything back and keeps tier names",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "closing the window quits the app",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "uninstalling removes the app",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "uninstalling removes the shortcuts",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "uninstalling keeps your tournaments",
+      "detail": null
+    }
+  ]
+}

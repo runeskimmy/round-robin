@@ -1,0 +1,252 @@
+{
+  "test": "android",
+  "ok": true,
+  "error": null,
+  "checks": [
+    {
+      "ok": true,
+      "what": "APK installs",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "app starts",
+      "detail": "2407"
+    },
+    {
+      "ok": true,
+      "what": "connected to the app page for testing",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "app page loads from inside the APK",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "typed entries added",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "tapping the drop area opens the photo picker",
+      "detail": "['com.android.providers.media.module']"
+    },
+    {
+      "ok": true,
+      "what": "picker shows an Add button after selecting",
+      "detail": "['This app can only access the photos you select', 'Recent', 'Photos', 'Albums', 'View selected', 'Add (3)']"
+    },
+    {
+      "ok": true,
+      "what": "three photos come back into the app",
+      "detail": "8"
+    },
+    {
+      "ok": true,
+      "what": "the photos display",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "matchups start",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "played all 28 matchups",
+      "detail": "28"
+    },
+    {
+      "ok": true,
+      "what": "Save as image says it went to Pictures/Round Robin",
+      "detail": "Saved the image to your Pictures/Round Robin folder."
+    },
+    {
+      "ok": true,
+      "what": "the PNG is really in Pictures/Round Robin",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "Save file says it went to Download/Round Robin",
+      "detail": "Saved round-robin-2026-11-22.json to your Download/Round Robin folder."
+    },
+    {
+      "ok": true,
+      "what": "the save file is really in Download/Round Robin",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "Copy as text",
+      "detail": "Copied the ranking."
+    },
+    {
+      "ok": true,
+      "what": "back button returns to the entries screen",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "back again closes the app",
+      "detail": "['      topResumedActivity=ActivityRecord{1d675ca u0 com.android.launcher3/.uioverrides.QuickstepLauncher t7}', '  ResumedActivity: ActivityRecord{1d675ca u0 com.android.launcher3/.uioverrides.QuickstepLauncher t7}']"
+    },
+    {
+      "ok": true,
+      "what": "app starts",
+      "detail": "2407"
+    },
+    {
+      "ok": true,
+      "what": "connected to the app page for testing",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "app page loads from inside the APK",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "entries are still there after reopening",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "all 28 picks are still there after reopening",
+      "detail": "28 of 28 matchups done. All done."
+    },
+    {
+      "ok": true,
+      "what": "Restart asks first, in the app's own popup",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "tapping Cancel keeps every pick",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "tapping Restart clears the picks and keeps the entries",
+      "detail": "28 matchups for 8 entries. That's about 1 minute at a few seconds each."
+    },
+    {
+      "ok": true,
+      "what": "popup never closes by itself (4 rounds of open, Cancel, reopen)",
+      "detail": "0"
+    },
+    {
+      "ok": true,
+      "what": "Cancel on New tournament keeps everything",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "a new tournament is a plain round robin, with other styles behind a small link",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "tapping \"Other bracket styles\" shows them",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "tapping a format card picks it",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "bracket matchups start, with no Tie button",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "double elimination with 6 entries: 10 matches",
+      "detail": "10"
+    },
+    {
+      "ok": true,
+      "what": "the bracket picture shows on the phone",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "the best entry is champion",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "tapping \"Which one should I pick?\" opens the guide",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "the guide covers all eight styles",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "tapping the Top N card picks it",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "Top N matchups start, with no Tie button",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "Top 3 of 6: 14 matchups plus 3 second looks, finalists ranked exactly",
+      "detail": "(17, 'Alpha,Bravo,Charlie,Delta')"
+    },
+    {
+      "ok": true,
+      "what": "tapping the Sort card picks it",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "Sort ranks all 6 exactly, with a second look at each pair of neighbors",
+      "detail": "Alpha,Bravo,Charlie,Delta,Echo,Foxtrot looks=5"
+    },
+    {
+      "ok": true,
+      "what": "on the phone, every bracket style card fits, even the Ask until sure buttons",
+      "detail": "{'widest': 'Everything', 'bad': [], 'back': 'Top 3', 'width': 412}"
+    },
+    {
+      "ok": true,
+      "what": "tapping the Ask until sure card picks it",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "Ask until sure opens with a sureness meter",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "Ask until sure finds the exact top 3 on the phone, from real picks",
+      "detail": "Alpha,Bravo,Charlie | 20 | results"
+    },
+    {
+      "ok": true,
+      "what": "tapping \"Rank by hand\" opens the tier list",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "what": "tapping a tile, then a tier, moves it there",
+      "detail": "Alpha"
+    },
+    {
+      "ok": true,
+      "what": "tapping the down arrow moves an entry down the list",
+      "detail": "Bravo,Alpha"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+PASS  single elimination: 51 tournaments (2 to 40 entries) follow every rule
+PASS  double elimination: 51 tournaments (2 to 40 entries) follow every rule
+PASS  Swiss: 42 tournaments: no repeat pairings, everyone once per round
+PASS  Round robin+: 26 tournaments: every pair once, every neighbor settled, consistent picks ranked exactly
+PASS  Sort: 39 tournaments: every neighbor settled, consistent picks ranked exactly in at most n log n matchups
+PASS  Ask until sure: 58 tournaments: always finishes, no pair asked more than 11 times, consistent picks get the exact answer
+PASS  Top N: 138 tournaments: no repeats, nobody plays after going out, consistent picks get the exact top N
+Swiss rounds where a full repeat-free pairing was impossible: 0
+PASS  no script errors   [[]]
+
+logic: PASSED (8/8 checks passed)
