@@ -6,6 +6,26 @@ import traceback
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 
+# Lists anything that pokes out past the edge of a bracket style card, and any - or + button
+# that got squeezed out of round. Empty list means every card fits. (On phones the Ask until
+# sure + button used to hang off the card.)
+CARDS_FIT_JS = """() => {
+  const bad = [];
+  for (const card of document.querySelectorAll('.fmt')) {
+    const cr = card.getBoundingClientRect(), cs = getComputedStyle(card);
+    const L = cr.left + parseFloat(cs.borderLeftWidth), R = cr.right - parseFloat(cs.borderRightWidth);
+    for (const el of card.querySelectorAll('*')) {
+      const r = el.getBoundingClientRect();
+      if (r.width && (r.right > R + 0.5 || r.left < L - 0.5)) bad.push(card.dataset.format + ': ' + (el.className || el.tagName) + ' "' + el.textContent.trim().slice(0, 12) + '" sticks out');
+    }
+    for (const b of card.querySelectorAll('.step')) {
+      const r = b.getBoundingClientRect();
+      if (Math.abs(r.width - r.height) > 0.5) bad.push(card.dataset.format + ': button squeezed to ' + Math.round(r.width) + 'x' + Math.round(r.height));
+    }
+  }
+  return bad;
+}"""
+
 
 class Run:
     def __init__(self, name):

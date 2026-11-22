@@ -48,7 +48,7 @@ def setup(page, n, fmt, rounds=None, top=None, goal=None):
     page.click(f'[data-format="{fmt}"]')
     if top is not None:
         for _ in range(60):
-            shown = int(page.inner_text('[data-format="topn"] .fmt-rounds span').split()[-1])
+            shown = int(page.inner_text('[data-format="topn"] .step-val').split()[-1])
             if shown == top:
                 break
             sel = '[data-topn="1"]' if shown < top else '[data-topn="-1"]'
@@ -58,8 +58,7 @@ def setup(page, n, fmt, rounds=None, top=None, goal=None):
     if goal is not None:
         want = ASK_LABEL.get(goal, f'Top {goal}')
         for _ in range(12):
-            shown = page.inner_text('[data-format="ask"] .fmt-rounds >> nth=0').split('\n')
-            shown = [x.strip() for x in shown if x.strip() and x.strip() not in ('Find', '−', '+')][0]
+            shown = page.inner_text('[data-format="ask"] .step-val >> nth=0').strip()
             if shown == want:
                 break
             order = ['Your #1', 'Top 2', 'Top 3', 'Top 5', 'Top 10', 'Everything']
@@ -69,7 +68,7 @@ def setup(page, n, fmt, rounds=None, top=None, goal=None):
             page.click(sel)
     if rounds is not None:
         for _ in range(60):
-            shown = int(page.inner_text('[data-format="swiss"] .fmt-rounds span').split()[0])
+            shown = int(page.inner_text('[data-format="swiss"] .step-val').split()[0])
             if shown == rounds:
                 break
             sel = '[data-rounds="1"]' if shown < rounds else '[data-rounds="-1"]'
